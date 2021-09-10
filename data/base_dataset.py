@@ -1,5 +1,4 @@
-## TODO SEP 08 VERSION
-
+# TODO AUG 06 version
 """This module implements an abstract base class (ABC) 'BaseDataset' for datasets.
 
 It also includes common transformation functions (e.g., get_transform, __scale_width), which can be later used in subclasses.
@@ -15,6 +14,7 @@ import torch
 import math
 import cv2
 
+# Sample changes
 
 
 class BaseDataset(data.Dataset, ABC):
@@ -66,7 +66,7 @@ class BaseDataset(data.Dataset, ABC):
 		"""
 		pass
 
-# TODO change this to pick just one pair of 2D slices.
+# TODO change this to pick just one pair of 2D slices. 
 def get_params(opt, vol_shape):
 	crop_z, crop_y, crop_x = opt.crop_size
 
@@ -84,7 +84,7 @@ def get_params(opt, vol_shape):
 
 	return {'crop_pos': (z, y, x), 'flip_axis': flip_axis, 'angle_3D':angle_3D}
 
-def get_transform(opt, params = None):
+def get_transform(opt, params = None, randomcontrast_val = None):
 	transform_list = []
 	image_dimension = int(opt.image_dimension)
 
@@ -106,10 +106,16 @@ def get_transform(opt, params = None):
 		else:
 			transform_list += [transforms.Lambda(lambda img_np: __crop(img_np, params['crop_pos'], opt.crop_size))]
 
-	if 'centercrop' in opt.preprocess:
-		transform_list += [transforms.Lambda(lambda img_np: __centercrop(img_np, opt.crop_portion))]
+	if 'normalize' in opt.preprocess:
+		transform_list += [transforms.Lambda(lambda img_np: __normalize(img_np))] # normalize after cropping.
 
-	transform_list += [transforms.Lambda(lambda img_np: __normalize(img_np, opt.img_params))]
+	if 'normalizedcgan' in opt.preprocess:
+		# print ("Data normalized between [-1,1]")
+		transform_list += [transforms.Lambda(lambda img_np: __normalizedcgan(img_np))]  # normalize after cropping.
+
+	if randomcontrast_val is not None:
+		print ("Random Contrast IN!")
+		transform_list += [transforms.Lambda(lambda img_np: __randomcontrast(img_np, randomcontrast_val))]
 
 	if 'randomflip' in opt.preprocess:
 		if params is None:
@@ -123,31 +129,36 @@ def get_transform(opt, params = None):
 	if 'reorderColorChannel' in opt.preprocess:
 		transform_list += [transforms.Lambda(lambda  img_np:__reorderColorChannel(img_np))]
 
-	if 'addBatchChannel' in opt.preprocess:
+	if 'addMoreChannel' in opt.preprocess:
 		transform_list += [transforms.Lambda(lambda  img_np:__addColorChannel(img_np))]
+
 
 	transform_list += [transforms.Lambda(lambda  img_np:__toTensor(img_np))]
 
 	return transforms.Compose(transform_list)
 
-# normalize to 0-1 range. Note that mean and std. are calculated as scaled on 0-1 scale.
-def __normalize(img_np, img_params = None):
+# normalize to 0-1 range
+def __normalize(img_np):
+
 	if img_np.dtype == 'uint8':
-		img_normd = (img_np / (2**8*1.0 - 1)).astype(float)
-		mean, std = img_params
-		# mean = (mean / (2 ** 8 * 1.0 - 1)).astype(float)
-		# std = (std / (2 ** 8 * 1.0 - 1)).astype(float)
-		img_normd = (img_normd - mean) / std
-
+		img_normd = (img_np/(2**8*1.0-1)).astype(float)
 	elif img_np.dtype == 'uint16':
-		img_normd = (img_np / (2**16*1.0 - 1)).astype(float)
-		mean, std = img_params
-		# mean = (mean / (2**16*1.0 - 1)).astype(float)
-		# std = (std / (2**16*1.0 - 1)).astype(float)
-		img_normd = (img_normd - mean) / std
-
+		img_normd = (img_np/(2**16*1.0-1)).astype(float)
+	# elif img_np.dtype == 'float32': # the current float 32 is not normalized. So temporarily replaced with normalize with max. Don't use it for each subset operation.
+	# 	img_np = (img_np / np.max(img_np)).astype(float)
 	else:
-		assert "Image type is not recognized."
+		img_normd = img_np.astype(float)
+
+	return img_normd
+
+def __normalizedcgan(img_np):
+	if img_np.dtype == 'uint8':
+		img_normd = 2*(img_np/(2**8*1.0-1)).astype(float)-1
+	elif img_np.dtype == 'uint16':
+		img_normd = 2*(img_np/(2**16*1.0-1)).astype(float)-1
+	else:
+		img_normd = img_np.astype(float)
+
 	return img_normd
 
 def __randomrotate(img_np):
@@ -164,6 +175,22 @@ def __rotate(img_np, rotate_params):
 	angle, axis = rotate_params
 	img_np_rotated = rotate(img_np, angle, axes = axis, reshape = False, mode = 'reflect')
 	return img_np_rotated
+
+# apply pre-set shearing for Y-Z axis images for Postech LSFM images
+# Assuming a 2D image
+# def __shear(img_np, if_shear=False):
+# 	y_len, x_len = img_np.shape
+# 	pad_length = int(y_len * math.sqrt(2)/2) + 1
+#
+# 	if if_shear == True:
+# 		t_mat = np.array(([1, math.sqrt(2)/2, 0],[0,1,0],[0,0,1]))
+# 		shear = transform.AffineTransform(matrix=t_mat)
+# 		img_np = transform.warp(img_np, shear)
+#
+# 	remainder = (y_len-pad_length)%4
+#
+# 	img_np = img_np[:-(pad_length+remainder), :-(pad_length+remainder)]
+# 	return img_np
 
 def __permutate(img_np):
 	axis_len = len(img_np.shape)
@@ -249,9 +276,34 @@ def __randomcrop(img_np, crop_size):
 
 	return img_cropped
 
+# here we assume to be dealing with images with color channel.
+def __randomcrop2D(img_np, crop_size):
+	crop_y, crop_x = crop_size  # For 2D, crop_z will be ignored.
+
+	assert (img_np.shape[0] - crop_y >= 0)
+	assert (img_np.shape[1] - crop_x >= 0)
+
+	y = random.randint(0, img_np.shape[0] - crop_y)
+	x = random.randint(0, img_np.shape[1] - crop_x)
+
+	if crop_y == 0:
+		y_reach = None
+		y = 0
+	else:
+		y_reach = y + crop_y
+	if crop_x == 0:
+		x_reach = None
+		x = 0
+	else:
+		x_reach = x + crop_x
+
+	img_cropped = img_np[y:y_reach, x:x_reach]
+
+	return img_cropped
+
 def __reorderColorChannel (img_np):
 	# re-order the order so that y, x, c -> c, y, x
-	img_np = np.swapaxes(img_np, 0, 2) #y, x, c -> c, x, y
+	img_np = np.swapaxes(img_np, 0,2) #y, x, c -> c, x, y
 	img_np = np.swapaxes(img_np, 1, 2) #c, x, y -> c, y, x
 	return img_np
 
@@ -286,22 +338,29 @@ def __randomgamma(img_np):
 	img_np_gammad = (img_np) ** (1/gamma_val)
 	return img_np_gammad
 
+#TODO: Change it back to normal!
 def __randomflip(img_np):
-	axis_len = len(img_np.shape)
-	axis_list = list(range(axis_len))
-	random.shuffle(axis_list)
-	img_np_flipped = img_np
-	for i in range(axis_len):
+
+	chance = np.random.uniform(0,1)
+	if chance < 0.5:
+		axis_len = len(img_np.shape)
+		axis = np.random.randint(0, axis_len)
+		img_np_flipped = np.flip(img_np, axis)
+
 		chance = np.random.uniform(0, 1)
 		if chance < 0.5:
-			axis = axis_list.pop()
-			img_np_flipped = np.flip(img_np_flipped, axis)
+			rest_list = list(range(axis_len))
+			rest_list.pop(axis) # remove the already chosen axis.
+			axis = np.random.choice(rest_list)
+			img_np_flipped = np.flip(img_np, axis)
+
+	else:
+		img_np_flipped = img_np
+
 	return img_np_flipped
 
 def __toTensor(img_np):
-	img_np = img_np.astype(float)
-	assert img_np.dtype == np.float
-	img_tensor = torch.from_numpy(img_np).float()
+	img_tensor = torch.from_numpy(img_np.astype(float)).float()
 	return img_tensor
 
 # add a color channel to the grayscale numpy image.
@@ -309,6 +368,9 @@ def __addColorChannel(img_np):
 	img_np = np.expand_dims(img_np, axis=0)
 	# print (img_np.shape)
 	return img_np
+
+
+
 
 ### Clean rotation
 # Ref: https://stackoverflow.com/questions/16702966/rotate-image-and-crop-out-black-borders
