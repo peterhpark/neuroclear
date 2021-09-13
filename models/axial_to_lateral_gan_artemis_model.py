@@ -291,7 +291,7 @@ class AxialToLateralGANArtemisModel(BaseModel):
 
         self.loss_D_B_axial = self.loss_D_B_axial_1 + self.loss_D_B_axial_2
 
-    def backward_D_B_axial_proj(self, source_sl_axis):
+    def backward_D_B_axial_proj(self):
         self.loss_D_B_axial_proj_1 = self.backward_D_projection(self.netD_B_axial_proj, self.real, self.rec,
                                                               self.axial_1_axis,
                                                               self.axial_1_axis)
@@ -305,8 +305,6 @@ class AxialToLateralGANArtemisModel(BaseModel):
     def backward_G(self):
         """Calculate the loss for generators G_A and G_B"""
         lambda_A = self.opt.lambda_A
-        lambda_lateralpreserve = self.opt.lambda_lateralpreserve
-
 
         self.loss_G_A_lateral = self.criterionGAN(self.iter_f(self.fake, self.netD_A_lateral, self.lateral_axis),
                                                   True) * self.lambda_plane_target
@@ -341,15 +339,9 @@ class AxialToLateralGANArtemisModel(BaseModel):
         # This model only includes forward cycle loss || G_B(G_A(A)) - A||
         self.loss_cycle = self.criterionCycle(self.rec, self.real) * lambda_A
 
-        # This model keeps
-        real_lateral_proj = Volume(self.real, self.device).get_projection(self.projection_depth,
-                                                                          0)  #
-        fake_lateral_proj = Volume(self.fake, self.device).get_projection(self.projection_depth, 0)
-
-        self.loss_lateral_preserve = self.criterionXYproj(real_lateral_proj, fake_lateral_proj) * lambda_lateralpreserve
 
         # combined loss and calculate gradients
-        self.loss_G = self.loss_G_A + self.loss_G_B + self.loss_cycle + self.loss_lateral_preserve
+        self.loss_G = self.loss_G_A + self.loss_G_B + self.loss_cycle
         self.loss_G.backward()
 
     def optimize_parameters(self):
