@@ -21,9 +21,9 @@ class AxialToLateralGANApolloModel(BaseModel):
     G_B: isotropic -> original
 
     D_A_axial: original_XY <-> isotropic_axial_MIP
-    D_A_lateral: original_XY <-> isotropic_XY
+    D_A_lateral: original_XY <-> isotropic_XY_MIP
 
-    D_B_axial: original_axial <-> reconstructed_axial_MIP
+    D_B_axial: original_axial <-> reconstructed_axial
     D_B_lateral: original_lateral <-> reconstructed_lateral
 
     We only consider one path: A->B.
@@ -89,8 +89,7 @@ class AxialToLateralGANApolloModel(BaseModel):
 
         # specify the models you want to save to the disk. The training/test scripts will call <BaseModel.save_networks> and <BaseModel.load_networks>.
         if self.isTrain:
-            self.model_names = ['G_A', 'G_B', 'D_A_lateral', 'D_A_axial', 'D_A_axial_proj', 'D_B_lateral', 'D_B_axial',
-                                'D_B_axial_proj']
+            self.model_names = ['G_A', 'G_B', 'D_A_lateral', 'D_A_axial', 'D_B_lateral', 'D_B_axial']
         else:  # during test time, only load Gs
             self.model_names = ['G_A', 'G_B']
 
@@ -133,9 +132,7 @@ class AxialToLateralGANApolloModel(BaseModel):
                                                 lr=opt.lr, betas=(opt.beta1, 0.999))
             self.optimizer_D = torch.optim.Adam(
                 itertools.chain(self.netD_A_axial.parameters(), self.netD_A_lateral.parameters(),
-                                self.netD_A_axial_proj.parameters(),
-                                self.netD_B_axial.parameters(), self.netD_B_lateral.parameters(),
-                                self.netD_B_axial_proj.parameters()),
+                                self.netD_B_axial.parameters(), self.netD_B_lateral.parameters()),
                 lr=opt.lr, betas=(opt.beta1, 0.999))
             self.optimizers.append(self.optimizer_G)
             self.optimizers.append(self.optimizer_D)
@@ -245,7 +242,7 @@ class AxialToLateralGANApolloModel(BaseModel):
         self.loss_D_A_axial_2 = self.backward_D_projection(self.netD_A_axial, self.real, self.fake, self.lateral_axis,
                                                       self.axial_2_axis)
 
-        self.loss_D_A_axial = self.loss_D_A_axial_1 + self.loss_D_A_axial_2
+        self.loss_D_A_axial = (self.loss_D_A_axial_1 + self.loss_D_A_axial_2)*0.5
 
     def backward_D_B_lateral(self):
         self.loss_D_B_lateral = self.backward_D_slice(self.netD_B_lateral, self.real, self.rec, self.lateral_axis,
@@ -259,7 +256,7 @@ class AxialToLateralGANApolloModel(BaseModel):
         self.loss_D_B_axial_2 = self.backward_D_slice(self.netD_B_axial, self.real, self.rec, self.axial_2_axis,
                                                       self.axial_2_axis)  # comparing YZ_original to YZ_reconstructed
 
-        self.loss_D_B_axial = self.loss_D_B_axial_1 + self.loss_D_B_axial_2
+        self.loss_D_B_axial = (self.loss_D_B_axial_1 + self.loss_D_B_axial_2)*0.5
 
     def backward_G(self):
         """Calculate the loss for generators G_A and G_B"""
@@ -273,7 +270,7 @@ class AxialToLateralGANApolloModel(BaseModel):
                               self.criterionGAN(self.proj_f(self.fake, self.netD_A_axial, self.axial_2_axis),
                                                 True) * self.lambda_slice
 
-        self.loss_G_A = self.loss_G_A_lateral + self.loss_G_A_axial
+        self.loss_G_A = self.loss_G_A_lateral + self.loss_G_A_axial * 0.5
 
         self.loss_G_B_lateral = self.criterionGAN(self.iter_f(self.rec, self.netD_B_lateral, self.lateral_axis),
                                                   True) * self.lambda_plane_target
@@ -282,7 +279,7 @@ class AxialToLateralGANApolloModel(BaseModel):
                               self.criterionGAN(self.iter_f(self.rec, self.netD_B_axial, self.axial_2_axis),
                                                 True) * self.lambda_slice
 
-        self.loss_G_B = self.loss_G_B_lateral + self.loss_G_B_axial
+        self.loss_G_B = self.loss_G_B_lateral + self.loss_G_B_axial * 0.5
 
         # This model only includes forward cycle loss || G_B(G_A(A)) - A||
         self.loss_cycle = self.criterionCycle(self.rec, self.real) * lambda_A
@@ -305,7 +302,7 @@ class AxialToLateralGANApolloModel(BaseModel):
 
         # D_A and D_B
         self.set_requires_grad(
-            [self.netD_A_lateral, self.netD_A_axial, self.netD_B_lateral, self.netD_B_axial,True])
+            [self.netD_A_lateral, self.netD_A_axial, self.netD_B_lateral, self.netD_B_axial], True)
         self.optimizer_D.zero_grad()  # set D_A and D_B's gradients to zero
 
         self.backward_D_A_lateral()
