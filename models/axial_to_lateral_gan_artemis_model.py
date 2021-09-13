@@ -61,7 +61,7 @@ class AxialToLateralGANArtemisModel(BaseModel):
         parser.add_argument('--netG_B', type=str, default='deep_linear_gen',
                             help='specify the generator in B->A path. ')
         parser.add_argument('--randomize_projection_depth', action='store_true', help='randomize the depth for MIP')
-        parser.add_argument('--projection_depth', type=int, default=50,
+        parser.add_argument('--projection_depth', type=int, default=10,
                             help='depth for maximum intensity projections. ')
         # parser.set_defaults(norm='instance')
 
