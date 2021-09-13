@@ -21,33 +21,6 @@ class SingleVolumeDataset(BaseDataset):
     """
     """
 
-    @staticmethod
-    def modify_commandline_options(parser, isTrain=True):
-
-        parser.add_argument('--get_img_params', action='store_true', default=False,
-                            help='if true, calculate the mean and std. from the loaded image volume.')
-
-        opt, _ = parser.parse_known_args()
-        if opt.get_img_params:
-            file_path = make_dataset(opt.dataroot, 1)[0]  # loads only one image volume.
-            img_vol = io.imread(file_path)
-            img_params = (np.mean(img_vol), np.std(img_vol))
-            img_params = img_params[0].astype(float), img_params[1].astype(float)
-            if img_vol.dtype == np.uint8:
-                img_params = img_params[0] / (2 ** 8 * 1.0 - 1), img_params[1] / (2 ** 8 * 1.0 - 1)
-            elif img_vol.dtype == np.uint16:
-                img_params = img_params[0] / (2 ** 16 * 1.0 - 1), img_params[1] / (2 ** 16 * 1.0 - 1)
-            parser.set_defaults(img_params=img_params)
-
-            print ("-----------------NOTE------------------")
-            print ("Image parameters are calculated in dataset module.")
-            print ("-> image mean: %f, image std: %f" %(img_params[0], img_params[1]))
-            print ("---------------------------------------")
-
-        parser.add_argument('--epoch_length', type=int, default=2000, help = 'Set how many iterations per epoch.')
-        return parser
-
-
     def __init__(self, opt):
         """Initialize this dataset class.
 
@@ -62,8 +35,6 @@ class SingleVolumeDataset(BaseDataset):
         self.img_params = opt.img_params
         btoA = self.opt.direction == 'BtoA'
         self.transform_A = get_transform(self.opt)
-        # self.dummy_list = [x for x in range(opt.epoch_length)] # create a dummy list for iteration
-        # self.iteration_size = len(self.dummy_list)
         self.isTrain = opt.isTrain
 
 
@@ -72,7 +43,6 @@ class SingleVolumeDataset(BaseDataset):
         # apply image transformation
         # iter_index = self.dummy_list[index]
         A = self.transform_A(self.A_img_np)
-
         return {'A': A, 'A_paths': self.A_path}
 
     def __len__(self):
