@@ -40,9 +40,6 @@ class AxialToLateralGANApolloModel(BaseModel):
             parser.add_argument('--gan_mode', type=str, default='vanilla',
                                 help='the type of GAN objective. [vanilla| lsgan | wgangp]. vanilla GAN loss is the cross-entropy objective used in the original GAN paper.')
 
-            parser.add_argument('--lambda_lateralpreserve', type=float, default=0,
-                                help='weight for preserving lateral projection information in (A->B path)')
-
             parser.add_argument('--lambda_plane', type=int, nargs='+', default=[1, 1, 1],
                                 help='weight ratio for matching (target vs. target) and (target vs. source) and (MIP target vs. MIP source).')
 
