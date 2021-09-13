@@ -48,7 +48,7 @@ class AxialToLateralGANArtemisModel(BaseModel):
             parser.add_argument('--gan_mode', type=str, default='vanilla',
                                 help='the type of GAN objective. [vanilla| lsgan | wgangp]. vanilla GAN loss is the cross-entropy objective used in the original GAN paper.')
 
-            parser.add_argument('--lambda_lateralpreserve', type=float, default=0.01,
+            parser.add_argument('--lambda_lateralpreserve', type=float, default=0,
                                 help='weight for preserving lateral projection information in (A->B path)')
 
             parser.add_argument('--lambda_plane', type=int, nargs='+', default=[1, 1, 1],
@@ -331,7 +331,9 @@ class AxialToLateralGANArtemisModel(BaseModel):
                               self.criterionGAN(self.iter_f(self.rec, self.netD_B_axial, self.axial_2_axis),
                                                 True) * self.lambda_slice
 
-        self.loss_G_B_axial_proj = self.criterionGAN(self.proj_f(self.rec, self.netD_B_axial_proj, remain_sl_axis),
+        self.loss_G_B_axial_proj = self.criterionGAN(self.proj_f(self.rec, self.netD_B_axial_proj, self.axial_1_axis),
+                                                     True) * self.lambda_proj + \
+                                   self.criterionGAN(self.proj_f(self.rec, self.netD_B_axial_proj, self.axial_2_axis),
                                                      True) * self.lambda_proj
 
         self.loss_G_B = self.loss_G_B_lateral + self.loss_G_B_axial + self.loss_G_B_axial_proj
