@@ -134,17 +134,17 @@ def get_transform(opt, params = None):
 def __normalize(img_np, img_params = None):
 	if img_np.dtype == 'uint8':
 		img_normd = (img_np / (2**8*1.0 - 1)).astype(float)
-		mean, std = img_params
+		# mean, std = img_params
 		# mean = (mean / (2 ** 8 * 1.0 - 1)).astype(float)
 		# std = (std / (2 ** 8 * 1.0 - 1)).astype(float)
-		img_normd = (img_normd - mean) / std
+		# img_normd = (img_normd - mean) / std
 
 	elif img_np.dtype == 'uint16':
 		img_normd = (img_np / (2**16*1.0 - 1)).astype(float)
-		mean, std = img_params
+		# mean, std = img_params
 		# mean = (mean / (2**16*1.0 - 1)).astype(float)
 		# std = (std / (2**16*1.0 - 1)).astype(float)
-		img_normd = (img_normd - mean) / std
+		# img_normd = (img_normd - mean) / std
 
 	else:
 		assert "Image type is not recognized."

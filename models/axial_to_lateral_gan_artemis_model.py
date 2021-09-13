@@ -54,9 +54,6 @@ class AxialToLateralGANArtemisModel(BaseModel):
             parser.add_argument('--lambda_plane', type=int, nargs='+', default=[1, 1, 1],
                                 help='weight ratio for matching (target vs. target) and (target vs. source) and (MIP target vs. MIP source).')
 
-            parser.add_argument('--mix_planes', action='store_true',
-                                help='You mix the target planes for slicing and MIP: e.g. XZ slice and YZ MIP.')
-
         parser.add_argument('--netG_B', type=str, default='deep_linear_gen',
                             help='specify the generator in B->A path. ')
         parser.add_argument('--randomize_projection_depth', action='store_true', help='randomize the depth for MIP')
@@ -99,8 +96,10 @@ class AxialToLateralGANArtemisModel(BaseModel):
 
         self.visual_names = visual_names_A + visual_names_B  # combine visualizations for A and B
 
-        self.target_sl_axis = 0  # XY plane
-        self.mix_planes = opt.mix_planes  # you mix the slicing plane for D_axial and the MIP plane for D_axial_proj (e.g. XZ and MIP YZ).
+        self.lateral_axis = 0  # XY plane
+        self.axial_1_axis = 1 # XZ plane
+        self.axial_2_axis = 2 # YZ plane
+
 
         # specify the models you want to save to the disk. The training/test scripts will call <BaseModel.save_networks> and <BaseModel.load_networks>.
         if self.isTrain:
@@ -256,76 +255,85 @@ class AxialToLateralGANArtemisModel(BaseModel):
         return loss_D
 
     def backward_D_A_lateral(self):
-        self.loss_D_A_lateral = self.backward_D_basic(self.netD_A_lateral, self.real, self.fake, self.target_sl_axis,
-                                                      self.target_sl_axis)  # comparing XY_original to XY_fake
+        self.loss_D_A_lateral = self.backward_D_basic(self.netD_A_lateral, self.real, self.fake, self.lateral_axis,
+                                                      self.lateral_axis)  # comparing XY_original to XY_fake
 
-    def backward_D_A_axial(self, source_sl_axis):
+    def backward_D_A_axial(self):
         """Calculate GAN loss for discriminator D_A"""
-        self.loss_D_A_axial = self.backward_D_basic(self.netD_A_axial, self.real, self.fake, self.target_sl_axis,
-                                                    source_sl_axis)  # comparing XY_original to YZ_fake
+        self.loss_D_A_axial_1 = self.backward_D_basic(self.netD_A_axial, self.real, self.fake, self.lateral_axis,
+                                                      self.axial_1_axis)  # comparing XY_original to YZ_fake
 
-    def backward_D_A_axial_proj(self, source_sl_axis):
-        if self.mix_planes:
-            if source_sl_axis == 1:
-                compare_sl_axis = 0
-            else:
-                compare_sl_axis = 1
-        else:
-            compare_sl_axis = source_sl_axis
+        self.loss_D_A_axial_2 = self.backward_D_basic(self.netD_A_axial, self.real, self.fake, self.lateral_axis,
+                                                      self.axial_2_axis)
 
-        self.loss_D_A_axial_proj = self.backward_D_projection(self.netD_A_axial_proj, self.real, self.fake,
-                                                              self.target_sl_axis,
-                                                              compare_sl_axis)  # comparing XY_original to XZ_fake
+        self.loss_D_A_axial = self.loss_D_A_axial_1 + self.loss_D_A_axial_2
+
+    def backward_D_A_axial_proj(self):
+        self.loss_D_A_axial_proj_1 = self.backward_D_projection(self.netD_A_axial_proj, self.real, self.fake,
+                                                              self.lateral_axis, self.axial_1_axis)  # comparing XY_original to XZ_fake
+
+        self.loss_D_A_axial_proj_2 = self.backward_D_projection(self.netD_A_axial_proj, self.real, self.fake,
+                                                                self.lateral_axis, self.axial_2_axis)
+
+        self.loss_D_A_axial_proj = self.loss_D_A_axial_proj_1 + self.loss_D_A_axial_proj_2
 
     def backward_D_B_lateral(self):
-        self.loss_D_B_lateral = self.backward_D_basic(self.netD_B_lateral, self.real, self.rec, self.target_sl_axis,
-                                                      self.target_sl_axis)  # comparing XY_original to XY_reconstructed
+        self.loss_D_B_lateral = self.backward_D_basic(self.netD_B_lateral, self.real, self.rec, self.lateral_axis,
+                                                      self.lateral_axis)  # comparing XY_original to XY_reconstructed
 
-    def backward_D_B_axial(self, source_sl_axis):
+    def backward_D_B_axial(self):
         """Calculate GAN loss for discriminator D_B, which compares the original and the reconstructed. """
-        self.loss_D_B_axial = self.backward_D_basic(self.netD_B_axial, self.real, self.rec, source_sl_axis,
-                                                    source_sl_axis)  # comparing YZ_original to YZ_reconstructed
+        self.loss_D_B_axial_1 = self.backward_D_basic(self.netD_B_axial, self.real, self.rec, self.axial_1_axis,
+                                                    self.axial_1_axis)  # comparing YZ_original to YZ_reconstructed
+
+        self.loss_D_B_axial_2 = self.backward_D_basic(self.netD_B_axial, self.real, self.rec, self.axial_2_axis,
+                                                    self.axial_2_axis)  # comparing YZ_original to YZ_reconstructed
+
+        self.loss_D_B_axial = self.loss_D_B_axial_1 + self.loss_D_B_axial_2
 
     def backward_D_B_axial_proj(self, source_sl_axis):
-        if self.mix_planes:
-            if source_sl_axis == 1:
-                compare_sl_axis = 0
-            else:
-                compare_sl_axis = 1
-        else:
-            compare_sl_axis = source_sl_axis
+        self.loss_D_B_axial_proj_1 = self.backward_D_projection(self.netD_B_axial_proj, self.real, self.rec,
+                                                              self.axial_1_axis,
+                                                              self.axial_1_axis)
 
-        self.loss_D_B_axial_proj = self.backward_D_projection(self.netD_B_axial_proj, self.real, self.rec,
-                                                              compare_sl_axis,
-                                                              compare_sl_axis)  # comparing XZ_original to XZ_reconstructed
+        self.loss_D_B_axial_proj_2 = self.backward_D_projection(self.netD_B_axial_proj, self.real, self.rec,
+                                                              self.axial_2_axis,
+                                                              self.axial_2_axis)
 
-    def backward_G(self, source_sl_axis):
+        self.loss_D_B_axial_proj = self.loss_D_B_axial_proj_1 + self.loss_D_B_axial_proj_2
+
+    def backward_G(self):
         """Calculate the loss for generators G_A and G_B"""
         lambda_A = self.opt.lambda_A
         lambda_lateralpreserve = self.opt.lambda_lateralpreserve
 
-        if self.mix_planes:
-            if source_sl_axis == 1:
-                remain_sl_axis = 0
-            else:
-                remain_sl_axis = 1
-        else:
-            remain_sl_axis = source_sl_axis
 
-        self.loss_G_A_lateral = self.criterionGAN(self.iter_f(self.fake, self.netD_A_lateral, self.target_sl_axis),
+        self.loss_G_A_lateral = self.criterionGAN(self.iter_f(self.fake, self.netD_A_lateral, self.lateral_axis),
                                                   True) * self.lambda_plane_target
-        self.loss_G_A_axial = self.criterionGAN(self.iter_f(self.fake, self.netD_A_axial, source_sl_axis),
+
+        self.loss_G_A_axial = self.criterionGAN(self.iter_f(self.fake, self.netD_A_axial, self.axial_1_axis),
+                                                True) * self.lambda_slice + \
+                              self.criterionGAN(self.iter_f(self.fake, self.netD_A_axial, self.axial_2_axis),
                                                 True) * self.lambda_slice
-        self.loss_G_A_axial_proj = self.criterionGAN(self.proj_f(self.fake, self.netD_A_axial_proj, remain_sl_axis),
+
+        self.loss_G_A_axial_proj = self.criterionGAN(self.proj_f(self.fake, self.netD_A_axial_proj, self.axial_1_axis),
+                                                     True) * self.lambda_proj + \
+                                   self.criterionGAN(self.proj_f(self.fake, self.netD_A_axial_proj, self.axial_2_axis),
                                                      True) * self.lambda_proj
+
         self.loss_G_A = self.loss_G_A_lateral + self.loss_G_A_axial + self.loss_G_A_axial_proj
 
-        self.loss_G_B_lateral = self.criterionGAN(self.iter_f(self.rec, self.netD_B_lateral, self.target_sl_axis),
+        self.loss_G_B_lateral = self.criterionGAN(self.iter_f(self.rec, self.netD_B_lateral, self.lateral_axis),
                                                   True) * self.lambda_plane_target
-        self.loss_G_B_axial = self.criterionGAN(self.iter_f(self.rec, self.netD_B_axial, source_sl_axis),
+
+        self.loss_G_B_axial = self.criterionGAN(self.iter_f(self.rec, self.netD_B_axial, self.axial_1_axis),
+                                                True) * self.lambda_slice + \
+                              self.criterionGAN(self.iter_f(self.rec, self.netD_B_axial, self.axial_2_axis),
                                                 True) * self.lambda_slice
+
         self.loss_G_B_axial_proj = self.criterionGAN(self.proj_f(self.rec, self.netD_B_axial_proj, remain_sl_axis),
                                                      True) * self.lambda_proj
+
         self.loss_G_B = self.loss_G_B_lateral + self.loss_G_B_axial + self.loss_G_B_axial_proj
 
         # This model only includes forward cycle loss || G_B(G_A(A)) - A||
@@ -347,19 +355,12 @@ class AxialToLateralGANArtemisModel(BaseModel):
         # forward
         self.forward()  # compute fake images and reconstruction images.
 
-        # randomly choose which axial plane to update.
-        chance = np.random.uniform(0, 1)
-        if chance < 0.5:
-            source_sl_axis = 1
-        else:
-            source_sl_axis = 0
-
         # G_A and G_B
         self.set_requires_grad(
             [self.netD_A_lateral, self.netD_A_axial, self.netD_A_axial_proj, self.netD_B_lateral, self.netD_B_axial,
              self.netD_B_axial_proj], False)  # Ds require no gradients when optimizing Gs
         self.optimizer_G.zero_grad()  # set G_A and G_B's gradients to zero
-        self.backward_G(source_sl_axis)  # calculate gradients for G_A and G_B
+        self.backward_G()  # calculate gradients for G_A and G_B
         self.optimizer_G.step()  # update G_A and G_B's weights
 
         # D_A and D_B
@@ -369,12 +370,12 @@ class AxialToLateralGANArtemisModel(BaseModel):
         self.optimizer_D.zero_grad()  # set D_A and D_B's gradients to zero
 
         self.backward_D_A_lateral()
-        self.backward_D_A_axial(source_sl_axis)  # calculate gradients for D_A's
-        self.backward_D_A_axial_proj(source_sl_axis)
+        self.backward_D_A_axial()  # calculate gradients for D_A's
+        self.backward_D_A_axial_proj()
 
         self.backward_D_B_lateral()
-        self.backward_D_B_axial(source_sl_axis)  # calculate gradients for D_B's
-        self.backward_D_B_axial_proj(source_sl_axis)
+        self.backward_D_B_axial()  # calculate gradients for D_B's
+        self.backward_D_B_axial_proj()
         self.optimizer_D.step()  # update D_A and D_B's weights
 
     # Apply discriminator to each slice in a given dimension and save it as a volume.
