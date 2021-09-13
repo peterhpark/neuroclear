@@ -2,10 +2,6 @@ import os.path
 from data.base_dataset import BaseDataset, get_transform
 from data.image_folder import make_dataset
 from skimage import io
-from data.image_folder import merge_datasets
-import random
-import util.util
-import numpy as np
 import re
 
 
@@ -29,7 +25,6 @@ class CubeDataset(BaseDataset):
         """
 
         BaseDataset.__init__(self, opt)
-        # self.A_paths = merge_datasets(opt.dataroot, opt.max_dataset_size)
         self.A_paths = make_dataset(opt.dataroot)
         self.A_paths.sort(key = numericalSort)
 
