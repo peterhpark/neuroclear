@@ -17,7 +17,7 @@ def numericalSort(value):
 
 
 
-class SingleCubeOnlyDataset(BaseDataset):
+class SingleVolumeDataset(BaseDataset):
     """
     """
 
