@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="d4855158-4fc6-4606-9d26-91ba01cfe318" name="bonnkarneval_neuroclear-v2">
+        <fileTransfer accessType="SFTP" host="143.248.30.224" port="22" sshConfigId="8f6482dc-3078-4023-b493-b1ed0b5d0fdc" sshConfig="peterpark@143.248.30.224:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

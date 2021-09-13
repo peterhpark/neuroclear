@@ -100,11 +100,11 @@ if __name__ == '__main__':
             print('saving the latest model (iteration %d)' % total_iters)
             save_suffix = 'iter_%d' % total_iters if opt.save_by_iter else 'latest'
             model.save_networks(save_suffix)
-            model.update_learning_rate() # update here instead of at the end of every epoch
             print('saving the current histogram (iteration %d)' % total_iters)
             visualizer.display_current_histogram(model.get_current_visuals(), total_iters)
             print('saving the current visuals (iteration %d)' % total_iters)
             visualizer.save_current_visuals(model.get_current_visuals(), total_iters)
             print ("----------------------------------")
 
+        model.update_learning_rate()  # update here instead of at the end of every epoch
         iter_data_time = time.time()

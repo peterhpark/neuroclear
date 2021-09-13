@@ -1,4 +1,4 @@
-# TODO August 06 version
+# SEP 8 version
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -46,34 +46,33 @@ def get_norm_layer(norm_type='instance', dimension =3):
 
 
 
+
 def get_scheduler(optimizer, opt):
-	"""Return a learning rate scheduler
+    """Return a learning rate scheduler
+    Parameters:
+        optimizer          -- the optimizer of the network
+        opt (option class) -- stores all the experiment flags; needs to be a subclass of BaseOptions．　
+                              opt.lr_policy is the name of learning rate policy: linear | step | plateau | cosine
+    For 'linear', we keep the same learning rate for the first <opt.n_epochs> epochs
+    and linearly decay the rate to zero over the next <opt.n_epochs_decay> epochs.
+    For other schedulers (step, plateau, and cosine), we use the default PyTorch schedulers.
+    See https://pytorch.org/docs/stable/optim.html for more details.
+    """
 
-	Parameters:
-		optimizer          -- the optimizer of the network
-		opt (option class) -- stores all the experiment flags; needs to be a subclass of BaseOptions．　
-							  opt.lr_policy is the name of learning rate policy: linear | step | plateau | cosine
-
-	For 'linear', we keep the same learning rate for the first <opt.niter> epochs
-	and linearly decay the rate to zero over the next <opt.niter_decay> epochs.
-	For other schedulers (step, plateau, and cosine), we use the default PyTorch schedulers.
-	See https://pytorch.org/docs/stable/optim.html for more details.
-	"""
-	if opt.lr_policy == 'linear':
-		def lambda_rule(epoch):
-			lr_l = 1.0 - max(0, epoch + opt.epoch_count - opt.niter) / float(opt.niter_decay + 1)
-			return lr_l
-		scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda_rule)
-	elif opt.lr_policy == 'step':
-		scheduler = lr_scheduler.StepLR(optimizer, step_size=opt.lr_decay_iters, gamma=0.1)
-	elif opt.lr_policy == 'plateau':
-		scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.2, threshold=0.01, patience=5)
-	elif opt.lr_policy == 'cosine':
-		scheduler = lr_scheduler.CosineAnnealingLR(optimizer, T_max=opt.niter, eta_min=0)
-	else:
-		return NotImplementedError('learning rate policy [%s] is not implemented', opt.lr_policy)
-	return scheduler
-
+    if opt.lr_policy == 'linear':
+        def lambda_rule(epoch):
+            lr_l = 1.0 - max(0, epoch + opt.epoch_count - opt.n_epochs) / float(opt.n_epochs_decay + 1)
+            return lr_l
+        scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda_rule)
+    elif opt.lr_policy == 'step':
+        scheduler = lr_scheduler.StepLR(optimizer, step_size=opt.lr_decay_iters, gamma=0.1)
+    elif opt.lr_policy == 'plateau':
+        scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.2, threshold=0.01, patience=5)
+    elif opt.lr_policy == 'cosine':
+        scheduler = lr_scheduler.CosineAnnealingLR(optimizer, T_max=opt.n_epochs, eta_min=0)
+    else:
+        return NotImplementedError('learning rate policy [%s] is not implemented', opt.lr_policy)
+    return scheduler
 
 def init_weights(net, init_type='normal', init_gain=0.02):
 	"""Initialize network weights.
@@ -162,16 +161,14 @@ def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, in
 		net = UnetTwoOuts(4, output_nc)
 	elif netG== 'unet_deconv':
 		net = Unet_deconv(1, output_nc, norm_layer=norm_layer, dimension=dimension)
-	elif netG=='unet_deconv_color':
-		net = Unet_deconv(3, 3, norm_layer=norm_layer, dimension=2)
 	elif netG== 'unet_vanilla':
 		net = Unet_vanilla(1, output_nc, norm_layer=norm_layer, dimension=dimension)
-	elif netG== 'unet_vanilla_color':
-		net = Unet_vanilla(3, 3, norm_layer=norm_layer, dimension=2)
 	elif netG == 'resnet_9blocks':
 		net = ResnetGenerator(input_nc, output_nc, ngf, norm_layer=norm_layer, use_dropout=use_dropout, n_blocks=9)
 	elif netG == 'resnet_6blocks':
 		net = ResnetGenerator(input_nc, output_nc, ngf, norm_layer=norm_layer, use_dropout=use_dropout, n_blocks=6)
+	elif netG == 'VGG':
+		net = VGG_net(input_nc, num_classes=2, VGG_type='VGG16')
 	elif netG =='linearkernel':
 		net = LinearKernel(input_nc, output_nc, kernel_size, dimension = dimension)
 	elif netG =='linearkernel_double':
@@ -310,7 +307,7 @@ class GANLoss(nn.Module):
 				loss = prediction.mean()
 		return loss
 
-def cal_gradient_penalty(netD, real_data, fake_data, device, type='mixed', constant=1.0, lambda_gp=10):
+def cal_gradient_penalty(netD, real_data, fake_data, device, type='mixed', constant=1.0, lambda_gp=10.0):
 	"""Calculate the gradient penalty loss, used in WGAN-GP paper https://arxiv.org/abs/1704.00028
 
 	Arguments:
@@ -342,7 +339,10 @@ def cal_gradient_penalty(netD, real_data, fake_data, device, type='mixed', const
 										grad_outputs=torch.ones(disc_interpolates.size()).to(device),
 										create_graph=True, retain_graph=True, only_inputs=True)
 		gradients = gradients[0].view(real_data.size(0), -1)  # flat the data
-		gradient_penalty = (((gradients + 1e-16).norm(2, dim=1) - constant) ** 2).mean() * lambda_gp        # added eps
+		gradients_norm = (gradients + 1e-16).norm(2, dim=1)
+		# gradients_norm = torch.sqrt(torch.sum(gradients ** 2, dim=1) + 1e-12)
+
+		gradient_penalty = ((gradients_norm - constant) ** 2).mean() * lambda_gp        # added eps
 		return gradient_penalty, gradients
 	else:
 		return 0.0, None
@@ -651,6 +651,64 @@ class Unet_vanilla_shallow(nn.Module):
 		last_val = self.sigmoid(one_by_one)
 
 		return last_val
+
+
+
+VGG_types = {
+	'VGG11': [64, 'M', 128, 'M', 256, 256, 'M', 512, 512, 'M', 512, 512, 'M'],
+	'VGG13': [64, 64, 'M', 128, 128, 'M', 256, 256, 'M', 512, 512, 'M', 512, 512, 'M'],
+	'VGG16': [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'M', 512, 512, 512, 'M', 512, 512, 512, 'M'],
+	'VGG19': [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 256, 'M', 512, 512, 512, 512, 'M', 512, 512, 512, 512, 'M'],
+}
+
+class VGG_net(nn.Module):
+	"""
+	VGG network to calculate a perceptual loss.
+
+	Ref#1: https://github.com/aladdinpersson/Machine-Learning-Collection/blob/79f2e1928906f3cccbae6c024f3f79fd05262cd1/ML/Pytorch/CNN_architectures/pytorch_vgg_implementation.py#L16-L62
+	avgpool is missing from Ref#1.
+	Ref#2: https://pytorch.org/vision/stable/_modules/torchvision/models/vgg.html
+	"""
+
+	def __init__(self, input_nc, num_classes, VGG_type):
+		super(VGG_net, self).__init__()
+		self.in_channels = input_nc
+		self.conv_layers = self.create_conv_layers(VGG_types[VGG_type])
+		self.avgpool = nn.AdaptiveAvgPool2d((7,7))
+		self.fcs = nn.Sequential(
+			nn.Linear(512 * 7 * 7, 4096),
+			nn.ReLU(),
+			nn.Dropout(p=0.5),
+			nn.Linear(4096, 4096),
+			nn.ReLU(),
+			nn.Dropout(p=0.5),
+			nn.Linear(4096, num_classes)
+		)
+
+	def forward(self, x):
+		x = self.conv_layers(x)
+		x = self.avgpool(x)
+		x = x.reshape(x.shape[0], -1) #flatten
+		x = self.fcs(x)
+		return x
+
+	def create_conv_layers(self, architecture):
+		layers = []
+		in_channels = self.in_channels
+
+		for x in architecture:
+			if type(x) == int:
+				out_channels = x
+				layers += [nn.Conv2d(in_channels=in_channels, out_channels=out_channels,
+									 kernel_size=(3, 3), stride=(1, 1), padding=(1, 1)),
+						   nn.BatchNorm2d(x),
+						   nn.ReLU()]
+				in_channels = x
+			elif x == 'M':
+				layers += [nn.MaxPool2d(kernel_size=(2, 2), stride=(2, 2))]
+		return nn.Sequential(*layers)
+
+
 
 class ResnetGenerator(nn.Module):
     """Resnet-based generator that consists of Resnet blocks between a few downsampling/upsampling operations.

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" serverName="bonnkarneval_neuroclear-v2" remoteFilesAllowedToDisappearOnAutoupload="false">
+    <serverData>
+      <paths name="bonnkarneval_neuroclear-v2">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/mnt/trunk/Dropbox/Projects/Ye_lab/Frontera/scripts/neuroclear_V2_bonnkarneval" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+  </component>
+</project>
