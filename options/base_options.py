@@ -28,6 +28,7 @@ class BaseOptions():
         parser.add_argument('--checkpoints_dir', type=str, default='./checkpoints', help='models are saved here')
         parser.add_argument('--add_date', action = 'store_true', help = 'Add the run date to the name. ')
         parser.add_argument('--image_dimension', default=3, type = int, help = 'dimension of the image: e.g. 3D or 2D')
+        parser.add_argument('--server', type=str, default= 'not-specified', help='specify which server you ran the script on.')
 
         # model parameters
         parser.add_argument('--model', type=str, default='cycle_gan', help='chooses which model to use. [cycle_gan | pix2pix | dc_gan | supervised | test | colorization]')

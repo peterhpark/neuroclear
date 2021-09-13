@@ -9,7 +9,6 @@ from . import networks
 from util.util import normalize
 from torch.autograd import grad
 
-
 class AxialToLateralGANArtemisModel(BaseModel):
     """
     This class implements the CycleGAN model with cubes, for learning image-to-image translation without paired data.
@@ -63,7 +62,6 @@ class AxialToLateralGANArtemisModel(BaseModel):
         parser.add_argument('--randomize_projection_depth', action='store_true', help='randomize the depth for MIP')
         parser.add_argument('--projection_depth', type=int, default=10,
                             help='depth for maximum intensity projections. ')
-        # parser.set_defaults(norm='instance')
 
         return parser
 

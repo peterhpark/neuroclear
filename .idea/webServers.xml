@@ -9,6 +9,13 @@
           </advancedOptions>
         </fileTransfer>
       </webServer>
+      <webServer id="5ee41780-930e-4be6-919c-60808f37cdf5" name="mainztrain_neuroclear-v2">
+        <fileTransfer accessType="SFTP" host="143.248.31.171" port="22" sshConfigId="7c2f997f-8989-4bc9-adac-8ba3a8b96ec8" sshConfig="peterpark@143.248.31.171:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
     </option>
   </component>
 </project>
