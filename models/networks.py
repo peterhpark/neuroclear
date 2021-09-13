@@ -66,7 +66,7 @@ def get_scheduler(optimizer, opt):
         scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda_rule)
 
     elif opt.lr_policy == 'constant':
-        def lambda_rule():
+        def lambda_rule(epoch):
             lr_l = 1.0
             return lr_l
         scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda_rule)
