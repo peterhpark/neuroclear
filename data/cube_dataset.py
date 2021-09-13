@@ -18,21 +18,8 @@ def numericalSort(value):
 
 class CubeDataset(BaseDataset):
     """
-    This dataset class can load brain cube datasets.
-    The data format is *.npy files of 3D image cubes.
-
-    It requires two directories to host training images from domain A '/path/to/data/trainA'
-    and from domain B '/path/to/data/trainB' respectively.
-    You can train the model with the dataset flag '--dataroot /path/to/data'.
-    Similarly, you need to prepare two directories:
-    '/path/to/data/testA' and '/path/to/data/testB' during test time.
+    Loads image volume dataset. The dataset is consisted of multiple 3D image volumes.
     """
-
-    # @staticmethod
-    # def modify_commandline_options(parser, isTrain=None):
-    #     parser.add_argument('--dataroot_A', required=True, type=str,
-    #                         nargs='+', help='path to images in Domain A')
-    #     return parser
 
     def __init__(self, opt):
         """Initialize this dataset class.
