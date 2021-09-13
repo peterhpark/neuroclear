@@ -1,13 +1,8 @@
 import torch
 import itertools
 import numpy as np
-
-import util.util
-from util.image_pool import ImagePool
 from .base_model import BaseModel
 from . import networks
-from util.util import normalize
-from torch.autograd import grad
 
 class AxialToLateralGANApolloModel(BaseModel):
     """
@@ -20,7 +15,7 @@ class AxialToLateralGANApolloModel(BaseModel):
                                                                         -> Generator takes 3D images.
 
     This model is an updated version of Artemis: we take into account of the lateral plane of the blurred image is actually
-    a MIP image.
+    a MIP image (because of blurring in z-axis).
 
     G_A: original -> isotropic
     G_B: isotropic -> original
@@ -68,10 +63,8 @@ class AxialToLateralGANApolloModel(BaseModel):
 
         BaseModel.__init__(self, opt)
         # specify the training losses you want to print out. The training/test scripts will call <BaseModel.get_current_losses>
-        self.loss_names = ['D_A_lateral', 'D_A_axial', 'D_A_axial_proj', 'G_A', 'G_A_lateral', 'G_A_axial',
-                           'G_A_axial_proj', 'cycle',
-                           'D_B_lateral', 'D_B_axial', 'D_B_axial_proj', 'G_B', 'G_B_lateral', 'G_B_axial',
-                           'G_B_axial_proj', 'lateral_preserve']
+        self.loss_names = ['D_A_lateral', 'D_A_axial', 'G_A', 'G_A_lateral', 'G_A_axial', 'cycle',
+                           'D_B_lateral', 'D_B_axial', 'G_B', 'G_B_lateral', 'G_B_axial']
         self.gan_mode = opt.gan_mode
 
         self.gen_dimension = 3  # 3D convolutions in generators
@@ -96,7 +89,6 @@ class AxialToLateralGANApolloModel(BaseModel):
         self.lateral_axis = 0  # XY plane
         self.axial_1_axis = 1 # XZ plane
         self.axial_2_axis = 2 # YZ plane
-
 
         # specify the models you want to save to the disk. The training/test scripts will call <BaseModel.save_networks> and <BaseModel.load_networks>.
         if self.isTrain:
@@ -138,7 +130,6 @@ class AxialToLateralGANApolloModel(BaseModel):
             # define loss functions
             self.criterionGAN = networks.GANLoss(opt.gan_mode).to(self.device)  # define GAN loss.
             self.criterionCycle = torch.nn.L1Loss()
-            self.criterionXYproj = torch.nn.L1Loss()
 
             # initialize optimizers; schedulers will be automatically created by function <BaseModel.setup>.
             self.optimizer_G = torch.optim.Adam(itertools.chain(self.netG_A.parameters(), self.netG_B.parameters()),
@@ -187,7 +178,7 @@ class AxialToLateralGANApolloModel(BaseModel):
         self.fake = self.netG_A(self.real)  # G_A(A)
         self.rec = self.netG_B(self.fake)  # G_B(G_A(A))
 
-    def backward_D_basic(self, netD, real, fake, slice_axis_real, slice_axis_fake):
+    def backward_D_slice(self, netD, real, fake, slice_axis_real, slice_axis_fake):
 
         """Calculate GAN loss for the discriminator
 
@@ -228,8 +219,9 @@ class AxialToLateralGANApolloModel(BaseModel):
         Return the discriminator loss.
         We also call loss_D.backward() to calculate the gradients.
         """
+
         # Real
-        pred_real = self.proj_f(real, netD, slice_axis_real)
+        pred_real = self.iter_f(real, netD, slice_axis_real)
         pred_fake = self.proj_f(fake.detach(), netD, slice_axis_fake)
 
         # real
@@ -245,92 +237,61 @@ class AxialToLateralGANApolloModel(BaseModel):
         return loss_D
 
     def backward_D_A_lateral(self):
-        self.loss_D_A_lateral = self.backward_D_basic(self.netD_A_lateral, self.real, self.fake, self.lateral_axis,
-                                                      self.lateral_axis)  # comparing XY_original to XY_fake
+        self.loss_D_A_lateral = self.backward_D_projection(self.netD_A_lateral, self.real, self.fake, self.lateral_axis,
+                                                      self.lateral_axis)  # comparing XY_original to XY_fake_MIP
 
-    def backward_D_A_axial(self):
+    def backward_D_A_axial(self): # compares real XY slice image and fake axial MIP image.
         """Calculate GAN loss for discriminator D_A"""
-        self.loss_D_A_axial_1 = self.backward_D_basic(self.netD_A_axial, self.real, self.fake, self.lateral_axis,
+        self.loss_D_A_axial_1 = self.backward_D_projection(self.netD_A_axial, self.real, self.fake, self.lateral_axis,
                                                       self.axial_1_axis)  # comparing XY_original to YZ_fake
 
-        self.loss_D_A_axial_2 = self.backward_D_basic(self.netD_A_axial, self.real, self.fake, self.lateral_axis,
+        self.loss_D_A_axial_2 = self.backward_D_projection(self.netD_A_axial, self.real, self.fake, self.lateral_axis,
                                                       self.axial_2_axis)
 
         self.loss_D_A_axial = self.loss_D_A_axial_1 + self.loss_D_A_axial_2
 
-    def backward_D_A_axial_proj(self):
-        self.loss_D_A_axial_proj_1 = self.backward_D_projection(self.netD_A_axial_proj, self.real, self.fake,
-                                                              self.lateral_axis, self.axial_1_axis)  # comparing XY_original to XZ_fake
-
-        self.loss_D_A_axial_proj_2 = self.backward_D_projection(self.netD_A_axial_proj, self.real, self.fake,
-                                                                self.lateral_axis, self.axial_2_axis)
-
-        self.loss_D_A_axial_proj = self.loss_D_A_axial_proj_1 + self.loss_D_A_axial_proj_2
-
     def backward_D_B_lateral(self):
-        self.loss_D_B_lateral = self.backward_D_basic(self.netD_B_lateral, self.real, self.rec, self.lateral_axis,
+        self.loss_D_B_lateral = self.backward_D_slice(self.netD_B_lateral, self.real, self.rec, self.lateral_axis,
                                                       self.lateral_axis)  # comparing XY_original to XY_reconstructed
 
-    def backward_D_B_axial(self):
+    def backward_D_B_axial(self): # compares real axial slice image and fake axial slice image.
         """Calculate GAN loss for discriminator D_B, which compares the original and the reconstructed. """
-        self.loss_D_B_axial_1 = self.backward_D_basic(self.netD_B_axial, self.real, self.rec, self.axial_1_axis,
-                                                    self.axial_1_axis)  # comparing YZ_original to YZ_reconstructed
+        self.loss_D_B_axial_1 = self.backward_D_slice(self.netD_B_axial, self.real, self.rec, self.axial_1_axis,
+                                                      self.axial_1_axis)  # comparing YZ_original to YZ_reconstructed
 
-        self.loss_D_B_axial_2 = self.backward_D_basic(self.netD_B_axial, self.real, self.rec, self.axial_2_axis,
-                                                    self.axial_2_axis)  # comparing YZ_original to YZ_reconstructed
+        self.loss_D_B_axial_2 = self.backward_D_slice(self.netD_B_axial, self.real, self.rec, self.axial_2_axis,
+                                                      self.axial_2_axis)  # comparing YZ_original to YZ_reconstructed
 
         self.loss_D_B_axial = self.loss_D_B_axial_1 + self.loss_D_B_axial_2
-
-    def backward_D_B_axial_proj(self, source_sl_axis):
-        self.loss_D_B_axial_proj_1 = self.backward_D_projection(self.netD_B_axial_proj, self.real, self.rec,
-                                                              self.axial_1_axis,
-                                                              self.axial_1_axis)
-
-        self.loss_D_B_axial_proj_2 = self.backward_D_projection(self.netD_B_axial_proj, self.real, self.rec,
-                                                              self.axial_2_axis,
-                                                              self.axial_2_axis)
-
-        self.loss_D_B_axial_proj = self.loss_D_B_axial_proj_1 + self.loss_D_B_axial_proj_2
 
     def backward_G(self):
         """Calculate the loss for generators G_A and G_B"""
         lambda_A = self.opt.lambda_A
-        lambda_lateralpreserve = self.opt.lambda_lateralpreserve
 
-
-        self.loss_G_A_lateral = self.criterionGAN(self.iter_f(self.fake, self.netD_A_lateral, self.lateral_axis),
+        self.loss_G_A_lateral = self.criterionGAN(self.proj_f(self.fake, self.netD_A_lateral, self.lateral_axis),
                                                   True) * self.lambda_plane_target
 
-        self.loss_G_A_axial = self.criterionGAN(self.iter_f(self.fake, self.netD_A_axial, self.axial_1_axis),
+        self.loss_G_A_axial = self.criterionGAN(self.proj_f(self.fake, self.netD_A_axial, self.axial_1_axis),
                                                 True) * self.lambda_slice + \
-                              self.criterionGAN(self.iter_f(self.fake, self.netD_A_axial, self.axial_2_axis),
+                              self.criterionGAN(self.proj_f(self.fake, self.netD_A_axial, self.axial_2_axis),
                                                 True) * self.lambda_slice
 
-
-        self.loss_G_A = self.loss_G_A_lateral + self.loss_G_A_axial + self.loss_G_A_axial_proj
+        self.loss_G_A = self.loss_G_A_lateral + self.loss_G_A_axial
 
         self.loss_G_B_lateral = self.criterionGAN(self.iter_f(self.rec, self.netD_B_lateral, self.lateral_axis),
                                                   True) * self.lambda_plane_target
-
         self.loss_G_B_axial = self.criterionGAN(self.iter_f(self.rec, self.netD_B_axial, self.axial_1_axis),
                                                 True) * self.lambda_slice + \
                               self.criterionGAN(self.iter_f(self.rec, self.netD_B_axial, self.axial_2_axis),
                                                 True) * self.lambda_slice
 
-        self.loss_G_B = self.loss_G_B_lateral + self.loss_G_B_axial + self.loss_G_B_axial_proj
+        self.loss_G_B = self.loss_G_B_lateral + self.loss_G_B_axial
 
         # This model only includes forward cycle loss || G_B(G_A(A)) - A||
         self.loss_cycle = self.criterionCycle(self.rec, self.real) * lambda_A
 
-        # This model keeps
-        real_lateral_proj = Volume(self.real, self.device).get_projection(self.projection_depth,
-                                                                          0)  #
-        fake_lateral_proj = Volume(self.fake, self.device).get_projection(self.projection_depth, 0)
-
-        self.loss_lateral_preserve = self.criterionXYproj(real_lateral_proj, fake_lateral_proj) * lambda_lateralpreserve
-
         # combined loss and calculate gradients
-        self.loss_G = self.loss_G_A + self.loss_G_B + self.loss_cycle + self.loss_lateral_preserve
+        self.loss_G = self.loss_G_A + self.loss_G_B + self.loss_cycle
         self.loss_G.backward()
 
     def optimize_parameters(self):
@@ -340,36 +301,29 @@ class AxialToLateralGANApolloModel(BaseModel):
 
         # G_A and G_B
         self.set_requires_grad(
-            [self.netD_A_lateral, self.netD_A_axial, self.netD_A_axial_proj, self.netD_B_lateral, self.netD_B_axial,
-             self.netD_B_axial_proj], False)  # Ds require no gradients when optimizing Gs
+            [self.netD_A_lateral, self.netD_A_axial, self.netD_B_lateral, self.netD_B_axial], False)  # Ds require no gradients when optimizing Gs
         self.optimizer_G.zero_grad()  # set G_A and G_B's gradients to zero
         self.backward_G()  # calculate gradients for G_A and G_B
         self.optimizer_G.step()  # update G_A and G_B's weights
 
         # D_A and D_B
         self.set_requires_grad(
-            [self.netD_A_lateral, self.netD_A_axial, self.netD_A_axial_proj, self.netD_B_lateral, self.netD_B_axial,
-             self.netD_B_axial_proj], True)
+            [self.netD_A_lateral, self.netD_A_axial, self.netD_B_lateral, self.netD_B_axial,True])
         self.optimizer_D.zero_grad()  # set D_A and D_B's gradients to zero
 
         self.backward_D_A_lateral()
         self.backward_D_A_axial()  # calculate gradients for D_A's
-        self.backward_D_A_axial_proj()
 
         self.backward_D_B_lateral()
         self.backward_D_B_axial()  # calculate gradients for D_B's
-        self.backward_D_B_axial_proj()
         self.optimizer_D.step()  # update D_A and D_B's weights
 
     # Apply discriminator to each slice in a given dimension and save it as a volume.
     def iter_f(self, input, function, slice_axis):
         input_tensor = Volume(input, self.device)  # Dimension: batch, color_channel, z, y, x
-        test_slice = function(input_tensor.get_slice(0, slice_axis), pick_random=True)  # get image dimension after convolving through the discriminator
-        output_tensor = Volume(
-            torch.zeros(test_slice.shape[0], test_slice.shape[1], self.num_slice, test_slice.shape[2],
-                        test_slice.shape[3]), self.device)
-
-        return output_tensor.get_volume()
+        img_slice = input_tensor.get_slice(slice_axis)  # get image dimension after convolving through the discriminator
+        output_slice = function(img_slice)
+        return output_slice
 
     def proj_f(self, input, function, slice_axis):
         input_volume = Volume(input, self.device)
@@ -377,20 +331,14 @@ class AxialToLateralGANApolloModel(BaseModel):
         output_mip = function(mip)
         return output_mip
 
-
 class Volume():
     def __init__(self, vol, device):
         self.volume = vol.to(device)  # push the volume to cuda memory
         self.num_slice = vol.shape[-1]
 
     # returns a slice: # batch, color_channel, y, x
-    def get_slice(self, slice_index, slice_axis, pick_random=False):
-
-        if pick_random:
-            slice_index_pick = np.random.randint(self.num_slice)
-        else:
-            slice_index_pick = slice_index
-
+    def get_slice(self, slice_axis):
+        slice_index_pick = np.random.randint(self.num_slice)
         if slice_axis == 0:
             return self.volume[:, :, slice_index_pick, :, :]
 
@@ -402,7 +350,6 @@ class Volume():
 
     def get_projection(self, depth, slice_axis):
         start_index = np.random.randint(0, self.num_slice - depth)
-
         if slice_axis == 0:
             volume_ROI = self.volume[:, :, start_index:start_index + depth, :, :]
 
