@@ -48,9 +48,6 @@ class AxialToLateralGANArtemisModel(BaseModel):
             parser.add_argument('--gan_mode', type=str, default='vanilla',
                                 help='the type of GAN objective. [vanilla| lsgan | wgangp]. vanilla GAN loss is the cross-entropy objective used in the original GAN paper.')
 
-            parser.add_argument('--lambda_lateralpreserve', type=float, default=0,
-                                help='weight for preserving lateral projection information in (A->B path)')
-
             parser.add_argument('--lambda_plane', type=int, nargs='+', default=[1, 1, 1],
                                 help='weight ratio for matching (target vs. target) and (target vs. source) and (MIP target vs. MIP source).')
 
@@ -148,7 +145,6 @@ class AxialToLateralGANArtemisModel(BaseModel):
             # define loss functions
             self.criterionGAN = networks.GANLoss(opt.gan_mode).to(self.device)  # define GAN loss.
             self.criterionCycle = torch.nn.L1Loss()
-            self.criterionXYproj = torch.nn.L1Loss()
 
             # initialize optimizers; schedulers will be automatically created by function <BaseModel.setup>.
             self.optimizer_G = torch.optim.Adam(itertools.chain(self.netG_A.parameters(), self.netG_B.parameters()),
