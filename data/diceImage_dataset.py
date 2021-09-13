@@ -59,6 +59,7 @@ class DiceImageDataSet(BaseDataset):
             A(tensor) - - an image in one domain
             A_paths(str) - - the path of the image
         """
+
         cube = self.cube[index]
         A = self.transform(cube)
 

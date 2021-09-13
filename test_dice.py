@@ -32,7 +32,7 @@ from options.test_options import TestOptions
 from data import create_dataset
 from models import create_model
 from util import html
-from util.assemble_dice_linear import Assemble_Dice
+from util.assemble_dice import Assemble_Dice
 from util import util
 from skimage import io
 import data
