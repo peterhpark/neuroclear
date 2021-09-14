@@ -17,7 +17,7 @@ class Assemble_Dice():
 
         self.roi_size = opt.dice_size[0]
         self.overlap = opt.overlap
-        self.img_mean, self.img_std =  opt.img_params
+        # self.img_mean, self.img_std =  opt.img_params
         self.step = self.roi_size - self.overlap
 
         self.z_steps  = (self.image_size[0]-self.overlap)//self.step
@@ -141,8 +141,8 @@ class Assemble_Dice():
         #     cube_dict[name] = cube_dict[name] / 2
 
         ## Perform histogram matching on the output cube to the input cube as post-processing.
-        if not(self.no_histogram_match):
-            cube_dict['fake'] = match_histograms(cube_dict['fake'], cube_dict['real'])
+        # if not(self.no_histogram_match):
+        cube_dict['fake'] = match_histograms(cube_dict['fake'], cube_dict['real'])
         ##
 
         for name in self.visual_names:
@@ -177,15 +177,15 @@ class Assemble_Dice():
 
         ## convert the datatype
         if self.imtype == 'uint8':
-            self.visual_ret[name] *= self.img_std
-            self.visual_ret[name] += self.img_mean # then the image is scaled to 0-1.
+            # self.visual_ret[name] *= self.img_std
+            # self.visual_ret[name] += self.img_mean # then the image is scaled to 0-1.
 
             self.visual_ret[name] *= 255
             self.visual_ret[name] = self.visual_ret[name].astype(np.uint8)
 
         if self.imtype == 'uint16':
-            self.visual_ret[name] *= self.img_std
-            self.visual_ret[name] += self.img_mean # then the image is scaled to 0-1.
+            # self.visual_ret[name] *= self.img_std
+            # self.visual_ret[name] += self.img_mean # then the image is scaled to 0-1.
 
             self.visual_ret[name] *= 2 ** 16 - 1
             self.visual_ret[name] = self.visual_ret[name].astype(np.uint16)
