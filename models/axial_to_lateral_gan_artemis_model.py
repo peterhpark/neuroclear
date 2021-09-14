@@ -71,7 +71,7 @@ class AxialToLateralGANArtemisModel(BaseModel):
         self.loss_names = ['D_A_lateral', 'D_A_axial', 'D_A_axial_proj', 'G_A', 'G_A_lateral', 'G_A_axial',
                            'G_A_axial_proj', 'cycle',
                            'D_B_lateral', 'D_B_axial', 'D_B_axial_proj', 'G_B', 'G_B_lateral', 'G_B_axial',
-                           'G_B_axial_proj', 'lateral_preserve']
+                           'G_B_axial_proj']
         self.gan_mode = opt.gan_mode
 
         self.gen_dimension = 3  # 3D convolutions in generators
