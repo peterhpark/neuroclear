@@ -94,9 +94,9 @@ def get_transform(opt, params = None):
 		else:
 			transform_list += [transforms.Lambda(lambda img_np: __rotate_clean_3D_xy(img_np, angle=params['angle_3D']))]
 
-	if 'randomrotate' in opt.preprocess:
+	if 'random90rotate' in opt.preprocess:
 		if params is None:
-			transform_list += [transforms.Lambda(lambda img_np: __randomrotate(img_np))]
+			transform_list += [transforms.Lambda(lambda img_np: __random90rotate(img_np))]
 		else:
 			transform_list += [transforms.Lambda(lambda img_np: __rotate(img_np, params['rotate_params']))]
 
@@ -142,15 +142,15 @@ def __normalize(img_np, img_params = None):
 		assert "Image type is not recognized."
 	return img_normd
 
-def __randomrotate(img_np):
+def __random90rotate(img_np):
 	# random_angle = np.random.randint(0, 90)
-	random_angle = np.random.choice((-90,90,-180,180,-270,270))
-	if len(img_np.shape) > 2: # 3D data
-		random_axis = tuple(np.random.choice(3, 2, replace = False))
-	elif len(img_np.shape) == 2: #2D data
-		random_axis = (0,1)
-	img_np_rotated = rotate(img_np, random_angle, axes = random_axis, reshape = False, mode = 'reflect')
-	return img_np_rotated
+	angle = np.random.choice((-90,90,-180,180,-270,270))
+	slice_list = []
+	for slice in image_vol:
+		slice_rotated = __rotate_clean(slice, angle)
+		slice_list.append(slice_rotated)
+	img_vol_rotated = np.array(slice_list)
+	return img_vol_rotated
 
 def __rotate(img_np, rotate_params):
 	angle, axis = rotate_params
