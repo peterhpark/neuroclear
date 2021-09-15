@@ -142,8 +142,7 @@ def __normalize(img_np, img_params = None):
 		assert "Image type is not recognized."
 	return img_normd
 
-def __random90rotate(img_np):
-	# random_angle = np.random.randint(0, 90)
+def __random90rotate(image_vol):
 	angle = np.random.choice((-90,90,-180,180,-270,270))
 	slice_list = []
 	for slice in image_vol:
