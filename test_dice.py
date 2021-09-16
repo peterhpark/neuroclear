@@ -130,7 +130,6 @@ if __name__ == '__main__':
 
     print("Inference Done. ")
 
-
     dice_assembly.assemble_all()
     #dice_assembly.assemble_all(imtype = output_type, background_threshold=( bckgr_thre, bckgr_val))
     print("Image volume re-assembled.")

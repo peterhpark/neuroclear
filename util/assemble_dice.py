@@ -150,6 +150,7 @@ class Assemble_Dice():
 
     def assemble_all(self):
         for name in self.visual_names:
+            print ("Patching for... " + str(name))
             for index, cube in enumerate(self.cube_queue[name]):
                 current_z, current_y, current_x = self.indexToCoordinates(index)
 
