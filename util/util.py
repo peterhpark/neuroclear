@@ -8,7 +8,7 @@ import os
 import math
 
 
-def tensor2im(input_image, imtype=np.uint16, img_params=[0.5, 0.5]):
+def tensor2im(input_image, imtype=np.uint16):
     """"Converts a Tensor array into a numpy image array.
 
     Parameters:
@@ -23,17 +23,11 @@ def tensor2im(input_image, imtype=np.uint16, img_params=[0.5, 0.5]):
         image_numpy_og = image_tensor.cpu().float().numpy()  # convert it into a numpy array
         image_numpy = image_numpy_og.copy()
 
-        mean, std = img_params
-
         if imtype == np.uint8:
-            image_numpy *= std
-            image_numpy += mean  # then the image is scaled to 0-1.
             image_numpy *= (2 ** 8 * 1.0 - 1)
             # image_numpy = np.clip(image_numpy, 0, 255)
 
         if imtype == np.uint16:
-            image_numpy *= std
-            image_numpy += mean  # then the image is scaled to 0-1.
             image_numpy *= (2 ** 16 * 1.0 - 1)
             # image_numpy = np.clip(image_numpy, 0, 2**16-1)
         if imtype == np.float:
