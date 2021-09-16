@@ -109,7 +109,7 @@ def get_transform(opt, params = None):
 	if 'centercrop' in opt.preprocess:
 		transform_list += [transforms.Lambda(lambda img_np: __centercrop(img_np, opt.crop_portion))]
 
-	transform_list += [transforms.Lambda(lambda img_np: __normalize(img_np, opt.img_params))]
+	transform_list += [transforms.Lambda(lambda img_np: __normalize(img_np))]
 
 	if 'randomflip' in opt.preprocess:
 		if params is None:
