@@ -2,7 +2,7 @@
 <project version="4">
   <component name="PublishConfigData" autoUpload="Always" serverName="bonnkarneval_neuroclear-v2" remoteFilesAllowedToDisappearOnAutoupload="false">
     <serverData>
-      <paths name="berlintower (project level)">
+      <paths name="berlintower_neuroclear">
         <serverdata>
           <mappings>
             <mapping deploy="/mnt/ssd8/peterpark/neuroclear_berlintower" local="$PROJECT_DIR$" web="/" />

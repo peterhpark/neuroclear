@@ -131,7 +131,7 @@ def get_transform(opt, params = None):
 	return transforms.Compose(transform_list)
 
 # normalize to 0-1 range. Note that mean and std. are calculated as scaled on 0-1 scale.
-def __normalize(img_np, img_params = None):
+def __normalize(img_np):
 	if img_np.dtype == 'uint8':
 		img_normd = (img_np / (2**8*1.0 - 1)).astype(float)
 

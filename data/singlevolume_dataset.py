@@ -32,7 +32,6 @@ class SingleVolumeDataset(BaseDataset):
         self.A_path = make_dataset(opt.dataroot, 1)[0] # loads only one image volume.
         self.A_img_np = io.imread(self.A_path)
 
-        self.img_params = opt.img_params
         btoA = self.opt.direction == 'BtoA'
         self.transform_A = get_transform(self.opt)
         self.isTrain = opt.isTrain

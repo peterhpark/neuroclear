@@ -93,7 +93,6 @@ class Visualizer():
         self.name = opt.name
         self.port = opt.display_port
         self.display_histogram = opt.display_histogram
-        self.img_params = opt.img_params
 
         self.saved = False
 
@@ -136,7 +135,7 @@ class Visualizer():
         """
         for label, image in visuals.items():
             if self.opt.model != 'classifier':
-                img_np = util.tensor2im(image, imtype=np.uint8, img_params=self.img_params)
+                img_np = util.tensor2im(image, imtype=np.uint8)
                 img_shape = img_np.shape
                 b, c, d, h, w = img_shape
                 slice_portion = int(d/2) # For 3D images, get three images at increasing depth
@@ -223,7 +222,7 @@ class Visualizer():
                     self.tb_writer.add_figure('train_images/' + label, fig_slice, epoch)
 
                 else:
-                    img_np = util.tensor2im(image[0], imtype=np.uint8, img_params=self.img_params)
+                    img_np = util.tensor2im(image[0], imtype=np.uint8)
                     img_np = img_np.squeeze()
                     fig_slice = plt.figure()
                     plt.imshow(img_np, cmap='gray')

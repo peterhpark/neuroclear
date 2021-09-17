@@ -106,26 +106,11 @@ if __name__ == '__main__':
 
     for i, data in enumerate(tqdm(dataset)):
         # data dimension: batch, color_channel, z, y, x
+        model.set_input(data)  # unpack data from data loader
+        model.test()  # run inference
+        visuals = model.get_current_visuals()  # get image results
 
-        if opt.repetition:
-            data_aug = dice_assembly.varycubeinput(data) # data augmented
-            visual_list = [] # during augmentation, it wil create six flipped versions: flip in each axis -> 2 * 3
-            for data_var in data_aug:
-                model.set_input(data_var)  # unpack data from data loader
-                model.test()  # run inference
-                visuals = model.get_current_visuals()  # get image results
-                visual_list.append(visuals) # visual_list contains augmented variations of one visuals dictionary
-
-            visuals_combined = dice_assembly.combinecube(visual_list)
-            dice_assembly.addToStack(visuals_combined)  # converts tensor to img and add to stack.
-
-
-        else:
-            model.set_input(data)  # unpack data from data loader
-            model.test()  # run inference
-            visuals = model.get_current_visuals()  # get image results
-
-            dice_assembly.addToStack(visuals)  # converts tensor to img and add to stack.
+        dice_assembly.addToStack(visuals)  # converts tensor to img and add to stack.
 
 
     print("Inference Done. ")
