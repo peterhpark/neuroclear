@@ -181,7 +181,6 @@ def __randomcontrast(img_np, randomcontrast_val): # randomly change the contrast
 		img_normed = img_np
 	else:
 		img_normed = (img_processed - top_val) * ((img_max - img_min) / (img_max - top_val)) + img_min
-	# img_normed = img_normed.astype('uint16')
 
 	return img_normed
 
