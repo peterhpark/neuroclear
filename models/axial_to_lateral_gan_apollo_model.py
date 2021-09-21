@@ -43,11 +43,14 @@ class AxialToLateralGANApolloModel(BaseModel):
             parser.add_argument('--lambda_plane', type=int, nargs='+', default=[1, 1, 1],
                                 help='weight ratio for matching (target vs. target) and (target vs. source) and (MIP target vs. MIP source).')
 
+            parser.add_argument('--randomize_projection_depth', action='store_true', help='randomize the depth for MIP')
+            parser.add_argument('--projection_depth', type=int, default=10,
+                                help='depth for maximum intensity projections. ')
+            parser.add_argument('--min_projection_depth', type=int, default=2,
+                                help='minimum depth for maximum intensity projections. ')
+
         parser.add_argument('--netG_B', type=str, default='deep_linear_gen',
                             help='specify the generator in B->A path. ')
-        parser.add_argument('--randomize_projection_depth', action='store_true', help='randomize the depth for MIP')
-        parser.add_argument('--projection_depth', type=int, default=10,
-                            help='depth for maximum intensity projections. ')
 
         return parser
 
@@ -72,6 +75,7 @@ class AxialToLateralGANApolloModel(BaseModel):
             self.projection_depth_custom = opt.projection_depth
         else:
             self.max_projection_depth = opt.projection_depth
+            self.min_projection_depth = opt.min_projection_depth
             print("Projection depth is randomized with maximum depth of %d." % (self.max_projection_depth))
 
         # specify the images you want to save/display. The training/test scripts will call <BaseModel.get_current_visuals>
@@ -157,7 +161,7 @@ class AxialToLateralGANApolloModel(BaseModel):
         if not (self.randomize_projection_depth):
             self.projection_depth = self.projection_depth_custom
         else:
-            self.projection_depth = np.random.randint(2, self.max_projection_depth + 1)
+            self.projection_depth = np.random.randint(max(2, self.min_projection_depth), self.max_projection_depth + 1)
 
         # print (self.projection_depth)
         # real_lateral_proj = Volume(self.real, self.device).get_projection(self.projection_depth, 0)
