@@ -163,12 +163,6 @@ class AxialToLateralGANApolloModel(BaseModel):
         else:
             self.projection_depth = np.random.randint(max(2, self.min_projection_depth), self.max_projection_depth + 1)
 
-        # print (self.projection_depth)
-        # real_lateral_proj = Volume(self.real, self.device).get_projection(self.projection_depth, 0)
-        #
-        # mip_np = util.util.tensor2im(real_lateral_proj, is_normalized=True, imtype=np.uint8).squeeze()
-        # util.util.save_image(mip_np, '/mnt/trunk/test_real.png')
-
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>.
         In this version, we iterate through each slice in a cube.
