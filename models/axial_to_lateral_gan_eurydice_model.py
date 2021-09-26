@@ -145,8 +145,8 @@ class AxialToLateralGANEurydiceModel(BaseModel):
             self.optimizer_G = torch.optim.Adam(itertools.chain(self.netG_A.parameters(), self.netG_B.parameters()),
                                                 lr=opt.lr, betas=(opt.beta1, 0.999))
             self.optimizer_D = torch.optim.Adam(
-                itertools.chain(self.netD_A_axial.parameters(), self.netD_A_lateral.parameters(),
-                                self.netD_B_axial.parameters(), self.netD_B_lateral.parameters()),
+                itertools.chain(self.netD_A_axial_1.parameters(), self.netD_A_axial_2.parameters(), self.netD_A_lateral.parameters(),
+                                self.netD_B_axial_1.parameters(), self.netD_B_axial_2.parameters(), self.netD_B_lateral.parameters()),
                 lr=opt.lr, betas=(opt.beta1, 0.999))
             self.optimizers.append(self.optimizer_G)
             self.optimizers.append(self.optimizer_D)
