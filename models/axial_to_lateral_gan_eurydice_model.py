@@ -95,7 +95,7 @@ class AxialToLateralGANEurydiceModel(BaseModel):
 
         # specify the models you want to save to the disk. The training/test scripts will call <BaseModel.save_networks> and <BaseModel.load_networks>.
         if self.isTrain:
-            self.model_names = ['G_A', 'G_B', 'D_A_lateral', 'D_A_axial', 'D_B_lateral', 'D_B_axial']
+            self.model_names = ['G_A', 'G_B', 'D_A_lateral', 'D_A_axial_1', 'D_A_axial_2', 'D_B_lateral', 'D_B_axial_1', 'D_B_axial_2']
         else:  # during test time, only load Gs
             self.model_names = ['G_A', 'G_B']
 
