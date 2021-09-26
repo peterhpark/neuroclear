@@ -14,8 +14,8 @@ class AxialToLateralGANEurydiceModel(BaseModel):
     GAN Loss is calculated in 2D between axial image and lateral image. -> Discriminator takes 2D images
                                                                         -> Generator takes 3D images.
 
-    This model is an updated version of Artemis: we take into account of the lateral plane of the blurred image is actually
-    a MIP image (because of blurring in z-axis).
+    This model is an updated version of Apollo: this model is specialized for a image volume where XZ images and YZ images
+    capture visually very different object aspects.
 
     G_A: original -> isotropic
     G_B: isotropic -> original
@@ -91,7 +91,7 @@ class AxialToLateralGANEurydiceModel(BaseModel):
 
         self.lateral_axis = 0  # XY plane
         self.axial_1_axis = 1 # XZ plane
-        self.axial_2_axis = 2 # XZ plane
+        self.axial_2_axis = 2 # YZ plane
 
         # specify the models you want to save to the disk. The training/test scripts will call <BaseModel.save_networks> and <BaseModel.load_networks>.
         if self.isTrain:
@@ -111,18 +111,26 @@ class AxialToLateralGANEurydiceModel(BaseModel):
                                         dimension=self.gen_dimension)
 
         if self.isTrain:  # define discriminators
-            self.netD_A_axial = networks.define_D(opt.output_nc, opt.ndf, opt.netD,
+            self.netD_A_axial_1 = networks.define_D(opt.output_nc, opt.ndf, opt.netD,
                                                   opt.n_layers_D, opt.norm, opt.init_type, opt.init_gain, False,
                                                   self.gpu_ids, dimension=self.dis_dimension)
+
+            self.netD_A_axial_2 = networks.define_D(opt.output_nc, opt.ndf, opt.netD,
+                                                    opt.n_layers_D, opt.norm, opt.init_type, opt.init_gain, False,
+                                                    self.gpu_ids, dimension=self.dis_dimension)
 
             self.netD_A_lateral = networks.define_D(opt.output_nc, opt.ndf, opt.netD,
                                                     opt.n_layers_D, opt.norm, opt.init_type, opt.init_gain, False,
                                                     self.gpu_ids, dimension=self.dis_dimension)
 
 
-            self.netD_B_axial = networks.define_D(opt.input_nc, opt.ndf, opt.netD,
+            self.netD_B_axial_1 = networks.define_D(opt.input_nc, opt.ndf, opt.netD,
                                                   opt.n_layers_D, opt.norm, opt.init_type, opt.init_gain, False,
                                                   self.gpu_ids, dimension=self.dis_dimension)
+
+            self.netD_B_axial_2 = networks.define_D(opt.input_nc, opt.ndf, opt.netD,
+                                                    opt.n_layers_D, opt.norm, opt.init_type, opt.init_gain, False,
+                                                    self.gpu_ids, dimension=self.dis_dimension)
 
             self.netD_B_lateral = networks.define_D(opt.input_nc, opt.ndf, opt.netD,
                                                     opt.n_layers_D, opt.norm, opt.init_type, opt.init_gain, False,
@@ -236,11 +244,11 @@ class AxialToLateralGANEurydiceModel(BaseModel):
 
     def backward_D_A_axial(self): # compares real XY slice image and fake axial MIP image.
         """Calculate GAN loss for discriminator D_A"""
-        self.loss_D_A_axial_1 = self.backward_D_projection(self.netD_A_axial, self.real, self.fake, self.lateral_axis,
+        self.loss_D_A_axial_1 = self.backward_D_projection(self.netD_A_axial_1, self.real, self.fake, self.lateral_axis,
                                                       self.axial_1_axis)  # comparing XY_original to YZ_fake
 
-        self.loss_D_A_axial_2 = self.backward_D_projection(self.netD_A_axial, self.real, self.fake, self.lateral_axis,
-                                                      self.axial_1_axis)
+        self.loss_D_A_axial_2 = self.backward_D_slice(self.netD_A_axial_2, self.real, self.fake, self.lateral_axis,
+                                                      self.axial_2_axis) # Note that for YZ, it only takes each slice, but a projection.
 
         self.loss_D_A_axial = (self.loss_D_A_axial_1 + self.loss_D_A_axial_2)*0.5
 
@@ -250,10 +258,10 @@ class AxialToLateralGANEurydiceModel(BaseModel):
 
     def backward_D_B_axial(self): # compares real axial slice image and fake axial slice image.
         """Calculate GAN loss for discriminator D_B, which compares the original and the reconstructed. """
-        self.loss_D_B_axial_1 = self.backward_D_slice(self.netD_B_axial, self.real, self.rec, self.axial_1_axis,
+        self.loss_D_B_axial_1 = self.backward_D_slice(self.netD_B_axial_1, self.real, self.rec, self.axial_1_axis,
                                                       self.axial_1_axis)  # comparing YZ_original to YZ_reconstructed
 
-        self.loss_D_B_axial_2 = self.backward_D_slice(self.netD_B_axial, self.real, self.rec, self.axial_2_axis,
+        self.loss_D_B_axial_2 = self.backward_D_slice(self.netD_B_axial_2, self.real, self.rec, self.axial_2_axis,
                                                       self.axial_2_axis)  # comparing YZ_original to YZ_reconstructed
 
         self.loss_D_B_axial = (self.loss_D_B_axial_1 + self.loss_D_B_axial_2)*0.5
@@ -265,18 +273,18 @@ class AxialToLateralGANEurydiceModel(BaseModel):
         self.loss_G_A_lateral = self.criterionGAN(self.proj_f(self.fake, self.netD_A_lateral, self.lateral_axis),
                                                   True) * self.lambda_plane_target
 
-        self.loss_G_A_axial = self.criterionGAN(self.proj_f(self.fake, self.netD_A_axial, self.axial_1_axis),
+        self.loss_G_A_axial = self.criterionGAN(self.proj_f(self.fake, self.netD_A_axial_1, self.axial_1_axis),
                                                 True) * self.lambda_slice + \
-                              self.criterionGAN(self.proj_f(self.fake, self.netD_A_axial, self.axial_1_axis),
+                              self.criterionGAN(self.iter_f(self.fake, self.netD_A_axial_2, self.axial_2_axis),
                                                 True) * self.lambda_slice
 
         self.loss_G_A = self.loss_G_A_lateral + self.loss_G_A_axial * 0.5
 
         self.loss_G_B_lateral = self.criterionGAN(self.iter_f(self.rec, self.netD_B_lateral, self.lateral_axis),
                                                   True) * self.lambda_plane_target
-        self.loss_G_B_axial = self.criterionGAN(self.iter_f(self.rec, self.netD_B_axial, self.axial_1_axis),
+        self.loss_G_B_axial = self.criterionGAN(self.iter_f(self.rec, self.netD_B_axial_1, self.axial_1_axis),
                                                 True) * self.lambda_slice + \
-                              self.criterionGAN(self.iter_f(self.rec, self.netD_B_axial, self.axial_2_axis),
+                              self.criterionGAN(self.iter_f(self.rec, self.netD_B_axial_2, self.axial_2_axis),
                                                 True) * self.lambda_slice
 
         self.loss_G_B = self.loss_G_B_lateral + self.loss_G_B_axial * 0.5
@@ -295,14 +303,14 @@ class AxialToLateralGANEurydiceModel(BaseModel):
 
         # G_A and G_B
         self.set_requires_grad(
-            [self.netD_A_lateral, self.netD_A_axial, self.netD_B_lateral, self.netD_B_axial], False)  # Ds require no gradients when optimizing Gs
+            [self.netD_A_lateral, self.netD_A_axial_1, self.netD_A_axial_2, self.netD_B_lateral, self.netD_B_axial_1, self.netD_B_axial_2], False)  # Ds require no gradients when optimizing Gs
         self.optimizer_G.zero_grad()  # set G_A and G_B's gradients to zero
         self.backward_G()  # calculate gradients for G_A and G_B
         self.optimizer_G.step()  # update G_A and G_B's weights
 
         # D_A and D_B
         self.set_requires_grad(
-            [self.netD_A_lateral, self.netD_A_axial, self.netD_B_lateral, self.netD_B_axial], True)
+            [self.netD_A_lateral, self.netD_A_axial_1, self.netD_A_axial_2, self.netD_B_lateral, self.netD_B_axial_1, self.netD_B_axial_2], True)
         self.optimizer_D.zero_grad()  # set D_A and D_B's gradients to zero
 
         self.backward_D_A_lateral()
