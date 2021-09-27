@@ -157,14 +157,14 @@ class Assemble_Dice():
                 current_z, current_y, current_x = self.indexToCoordinates(index)
 
                 # assert cube.dtype == self.imtype, "Data type of the assembling cubes does not match the given data type. "
-                print ("patching index: " + str(index))
+                # print ("patching index: " + str(index))
                 if self.overlap > 0:
                     self.visual_ret[name][current_z:current_z + self.roi_size, current_y:current_y + self.roi_size,
                     current_x:current_x + self.roi_size] += cube/8 # divide by 4 to prevent the overflowing.
-                    print ("cube_added")
+                    # print ("cube_added")
                     self.mask_ret[name][current_z:current_z + self.roi_size, current_y:current_y + self.roi_size,
                     current_x:current_x + self.roi_size] += np.ones((self.roi_size,self.roi_size,self.roi_size),  dtype = np.float32)
-                    print ("mask added")
+                    # print ("mask added")
                 if cube.shape != (self.roi_size, self.roi_size, self.roi_size):
                     raise Exception('The cube does not have the proper size.')
 
