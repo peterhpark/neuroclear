@@ -153,30 +153,12 @@ if __name__ == '__main__':
     # print ("Whole image volumes are saved. ")
 
     if opt.dataroot_gt is not None:
-        from skimage.exposure import match_histograms
 
         util.mkdir(web_dir + '/images/gt')
         GT_save_path = web_dir + '/images/gt/GT.tif'
         GT_path = make_dataset(opt.dataroot_gt, 1)[0]
         Ground_truth = io.imread(GT_path)
-        Ground_truth = Ground_truth[-z:, -y:, -x:] #crop to match the cropped input and output
-        if opt.data_type == 'uint16' and Ground_truth.dtype == np.uint8:
-            print ("GT is 8-bit.")
-            Ground_truth = Ground_truth / (2**8-1)
-            Ground_truth *= (2**16-1)
-            Ground_truth = Ground_truth.astype(np.uint16)
-
-        bckgr_thre, bckgr_val = opt.background_threshold
-        slice_start, slice_end = opt.reference_slice_range
-
-        print("Ground-truth image loaded.")
-
-
-        # Match input and output histogram to GT.
-        # fake_volume = match_histograms(fake_volume, Ground_truth)
-        # real_volume = match_histograms(real_volume, Ground_truth)
-        # print ("applied histogram matching on both fake and real to GT.")
-
+        # Ground_truth = Ground_truth[-z:, -y:, -x:] #crop to match the cropped input and output
 
         print("Calculating SSIM and PSNR for the whole image volume...")
 
