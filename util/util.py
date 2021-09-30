@@ -89,6 +89,10 @@ def get_snr(img_original, img_noised):
 def standardize(img_np):
     return (img_np-np.mean(img_np))/np.std(img_np)
 
+def get_psnr(source, target, max_val):
+    mse = np.mean((target - source)**2)
+    return 20*math.log(max_val,10)-10*math.log(mse,10)
+
 def diagnose_network(net, name='network'):
     """Calculate and print the mean of average absolute(gradients)
 
