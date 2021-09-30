@@ -17,7 +17,6 @@ class Assemble_Dice():
 
         self.roi_size = opt.dice_size[0]
         self.overlap = opt.overlap
-        # self.img_mean, self.img_std =  opt.img_params
         self.step = self.roi_size - self.overlap
 
         self.z_steps  = (self.image_size[0]-self.overlap)//self.step
@@ -32,8 +31,8 @@ class Assemble_Dice():
         self.imtype = opt.data_type
 
         self.no_histogram_match = opt.no_histogram_match
-        if self.no_histogram_match:
-            print ("Not matching the histograms of output sub-volumes with input sub-volumes.")
+        if not(self.no_histogram_match):
+            print ("We will match the histograms of output sub-volumes with input sub-volumes.")
 
         if ('normalizedcgan' in opt.preprocess):
             print ("Converting the image type based on DC-GAN normalization range...")
@@ -138,13 +137,9 @@ class Assemble_Dice():
 
             cube_dict[name] = cube_numpy
 
-        # if self.use_dcgan_norm:
-        #     cube_dict[name] += 1
-        #     cube_dict[name] = cube_dict[name] / 2
-
         ## Perform histogram matching on the output cube to the input cube as post-processing.
-        # if not(self.no_histogram_match):
-        cube_dict['fake'] = match_histograms(cube_dict['fake'], cube_dict['real'])
+        if not (self.no_histogram_match):
+            cube_dict['fake'] = match_histograms(cube_dict['fake'], cube_dict['real'])
         ##
 
         for name in self.visual_names:
@@ -157,14 +152,11 @@ class Assemble_Dice():
                 current_z, current_y, current_x = self.indexToCoordinates(index)
 
                 # assert cube.dtype == self.imtype, "Data type of the assembling cubes does not match the given data type. "
-                # print ("patching index: " + str(index))
                 if self.overlap > 0:
                     self.visual_ret[name][current_z:current_z + self.roi_size, current_y:current_y + self.roi_size,
                     current_x:current_x + self.roi_size] += cube/8 # divide by 4 to prevent the overflowing.
-                    # print ("cube_added")
                     self.mask_ret[name][current_z:current_z + self.roi_size, current_y:current_y + self.roi_size,
                     current_x:current_x + self.roi_size] += np.ones((self.roi_size,self.roi_size,self.roi_size),  dtype = np.float32)
-                    # print ("mask added")
                 if cube.shape != (self.roi_size, self.roi_size, self.roi_size):
                     raise Exception('The cube does not have the proper size.')
 
