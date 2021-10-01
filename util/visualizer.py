@@ -18,7 +18,7 @@ from matplotlib import cm
 from tifffile import imsave
 import torch
 
-def  save_images(webpage, visuals, image_path, aspect_ratio=1.0, width=256):
+def save_images(webpage, visuals, image_path, aspect_ratio=1.0, width=256):
     """Save images to the disk,
 
     Parameters:
