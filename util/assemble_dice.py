@@ -170,26 +170,26 @@ class Assemble_Dice():
 
             print ("For debug: maximum iterations of overlaps: " + str(np.max(self.mask_ret[name])))
 
-        ## convert the datatype
-        if self.imtype == 'uint8':
-            # self.visual_ret[name] *= self.img_std
-            # self.visual_ret[name] += self.img_mean # then the image is scaled to 0-1.
+            ## convert the datatype
+            if self.imtype == 'uint8':
+                # self.visual_ret[name] *= self.img_std
+                # self.visual_ret[name] += self.img_mean # then the image is scaled to 0-1.
 
-            self.visual_ret[name] *= 255
-            self.visual_ret[name] = self.visual_ret[name].astype(np.uint8)
+                self.visual_ret[name] *= 255
+                self.visual_ret[name] = self.visual_ret[name].astype(np.uint8)
 
-        if self.imtype == 'uint16':
-            # self.visual_ret[name] *= self.img_std
-            # self.visual_ret[name] += self.img_mean # then the image is scaled to 0-1.
+            if self.imtype == 'uint16':
+                # self.visual_ret[name] *= self.img_std
+                # self.visual_ret[name] += self.img_mean # then the image is scaled to 0-1.
 
-            self.visual_ret[name] *= 2 ** 16 - 1
-            self.visual_ret[name] = self.visual_ret[name].astype(np.uint16)
+                self.visual_ret[name] *= 2 ** 16 - 1
+                self.visual_ret[name] = self.visual_ret[name].astype(np.uint16)
 
-        # crop the regions that were padded for clean-cut dicing.
-        if self.image_size_original is not None:
-            padders_ = [self.image_size[i] - self.image_size_original[i] for i in range(len(self.image_size))]
-            print("Image cropped to revert back to the original size by: " + str(padders_))
-            self.visual_ret[name] = self.visual_ret[name][:-padders_[0], :-padders_[1], :-padders_[2]]
+            # crop the regions that were padded for clean-cut dicing.
+            if self.image_size_original is not None:
+                padders_ = [self.image_size[i] - self.image_size_original[i] for i in range(len(self.image_size))]
+                print("Image cropped to revert back to the original size by: " + str(padders_))
+                self.visual_ret[name] = self.visual_ret[name][:-padders_[0], :-padders_[1], :-padders_[2]]
 
 
     # tells you if the index corresponds to a cube outside the boundary of the whole image.
