@@ -5,8 +5,7 @@ import numpy as np
 from util.image_pool import ImagePool
 from .base_model import BaseModel
 from . import networks
-from util.util import normalize
-from torch.autograd import grad
+
 
 class AxialToLateralGANAthenaModel(BaseModel):
     """
