@@ -1,13 +1,8 @@
 import torch
 import itertools
 import numpy as np
-
-import util.util
-from util.image_pool import ImagePool
 from .base_model import BaseModel
 from . import networks
-from util.util import normalize
-from torch.autograd import grad
 
 class AxialToLateralGANArtemisModel(BaseModel):
     """
