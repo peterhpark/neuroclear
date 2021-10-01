@@ -55,7 +55,7 @@ class BaseOptions():
         parser.add_argument('--load_size', type=int, default=286, help='scale images to this size')
         parser.add_argument('--crop_size', type=int, nargs= '+', default=[0, 0, 0], help='crop to this size. e.g. y x z')
         parser.add_argument('--dice_size', type=int, nargs= '+', default=[0, 0, 0], help='dice to this size (for inference). e.g. y x z')
-        parser.add_argument('--crop_portion', type=int, default= 90, help='Perform centerwise cropping based on the percentage. ')
+        # parser.add_argument('--crop_portion', type=int, default= 90, help='Perform centerwise cropping based on the percentage. ')
 
         parser.add_argument('--max_dataset_size', type=int, default=float("inf"), help='Maximum number of samples allowed per dataset. If the dataset directory contains more than max_dataset_size, only a subset is loaded.')
         parser.add_argument('--preprocess', type=str, default='none', help='[randomcrop | randomrotate | randomflip | normalize | none]')

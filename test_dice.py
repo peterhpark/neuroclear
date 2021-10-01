@@ -38,10 +38,10 @@ from skimage import io
 import data
 from tqdm import tqdm
 import numpy as np
-from skimage.metrics import structural_similarity as get_ssim
-from skimage.metrics import peak_signal_noise_ratio as get_psnr
-from skimage.metrics import normalized_root_mse as get_nrmse
-from skimage.metrics import mean_squared_error as get_mse
+# from skimage.metrics import structural_similarity as get_ssim
+# from skimage.metrics import peak_signal_noise_ratio as get_psnr
+# from skimage.metrics import normalized_root_mse as get_nrmse
+# from skimage.metrics import mean_squared_error as get_mse
 
 from data.image_folder import make_dataset
 from tifffile import imsave
@@ -152,195 +152,6 @@ if __name__ == '__main__':
     #
     # print ("Whole image volumes are saved. ")
 
-    if opt.dataroot_gt is not None:
-
-        util.mkdir(web_dir + '/images/gt')
-        GT_save_path = web_dir + '/images/gt/GT.tif'
-        GT_path = make_dataset(opt.dataroot_gt, 1)[0]
-        Ground_truth = io.imread(GT_path)
-        # Ground_truth = Ground_truth[-z:, -y:, -x:] #crop to match the cropped input and output
-
-        print("Calculating SSIM and PSNR for the whole image volume...")
-
-        ##
-        # Calculate image metrics
-        # dims are [input:0/output:1, mean metric across XY slice, mean metric across XZ slice, mean metric across YZ slice
-
-        vol_shape = real_volume.shape
-        ssim_array = np.zeros((2, 3)) # SSIM
-        psnr_array = np.zeros((2, 3)) # PSNR
-        nrmse_array = np.zeros((2, 3)) # Normalized RMSE
-        mse_array = np.zeros((2, 3)) # MSE
-
-        ## Calculate for XY
-        ssim_input_list_xy = []
-        psnr_input_list_xy = []
-        nrmse_input_list_xy = []
-        mse_input_list_xy = []
-
-        ssim_output_list_xy = []
-        psnr_output_list_xy = []
-        nrmse_output_list_xy = []
-        mse_output_list_xy = []
-
-        for sl_index, xy_slice_input in enumerate(real_volume):
-            ssim_input_list_xy.append(get_ssim(Ground_truth[sl_index], xy_slice_input))
-            psnr_input_list_xy.append(get_psnr(Ground_truth[sl_index], xy_slice_input, data_range=data_range))
-            nrmse_input_list_xy.append(get_nrmse(Ground_truth[sl_index], xy_slice_input))
-            mse_input_list_xy.append(get_mse(Ground_truth[sl_index], xy_slice_input))
-
-        for sl_index, xy_slice_output in enumerate(fake_volume):
-            ssim_output_list_xy.append(get_ssim(Ground_truth[sl_index], xy_slice_output))
-            psnr_output_list_xy.append(get_psnr(Ground_truth[sl_index], xy_slice_output, data_range=data_range))
-            nrmse_output_list_xy.append(get_nrmse(Ground_truth[sl_index], xy_slice_output))
-            mse_output_list_xy.append(get_mse(Ground_truth[sl_index], xy_slice_output))
-
-        ssim_array[0, 0] = np.median(ssim_input_list_xy)
-        ssim_array[1, 0] = np.median(ssim_output_list_xy)
-
-        psnr_array[0, 0] = np.median(psnr_input_list_xy)
-        psnr_array[1, 0] = np.median(psnr_output_list_xy)
-
-        nrmse_array[0, 0] = np.median(nrmse_input_list_xy)
-        nrmse_array[1, 0] = np.median(nrmse_output_list_xy)
-
-        ## Calculate for XZ
-        ssim_input_list_xz = []
-        psnr_input_list_xz = []
-        nrmse_input_list_xz = []
-        mse_input_list_xz = []
-
-        ssim_output_list_xz = []
-        psnr_output_list_xz = []
-        nrmse_output_list_xz = []
-        mse_output_list_xz = []
-
-        for sl_index in range(vol_shape[1]):
-            ssim_input_list_xz.append(get_ssim(Ground_truth[:, sl_index], real_volume[:,sl_index]))
-            psnr_input_list_xz.append(get_psnr(Ground_truth[:, sl_index], real_volume[:,sl_index], data_range=data_range))
-            nrmse_input_list_xz.append(get_nrmse(Ground_truth[:, sl_index], real_volume[:,sl_index]))
-            mse_input_list_xz.append(get_mse(Ground_truth[:, sl_index], real_volume[:,sl_index]))
-
-        for sl_index in range(vol_shape[1]):
-            ssim_output_list_xz.append(get_ssim(Ground_truth[:, sl_index], fake_volume[:,sl_index]))
-            psnr_output_list_xz.append(get_psnr(Ground_truth[:, sl_index], fake_volume[:,sl_index], data_range=data_range))
-            nrmse_output_list_xz.append(get_nrmse(Ground_truth[:, sl_index], fake_volume[:,sl_index]))
-            mse_output_list_xz.append(get_mse(Ground_truth[:, sl_index], fake_volume[:,sl_index]))
-
-        ssim_array[0, 1] = np.median(ssim_input_list_xz)
-        ssim_array[1, 1] = np.median(ssim_output_list_xz)
-
-        psnr_array[0, 1] = np.median(psnr_input_list_xz)
-        psnr_array[1, 1] = np.median(psnr_output_list_xz)
-
-        nrmse_array[0, 1] = np.median(nrmse_input_list_xz)
-        nrmse_array[1, 1] = np.median(nrmse_output_list_xz)
-
-        ssim_input_list_yz = []
-        psnr_input_list_yz = []
-        nrmse_input_list_yz = []
-        mse_input_list_yz = []
-
-        ssim_output_list_yz = []
-        psnr_output_list_yz = []
-        nrmse_output_list_yz = []
-        mse_output_list_yz = []
-
-        for sl_index in range(vol_shape[2]):
-            ssim_input_list_yz.append(get_ssim(Ground_truth[:, :, sl_index], real_volume[:, :, sl_index],
-                                      data_range=data_range))
-            psnr_input_list_yz.append(get_psnr(Ground_truth[:, :, sl_index], real_volume[:, :, sl_index],
-                                      data_range=data_range))
-            nrmse_input_list_yz.append(get_nrmse(Ground_truth[:, :, sl_index], real_volume[:, :, sl_index]))
-            mse_input_list_yz.append(get_mse(Ground_truth[:, :, sl_index], real_volume[:, :, sl_index]))
-
-        for sl_index in range(vol_shape[2]):
-            ssim_output_list_yz.append(get_ssim(Ground_truth[:, :, sl_index], fake_volume[:, :, sl_index],
-                                       data_range=data_range))
-            psnr_output_list_yz.append(get_psnr(Ground_truth[:, :, sl_index], fake_volume[:, :, sl_index],
-                                       data_range=data_range))
-            nrmse_output_list_yz.append(get_nrmse(Ground_truth[:, :, sl_index], fake_volume[:, :, sl_index]))
-            mse_output_list_yz.append(get_mse(Ground_truth[:, :, sl_index], fake_volume[:, :, sl_index]))
-
-        ssim_array[0, 2] = np.median(ssim_input_list_yz)
-        ssim_array[1, 2] = np.median(ssim_output_list_yz)
-
-        psnr_array[0, 2] = np.median(psnr_input_list_yz)
-        psnr_array[1, 2] = np.median(psnr_output_list_yz)
-
-        nrmse_array[0, 2] = np.median(nrmse_input_list_yz)
-        nrmse_array[1, 2] = np.median(nrmse_output_list_yz)
-
-        print("calculating the metrics for whole image volumes")
-        # ssim_input_gt = get_ssim(Ground_truth, real_volume, data_range = data_range)
-        ssim_input_gt = get_ssim(Ground_truth, real_volume)
-        psnr_input_gt = get_psnr(Ground_truth, real_volume, data_range = data_range)
-        mse_input_gt = get_mse(Ground_truth, real_volume)
-        nrmse_input_gt = get_nrmse(Ground_truth, real_volume)
-
-        # ssim_output_gt = get_ssim(Ground_truth, fake_volume, data_range = data_range)
-        ssim_output_gt = get_ssim(Ground_truth, fake_volume)
-        psnr_output_gt = get_psnr(Ground_truth, fake_volume, data_range = data_range)
-        mse_output_gt = get_mse(Ground_truth, fake_volume)
-        nrmse_output_gt = get_nrmse(Ground_truth, fake_volume)
-        #
-
-        print ("Metrics are calculated.")
-
-        message = 'Experiment Name: ' + opt.name + '\n'
-        message += '---------------------------------------------------------\n'
-        message += '\nIn XY plane\n'
-        message += '---------------------------------------------------------\n'
-
-        message += 'Network Input vs. Groundtruth\n'
-        message += '(ssim: %.4f, psnr: %.4f, mse: %.4f, nrmse: %.4f) \n' % (
-        ssim_array[0,0], psnr_array[0,0], mse_array[0,0], nrmse_array[0,0])
-        message += '---------------------------------------------------------\n'
-        message += 'Network Output vs. Groundtruth\n'
-        message += '(ssim: %.4f, psnr: %.4f, mse: %.4f, nrmse: %.4f) \n' % (
-        ssim_array[1,0], psnr_array[1,0], mse_array[1,0], nrmse_array[1,0])
-        message += '---------------------------------------------------------'
-
-        message += '\nIn XZ plane\n'
-        message += '---------------------------------------------------------\n'
-        message += 'Network Input vs. Groundtruth\n'
-        message += '(ssim: %.4f, psnr: %.4f, mse: %.4f, nrmse: %.4f) \n' % (
-        ssim_array[0,1], psnr_array[0,1], mse_array[0,1], nrmse_array[0,1])
-        message += '---------------------------------------------------------\n'
-        message += 'Network Output vs. Groundtruth\n'
-        message += '(ssim: %.4f, psnr: %.4f, mse: %.4f, nrmse: %.4f) \n' % (
-        ssim_array[1,1], psnr_array[1,1], mse_array[1,1], nrmse_array[1,1])
-        message += '---------------------------------------------------------'
-
-        message += '\nIn YZ plane\n'
-        message += '---------------------------------------------------------\n'
-        message += 'Network Input vs. Groundtruth\n'
-        message += '(ssim: %.4f, psnr: %.4f, mse: %.4f, nrmse: %.4f) \n' % (
-        ssim_array[0,2], psnr_array[0,2], mse_array[0,2], nrmse_array[0,2])
-        message += '---------------------------------------------------------\n'
-        message += 'Network Output vs. Groundtruth\n'
-        message += '(ssim: %.4f, psnr: %.4f, mse: %.4f, nrmse: %.4f) \n' % (
-        ssim_array[1,2], psnr_array[1,2], mse_array[1,2], nrmse_array[1,2])
-        message += '---------------------------------------------------------'
-
-        # message += '---------------------------------------------------------\n'
-        # message += '\nWhole_volume\n'
-        # message += '---------------------------------------------------------\n'
-        # message += 'Network Input vs. Groundtruth\n'
-        # message += '(ssim: %.4f, psnr: %.4f, mse: %.4f, nrmse: %.4f) \n' % (
-        # ssim_input_gt, psnr_input_gt, mse_input_gt, nrmse_input_gt)
-        # message += '---------------------------------------------------------\n'
-        # message += 'Network Output vs. Groundtruth\n'
-        # message += '(ssim: %.4f, psnr: %.4f, mse: %.4f, nrmse: %.4f) \n' % (
-        # ssim_output_gt, psnr_output_gt, mse_output_gt, nrmse_output_gt)
-        # message += '---------------------------------------------------------'
-
-        print (message)
-        filename = os.path.join(web_dir, 'metrics.txt')
-
-        with open(filename, "a") as metric_file:
-            metric_file.write('%s\n' % message)  # save the message
-
     if opt.save_volume:
         util.mkdir(web_dir + '/volumes')
         # output_xy_vol_path = web_dir + '/volumes/output_volume_xy-view.tif'
@@ -357,26 +168,26 @@ if __name__ == '__main__':
             imsave(input_xy_vol_path, real_volume)
             print("Input volume is saved as a tiff file. ")
 
-    # if opt.save_projection:
-    #     start_slice, end_slice = opt.projection_range
-    #     fake_proj_xy = np.amax(fake_volume[start_slice:end_slice], axis=0)
-    #     fake_proj_xz = np.amax(fake_volume[start_slice:end_slice], axis=1)
-    #     fake_proj_yz = np.amax(fake_volume, axis=2)
-    #
-    #     util.mkdir(web_dir + '/projections')
-    #
-    #     util.save_image(fake_proj_xy, web_dir + '/projections/fake_xy_proj.tif')
-    #     util.save_image(fake_proj_xz, web_dir + '/projections/fake_xz_proj.tif')
-    #     util.save_image(fake_proj_yz, web_dir + '/projections/fake_yz_proj.tif')
-    #
-    #     if not opt.skip_real:
-    #         real_proj_xy = np.amax(real_volume, axis=0)
-    #         real_proj_xz = np.amax(real_volume, axis=1)
-    #         real_proj_yz = np.amax(real_volume, axis=2)
-    #
-    #         util.save_image(real_proj_xy, web_dir + '/projections/real_xy_proj.tif')
-    #         util.save_image(real_proj_xz, web_dir + '/projections/real_xz_proj.tif')
-    #         util.save_image(real_proj_yz, web_dir + '/projections/real_yz_proj.tif')
+    if opt.save_projection:
+        start_slice, end_slice = opt.projection_range
+        fake_proj_xy = np.amax(fake_volume[start_slice:end_slice], axis=0)
+        fake_proj_xz = np.amax(fake_volume[start_slice:end_slice], axis=1)
+        fake_proj_yz = np.amax(fake_volume, axis=2)
+
+        util.mkdir(web_dir + '/projections')
+
+        util.save_image(fake_proj_xy, web_dir + '/projections/fake_xy_proj.tif')
+        util.save_image(fake_proj_xz, web_dir + '/projections/fake_xz_proj.tif')
+        util.save_image(fake_proj_yz, web_dir + '/projections/fake_yz_proj.tif')
+
+        if not opt.skip_real:
+            real_proj_xy = np.amax(real_volume, axis=0)
+            real_proj_xz = np.amax(real_volume, axis=1)
+            real_proj_yz = np.amax(real_volume, axis=2)
+
+            util.save_image(real_proj_xy, web_dir + '/projections/real_xy_proj.tif')
+            util.save_image(real_proj_xz, web_dir + '/projections/real_xz_proj.tif')
+            util.save_image(real_proj_yz, web_dir + '/projections/real_yz_proj.tif')
 
     if opt.save_slices:
         output_xy_path = web_dir + '/images/output_xy/output_xy_'
@@ -438,4 +249,46 @@ if __name__ == '__main__':
                 util.save_image(Ground_truth[i,:,:], gt_xy_path + str(i) + '.tif')
 
 
+    if opt.dataroot_gt is not None:
+
+        util.mkdir(web_dir + '/images/gt')
+        GT_save_path = web_dir + '/images/gt/GT.tif'
+        GT_path = make_dataset(opt.dataroot_gt, 1)[0]
+        gt_volume = io.imread(GT_path)
+        # Ground_truth = Ground_truth[-z:, -y:, -x:] #crop to match the cropped input and output
+
+        print("Calculating SSIM and PSNR for the whole image volume...")
+
+        ##
+        # Calculate image metrics
+
+        datarange = 2**8-1
+        real_volume = util.normalize(util.standardize(real_volume), data_range=datarange)
+        fake_volume = util.normalize(util.standardize(fake_volume), data_range=datarange)
+        gt_volume = util.normalize(util.standardize(gt_volume), data_range=datarange)
+
+        vol_shape = real_volume.shape
+
+        psnr_input_gt = util.get_psnr(real_volume, gt_volume, datarange)
+        psnr_output_gt = util.get_psnr(fake_volume, gt_volume,datarange)
+        print ("Metrics are calculated.")
+
+        message = 'Experiment Name: ' + opt.name + '\n'
+        message += '---------------------------------------------------------\n'
+        message += '\nWhole_volume\n'
+        message += '---------------------------------------------------------\n'
+        message += 'Network Input vs. Groundtruth\n'
+        message += '(psnr: %.4f, mse: %.4f, nrmse: %.4f) \n' % (
+        psnr_input_gt)
+        message += '---------------------------------------------------------\n'
+        message += 'Network Output vs. Groundtruth\n'
+        message += '(ssim: %.4f, psnr: %.4f, mse: %.4f, nrmse: %.4f) \n' % (
+        psnr_output_gt)
+        message += '---------------------------------------------------------'
+
+        print (message)
+        filename = os.path.join(web_dir, 'metrics.txt')
+
+        with open(filename, "a") as metric_file:
+            metric_file.write('%s\n' % message)  # save the message
     print("----Test done----")

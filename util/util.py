@@ -52,6 +52,21 @@ def normalize(img_np, is_tensor=False):
     return img_normd
 
 
+def normalize(img_np, data_range=2 ** 8 - 1):
+    img_min = np.min(img_np)
+    img_max = np.max(img_np)
+
+    new_min = 0
+    new_max = data_range
+
+    img_normd = (img_np - img_min) * ((new_max - new_min) / (img_max - img_min)) + new_min
+
+    if data_range == 2 ** 8 - 1:
+        img_normd = img_normd.astype(np.uint8)
+    else:
+        img_normd = img_normd.astype(float)
+    return img_normd
+
 def noisy(noise_typ, image, sigma=0.1, peak=0.1, is_tensor=False, is_normalize=True):
     if is_tensor:
         image = image.cpu().float().detach().numpy()
@@ -79,6 +94,9 @@ def noisy(noise_typ, image, sigma=0.1, peak=0.1, is_tensor=False, is_normalize=T
 
     return noisy
 
+def get_mse(source, target):
+    mse = np.mean((target - source)**2)
+    return mse
 
 def get_snr(img_original, img_noised):
     mse = np.mean((img_original - img_noised) ** 2)  # Pw
