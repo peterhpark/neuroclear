@@ -25,11 +25,11 @@ def tensor2im(input_image, imtype=np.uint16):
 
         if imtype == np.uint8:
             image_numpy *= (2 ** 8 * 1.0 - 1)
-            # image_numpy = np.clip(image_numpy, 0, 255)
+            image_numpy = np.clip(image_numpy, 0, 255)
 
         if imtype == np.uint16:
             image_numpy *= (2 ** 16 * 1.0 - 1)
-            # image_numpy = np.clip(image_numpy, 0, 2**16-1)
+            image_numpy = np.clip(image_numpy, 0, 2**16-1)
         if imtype == np.float:
             pass
     else:  # if it is a numpy array, do nothing
