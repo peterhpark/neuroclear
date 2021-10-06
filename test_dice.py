@@ -119,17 +119,9 @@ if __name__ == '__main__':
     #dice_assembly.assemble_all(imtype = output_type, background_threshold=( bckgr_thre, bckgr_val))
     print("Image volume re-assembled.")
     img_whole_dict = dice_assembly.getDict()
-    print("re-merged image shape: {}".format(img_whole_dict['real'].shape))
+    print("re-merged image shape: {}".format(img_whole_dict['fake'].shape))
     webpage_wholeimg = html.HTML(web_dir, 'Whole_img: Experiment = %s, Phase = %s, Epoch = %s' % (
     opt.name, opt.phase, opt.epoch))
-
-    # print ("Saving the whole image volume...")
-    #
-    # util.mkdir(web_dir + '/images/output')
-    # output_path = web_dir + '/images/output/output.tif'
-    #
-    # util.mkdir(web_dir + '/images/input')
-    # input_path = web_dir + '/images/input/input.tif'
 
     if opt.data_type == 'uint16':
         data_range = 2 ** 16 - 1
@@ -139,22 +131,19 @@ if __name__ == '__main__':
         # output_dtype = np.uint8
 
     ############# Change the image type ##################
-    real_volume = img_whole_dict['real']
-    # real_volume = real_volume.astype(opt.data_type)
+    if not opt.skip_real:
+        real_volume = img_whole_dict['real']
+        # real_volume = real_volume.astype(opt.data_type)
+        print ("Input data type is: " + str(real_volume.dtype))
+
     fake_volume = img_whole_dict['fake']
     # fake_volume = fake_volume.astype(opt.data_type)
-    print ("Data type is: " + str(fake_volume.dtype))
+    print ("Output data type is: " + str(fake_volume.dtype))
     z, y, x = real_volume.shape
     #####################################################
 
-    # imsave(input_path, real_volume)
-    # imsave(output_path, fake_volume)
-    #
-    # print ("Whole image volumes are saved. ")
-
     if opt.save_volume:
         util.mkdir(web_dir + '/volumes')
-        # output_xy_vol_path = web_dir + '/volumes/output_volume_xy-view.tif'
 
         if opt.load_iter > 0:
             output_xy_vol_path = web_dir + '/volumes/output_volume_xy-view_iter-' + str(opt.load_iter) + '.tif'
@@ -168,26 +157,26 @@ if __name__ == '__main__':
             imsave(input_xy_vol_path, real_volume)
             print("Input volume is saved as a tiff file. ")
 
-    if opt.save_projection:
-        start_slice, end_slice = opt.projection_range
-        fake_proj_xy = np.amax(fake_volume[start_slice:end_slice], axis=0)
-        fake_proj_xz = np.amax(fake_volume[start_slice:end_slice], axis=1)
-        fake_proj_yz = np.amax(fake_volume, axis=2)
-
-        util.mkdir(web_dir + '/projections')
-
-        util.save_image(fake_proj_xy, web_dir + '/projections/fake_xy_proj.tif')
-        util.save_image(fake_proj_xz, web_dir + '/projections/fake_xz_proj.tif')
-        util.save_image(fake_proj_yz, web_dir + '/projections/fake_yz_proj.tif')
-
-        if not opt.skip_real:
-            real_proj_xy = np.amax(real_volume, axis=0)
-            real_proj_xz = np.amax(real_volume, axis=1)
-            real_proj_yz = np.amax(real_volume, axis=2)
-
-            util.save_image(real_proj_xy, web_dir + '/projections/real_xy_proj.tif')
-            util.save_image(real_proj_xz, web_dir + '/projections/real_xz_proj.tif')
-            util.save_image(real_proj_yz, web_dir + '/projections/real_yz_proj.tif')
+    # if opt.save_projection:
+    #     start_slice, end_slice = opt.projection_range
+    #     fake_proj_xy = np.amax(fake_volume[start_slice:end_slice], axis=0)
+    #     fake_proj_xz = np.amax(fake_volume[start_slice:end_slice], axis=1)
+    #     fake_proj_yz = np.amax(fake_volume, axis=2)
+    #
+    #     util.mkdir(web_dir + '/projections')
+    #
+    #     util.save_image(fake_proj_xy, web_dir + '/projections/fake_xy_proj.tif')
+    #     util.save_image(fake_proj_xz, web_dir + '/projections/fake_xz_proj.tif')
+    #     util.save_image(fake_proj_yz, web_dir + '/projections/fake_yz_proj.tif')
+    #
+    #     if not opt.skip_real:
+    #         real_proj_xy = np.amax(real_volume, axis=0)
+    #         real_proj_xz = np.amax(real_volume, axis=1)
+    #         real_proj_yz = np.amax(real_volume, axis=2)
+    #
+    #         util.save_image(real_proj_xy, web_dir + '/projections/real_xy_proj.tif')
+    #         util.save_image(real_proj_xz, web_dir + '/projections/real_xz_proj.tif')
+    #         util.save_image(real_proj_yz, web_dir + '/projections/real_yz_proj.tif')
 
     if opt.save_slices:
         output_xy_path = web_dir + '/images/output_xy/output_xy_'
@@ -224,18 +213,12 @@ if __name__ == '__main__':
             if not opt.skip_real:
                 util.save_image(real_volume[:, :, i], input_yz_path + str(i) + '.tif')
 
-            if opt.dataroot_gt is not None:
-                util.save_image(Ground_truth[:, :, i], gt_yz_path + str(i) + '.tif')
-
         for i in range(img_whole_dict['real'].shape[1]):
             # Save xz slices
 
             util.save_image(fake_volume[:,i,:], output_xz_path + str(i) + '.tif')
             if not opt.skip_real:
                 util.save_image(real_volume[:,i,:], input_xz_path + str(i) + '.tif')
-
-            if opt.dataroot_gt is not None:
-                util.save_image(Ground_truth[:, i, :], gt_xz_path + str(i) + '.tif')
 
         for i in tqdm(range(img_whole_dict['real'].shape[0])):
             # Save xy slices
@@ -245,19 +228,12 @@ if __name__ == '__main__':
             if not opt.skip_real:
                 util.save_image(real_volume[i,:,:], input_xy_path + str(i) + '.tif')
 
-            if opt.dataroot_gt is not None:
-                util.save_image(Ground_truth[i,:,:], gt_xy_path + str(i) + '.tif')
-
-
     if opt.dataroot_gt is not None:
-
-        util.mkdir(web_dir + '/images/gt')
-        GT_save_path = web_dir + '/images/gt/GT.tif'
         GT_path = make_dataset(opt.dataroot_gt, 1)[0]
         gt_volume = io.imread(GT_path)
         # Ground_truth = Ground_truth[-z:, -y:, -x:] #crop to match the cropped input and output
 
-        print("Calculating SSIM and PSNR for the whole image volume...")
+        print("Calculating PSNR for the whole image volume...")
 
         ##
         # Calculate image metrics
@@ -267,10 +243,8 @@ if __name__ == '__main__':
         fake_volume = util.normalize(util.standardize(fake_volume), data_range=datarange)
         gt_volume = util.normalize(util.standardize(gt_volume), data_range=datarange)
 
-        vol_shape = real_volume.shape
-
         psnr_input_gt = util.get_psnr(real_volume, gt_volume, datarange)
-        psnr_output_gt = util.get_psnr(fake_volume, gt_volume,datarange)
+        psnr_output_gt = util.get_psnr(fake_volume, gt_volume, datarange)
         print ("Metrics are calculated.")
 
         message = 'Experiment Name: ' + opt.name + '\n'
@@ -278,11 +252,11 @@ if __name__ == '__main__':
         message += '\nWhole_volume\n'
         message += '---------------------------------------------------------\n'
         message += 'Network Input vs. Groundtruth\n'
-        message += '(psnr: %.4f, mse: %.4f, nrmse: %.4f) \n' % (
+        message += '(psnr: %.4f) \n' % (
         psnr_input_gt)
         message += '---------------------------------------------------------\n'
         message += 'Network Output vs. Groundtruth\n'
-        message += '(ssim: %.4f, psnr: %.4f, mse: %.4f, nrmse: %.4f) \n' % (
+        message += '(psnr: %.4f) \n' % (
         psnr_output_gt)
         message += '---------------------------------------------------------'
 

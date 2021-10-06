@@ -150,7 +150,11 @@ class Assemble_Dice():
         ##
 
         for name in self.visual_names:
-            self.cube_queue[name].append(cube_dict[name])
+            if self.skip_real and name == 'real':
+                pass
+
+            else:
+                self.cube_queue[name].append(cube_dict[name])
 
     def assemble_all(self):
         for name in self.visual_names:
