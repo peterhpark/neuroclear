@@ -29,10 +29,14 @@ class Assemble_Dice():
         self.cube_queue = OrderedDict()
         self.mask_ret = OrderedDict()
         self.imtype = opt.data_type
+        self.skip_real = opt.skip_real
 
         self.no_histogram_match = opt.no_histogram_match
         if not(self.no_histogram_match):
             print ("We will match the histograms of output sub-volumes with input sub-volumes.")
+
+        if self.skip_real:
+            print ("We will skip assembling for the real (input) volume. ")
 
         if ('normalizedcgan' in opt.preprocess):
             print ("Converting the image type based on DC-GAN normalization range...")
@@ -44,9 +48,12 @@ class Assemble_Dice():
 
         # initialize the mapping.
         for name in self.visual_names:
-            self.visual_ret[name] =np.zeros(self.image_size, dtype = np.float32)
-            self.mask_ret[name] = np.zeros(self.image_size,  dtype = np.float32)
-            self.cube_queue[name] = []
+            if self.skip_real and name == 'real':
+                pass
+            else:
+                self.visual_ret[name] =np.zeros(self.image_size, dtype = np.float32)
+                self.mask_ret[name] = np.zeros(self.image_size,  dtype = np.float32)
+                self.cube_queue[name] = []
 
     def indexTo3DIndex(self, index):
         # Dicing order: x-> y-> z
@@ -147,49 +154,52 @@ class Assemble_Dice():
 
     def assemble_all(self):
         for name in self.visual_names:
-            print ("Patching for... " + str(name))
-            for index, cube in enumerate(self.cube_queue[name]):
-                current_z, current_y, current_x = self.indexToCoordinates(index)
+            if self.skip_real and name == 'real':
+                pass
+            else:
+                print ("Patching for... " + str(name))
+                for index, cube in enumerate(self.cube_queue[name]):
+                    current_z, current_y, current_x = self.indexToCoordinates(index)
 
-                # assert cube.dtype == self.imtype, "Data type of the assembling cubes does not match the given data type. "
+                    # assert cube.dtype == self.imtype, "Data type of the assembling cubes does not match the given data type. "
+                    if self.overlap > 0:
+                        self.visual_ret[name][current_z:current_z + self.roi_size, current_y:current_y + self.roi_size,
+                        current_x:current_x + self.roi_size] += cube/8 # divide by 4 to prevent the overflowing.
+                        self.mask_ret[name][current_z:current_z + self.roi_size, current_y:current_y + self.roi_size,
+                        current_x:current_x + self.roi_size] += np.ones((self.roi_size,self.roi_size,self.roi_size),  dtype = np.float32)
+                    if cube.shape != (self.roi_size, self.roi_size, self.roi_size):
+                        raise Exception('The cube does not have the proper size.')
+
+                print ("done patching the cubes for {} image volume.".format(str(name)))
+
                 if self.overlap > 0:
-                    self.visual_ret[name][current_z:current_z + self.roi_size, current_y:current_y + self.roi_size,
-                    current_x:current_x + self.roi_size] += cube/8 # divide by 4 to prevent the overflowing.
-                    self.mask_ret[name][current_z:current_z + self.roi_size, current_y:current_y + self.roi_size,
-                    current_x:current_x + self.roi_size] += np.ones((self.roi_size,self.roi_size,self.roi_size),  dtype = np.float32)
-                if cube.shape != (self.roi_size, self.roi_size, self.roi_size):
-                    raise Exception('The cube does not have the proper size.')
+                    print("merging all gaps by linear averaging for {} image volume...".format(str(name)))
 
-            print ("done patching the cubes for {} image volume.".format(str(name)))
+                    self.visual_ret[name] = (self.visual_ret[name]/self.mask_ret[name])*8  # multiply by 4 to recover the original values without overflowing from earlier.
+                    print("All gaps merged for {} image volume.".format(str(name)))
 
-            if self.overlap > 0:
-                print("merging all gaps by linear averaging for {} image volume...".format(str(name)))
+                print ("For debug: maximum iterations of overlaps: " + str(np.max(self.mask_ret[name])))
 
-                self.visual_ret[name] = (self.visual_ret[name]/self.mask_ret[name])*8  # multiply by 4 to recover the original values without overflowing from earlier.
-                print("All gaps merged for {} image volume.".format(str(name)))
+                ## convert the datatype
+                if self.imtype == 'uint8':
+                    # self.visual_ret[name] *= self.img_std
+                    # self.visual_ret[name] += self.img_mean # then the image is scaled to 0-1.
 
-            print ("For debug: maximum iterations of overlaps: " + str(np.max(self.mask_ret[name])))
+                    self.visual_ret[name] *= 255
+                    self.visual_ret[name] = self.visual_ret[name].astype(np.uint8)
 
-            ## convert the datatype
-            if self.imtype == 'uint8':
-                # self.visual_ret[name] *= self.img_std
-                # self.visual_ret[name] += self.img_mean # then the image is scaled to 0-1.
+                if self.imtype == 'uint16':
+                    # self.visual_ret[name] *= self.img_std
+                    # self.visual_ret[name] += self.img_mean # then the image is scaled to 0-1.
 
-                self.visual_ret[name] *= 255
-                self.visual_ret[name] = self.visual_ret[name].astype(np.uint8)
+                    self.visual_ret[name] *= 2 ** 16 - 1
+                    self.visual_ret[name] = self.visual_ret[name].astype(np.uint16)
 
-            if self.imtype == 'uint16':
-                # self.visual_ret[name] *= self.img_std
-                # self.visual_ret[name] += self.img_mean # then the image is scaled to 0-1.
-
-                self.visual_ret[name] *= 2 ** 16 - 1
-                self.visual_ret[name] = self.visual_ret[name].astype(np.uint16)
-
-            # crop the regions that were padded for clean-cut dicing.
-            if self.image_size_original is not None:
-                padders_ = [self.image_size[i] - self.image_size_original[i] for i in range(len(self.image_size))]
-                print("Image cropped to revert back to the original size by: " + str(padders_))
-                self.visual_ret[name] = self.visual_ret[name][:-padders_[0], :-padders_[1], :-padders_[2]]
+                # crop the regions that were padded for clean-cut dicing.
+                if self.image_size_original is not None:
+                    padders_ = [self.image_size[i] - self.image_size_original[i] for i in range(len(self.image_size))]
+                    print("Image cropped to revert back to the original size by: " + str(padders_))
+                    self.visual_ret[name] = self.visual_ret[name][:-padders_[0], :-padders_[1], :-padders_[2]]
 
 
     # tells you if the index corresponds to a cube outside the boundary of the whole image.
