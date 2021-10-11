@@ -59,7 +59,6 @@ def normalize(img_np, data_type = float):
     img_max = np.max(img_np)
 
     new_min = 0
-
     if data_type == np.uint8:
         new_max = 2**8-1
     elif data_type == np.uint16:
@@ -113,6 +112,9 @@ def standardize(img_np):
     return (img_np-np.mean(img_np))/np.std(img_np)
 
 def get_psnr(source, target, data_range):
+    target = target.astype(float)
+    source = target.astype(float)
+
     mse = np.mean((target - source)**2)
     return 20*math.log(data_range,10)-10*math.log(mse,10)
 

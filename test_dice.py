@@ -139,7 +139,6 @@ if __name__ == '__main__':
     fake_volume = img_whole_dict['fake']
     # fake_volume = fake_volume.astype(opt.data_type)
     print ("Output data type is: " + str(fake_volume.dtype))
-    z, y, x = real_volume.shape
     #####################################################
 
     if opt.save_volume:
@@ -239,9 +238,13 @@ if __name__ == '__main__':
         # Calculate image metrics
 
         datarange = 2**8-1
-        real_volume = util.normalize(util.standardize(real_volume), data_range=datarange)
-        fake_volume = util.normalize(util.standardize(fake_volume), data_range=datarange)
-        gt_volume = util.normalize(util.standardize(gt_volume), data_range=datarange)
+        # real_volume = util.normalize(util.standardize(real_volume), data_range=datarange)
+        # fake_volume = util.normalize(util.standardize(fake_volume), data_range=datarange)
+        # gt_volume = util.normalize(util.standardize(gt_volume), data_range=datarange)
+        #
+        # real_volume = util.normalize(util.standardize(real_volume), data_range=datarange)
+        # fake_volume = util.normalize(util.standardize(fake_volume), data_range=datarange)
+        # gt_volume = util.normalize(util.standardize(gt_volume), data_range=datarange)
 
         psnr_input_gt = util.get_psnr(real_volume, gt_volume, datarange)
         psnr_output_gt = util.get_psnr(fake_volume, gt_volume, datarange)
