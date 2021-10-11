@@ -24,10 +24,12 @@ def tensor2im(input_image, imtype=np.uint16):
         image_numpy = image_numpy_og.copy()
 
         if imtype == np.uint8:
+            image_numpy = np.clip(image_numpy, 0, 1)
             image_numpy *= (2 ** 8 * 1.0 - 1)
             image_numpy = np.clip(image_numpy, 0, 255)
 
         if imtype == np.uint16:
+            image_numpy = np.clip(image_numpy, 0, 1)
             image_numpy *= (2 ** 16 * 1.0 - 1)
             image_numpy = np.clip(image_numpy, 0, 2**16-1)
         if imtype == np.float:
@@ -36,35 +38,38 @@ def tensor2im(input_image, imtype=np.uint16):
         image_numpy = input_image
     return image_numpy.astype(imtype)
 
+#
+# def normalize(img_np, is_tensor=False):
+#     if is_tensor:
+#         img_min = torch.min(img_np)
+#         img_max = torch.max(img_np)
+#     else:
+#         img_min = np.min(img_np)
+#         img_max = np.max(img_np)
+#
+#     new_min = 0
+#     new_max = 1
+#     img_normd = (img_np - img_min) * ((new_max - new_min) / (img_max - img_min)) + new_min
+#
+#     return img_normd
 
-def normalize(img_np, is_tensor=False):
-    if is_tensor:
-        img_min = torch.min(img_np)
-        img_max = torch.max(img_np)
-    else:
-        img_min = np.min(img_np)
-        img_max = np.max(img_np)
 
-    new_min = 0
-    new_max = 1
-    img_normd = (img_np - img_min) * ((new_max - new_min) / (img_max - img_min)) + new_min
-
-    return img_normd
-
-
-def normalize(img_np, data_range=2 ** 8 - 1):
+def normalize(img_np, data_type = float):
     img_min = np.min(img_np)
     img_max = np.max(img_np)
 
     new_min = 0
-    new_max = data_range
+
+    if data_type == np.uint8:
+        new_max = 2**8-1
+    elif data_type == np.uint16:
+        new_max = 2**16-1
+    elif data_type == np.float:
+        new_max = 1
 
     img_normd = (img_np - img_min) * ((new_max - new_min) / (img_max - img_min)) + new_min
+    img_normd = img_normd.astype(data_type)
 
-    if data_range == 2 ** 8 - 1:
-        img_normd = img_normd.astype(np.uint8)
-    else:
-        img_normd = img_normd.astype(float)
     return img_normd
 
 def noisy(noise_typ, image, sigma=0.1, peak=0.1, is_tensor=False, is_normalize=True):
