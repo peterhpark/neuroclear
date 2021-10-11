@@ -113,7 +113,7 @@ def standardize(img_np):
 
 def get_psnr(source, target, data_range):
     target = target.astype(float)
-    source = target.astype(float)
+    source = source.astype(float)
 
     mse = np.mean((target - source)**2)
     return 20*math.log(data_range,10)-10*math.log(mse,10)
