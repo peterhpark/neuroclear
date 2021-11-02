@@ -16,6 +16,13 @@
           </mappings>
         </serverdata>
       </paths>
+      <paths name="bumsu">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/neuroclear" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
       <paths name="mainztrain_neuroclear-v2">
         <serverdata>
           <mappings>

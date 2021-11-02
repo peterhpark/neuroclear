@@ -31,8 +31,8 @@ class Assemble_Dice():
         self.imtype = opt.data_type
         self.skip_real = opt.skip_real
 
-        self.no_histogram_match = opt.no_histogram_match
-        if not(self.no_histogram_match):
+        self.histogram_match = opt.histogram_match
+        if self.histogram_match:
             print ("We will match the histograms of output sub-volumes with input sub-volumes.")
 
         if self.skip_real:
@@ -144,10 +144,10 @@ class Assemble_Dice():
 
             cube_dict[name] = cube_numpy
 
-        ## Perform histogram matching on the output cube to the input cube as post-processing.
-        if not (self.no_histogram_match):
+        # Perform histogram matching on the output cube to the input cube as post-processing.
+        if not (self.histogram_match):
             cube_dict['fake'] = match_histograms(cube_dict['fake'], cube_dict['real'])
-        ##
+        #
 
         for name in self.visual_names:
             if self.skip_real and name == 'real':

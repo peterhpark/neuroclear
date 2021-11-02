@@ -20,7 +20,7 @@ class TestOptions(BaseOptions):
         parser.add_argument('--num_test', type=int, default=3000, help='how many test images to run')
         parser.add_argument('--data_name', type=str, default=None, help='the name of the dataset that you run inference on.')
         parser.add_argument('--data_type', type=str, default='uint16', help='specify the data type for the output.')
-        parser.add_argument('--no_histogram_match', action='store_true', default = False, help='Do not use histogram matching with an input sub-volume after inference.')
+        parser.add_argument('--histogram_match', action='store_true', default = False, help='Do histogram matching with an input sub-volume after inference.')
 
         parser.add_argument('--background_threshold', type = float, nargs = '+', default = [None, None], help='Set the threshold for the background: e.g. background_value threshold: 2570 14000')
         parser.add_argument('--reference_slice_range', type = int, nargs = '+', default = [None, None], help='Set the slice range for calculating metrics.')

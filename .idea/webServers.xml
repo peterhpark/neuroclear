@@ -5,7 +5,7 @@
       <webServer id="d4855158-4fc6-4606-9d26-91ba01cfe318" name="bonnkarneval_neuroclear-v2">
         <fileTransfer accessType="SFTP" host="143.248.30.224" port="22" sshConfigId="8f6482dc-3078-4023-b493-b1ed0b5d0fdc" sshConfig="peterpark@143.248.30.224:22 password">
           <advancedOptions>
-            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
           </advancedOptions>
         </fileTransfer>
       </webServer>
@@ -17,7 +17,14 @@
         </fileTransfer>
       </webServer>
       <webServer id="4f56d171-1742-4a2e-9d0e-875af51b480c" name="berlintower_neuroclear">
-        <fileTransfer accessType="SFTP" host="143.248.32.123" port="22" sshConfigId="c2d3f360-af20-4c64-9048-47d33f7e0201" sshConfig="bispl@143.248.32.123:22 password">
+        <fileTransfer accessType="SFTP" host="143.248.32.123" port="22" sshConfigId="08331617-933a-4038-b5fe-7037aabbfef5" sshConfig="bispl@143.248.32.123:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+      <webServer id="ca7d1a3f-efa9-4f31-bdf2-71124d0d5911" name="bumsu">
+        <fileTransfer rootFolder="/home/bs/peterpark" accessType="SFTP" host="143.248.31.73" port="22" sshConfigId="f5e7588e-d38d-48e4-b7a1-586970a776d2" sshConfig="bs@143.248.31.73:22 password">
           <advancedOptions>
             <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
           </advancedOptions>
