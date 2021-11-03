@@ -113,7 +113,7 @@ class AxialToLateralGANDryopsModel(BaseModel):
             # initialize optimizers; schedulers will be automatically created by function <BaseModel.setup>.
             self.optimizer_G = torch.optim.Adam(self.netG_A.parameters(),lr=opt.lr, betas=(opt.beta1, 0.999))
             self.optimizer_D = torch.optim.Adam(
-                itertools.chain(self.netD_A_axial.parameters(), self.netD_A_lateral.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999)))
+                itertools.chain(self.netD_A_axial.parameters(), self.netD_A_lateral.parameters()), lr=opt.lr, betas=(opt.beta1, 0.999))
             self.optimizers.append(self.optimizer_G)
             self.optimizers.append(self.optimizer_D)
 
