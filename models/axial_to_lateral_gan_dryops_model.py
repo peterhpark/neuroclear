@@ -111,7 +111,7 @@ class AxialToLateralGANDryopsModel(BaseModel):
             self.criterionGAN = networks.GANLoss(opt.gan_mode).to(self.device)  # define GAN loss.
 
             # initialize optimizers; schedulers will be automatically created by function <BaseModel.setup>.
-            self.optimizer_G = torch.optim.Adam(itertools.chain(self.netG_A.parameters(),lr=opt.lr, betas=(opt.beta1, 0.999)))
+            self.optimizer_G = torch.optim.Adam(self.netG_A.parameters(),lr=opt.lr, betas=(opt.beta1, 0.999))
             self.optimizer_D = torch.optim.Adam(
                 itertools.chain(self.netD_A_axial.parameters(), self.netD_A_lateral.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999)))
             self.optimizers.append(self.optimizer_G)
