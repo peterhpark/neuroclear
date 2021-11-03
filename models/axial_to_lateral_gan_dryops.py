@@ -20,13 +20,9 @@ class AxialToLateralGANDryopsModel(BaseModel):
     a MIP image (because of blurring in z-axis).
 
     G_A: original -> isotropic
-    G_B: isotropic -> original
 
     D_A_axial: original_XY <-> isotropic_axial_MIP
     D_A_lateral: original_XY <-> isotropic_XY_MIP
-
-    D_B_axial: original_axial <-> reconstructed_axial
-    D_B_lateral: original_lateral <-> reconstructed_lateral
 
     We only consider one path: A->B.
     We also do not consider buffering fake images for discriminator.
@@ -77,12 +73,11 @@ class AxialToLateralGANDryopsModel(BaseModel):
 
         # specify the images you want to save/display. The training/test scripts will call <BaseModel.get_current_visuals>
         visual_names_A = ['real', 'fake', 'rec']
-        visual_names_B = ['real', 'fake', 'rec']
 
         self.lambda_plane_target, self.lambda_slice, self.lambda_proj = [
             factor / (opt.lambda_plane[0] + opt.lambda_plane[1] + opt.lambda_plane[2]) for factor in opt.lambda_plane]
 
-        self.visual_names = visual_names_A + visual_names_B  # combine visualizations for A and B
+        self.visual_names = visual_names_A   # combine visualizations for A and B
 
         self.lateral_axis = 0  # XY plane
         self.axial_1_axis = 1 # XZ plane
@@ -96,7 +91,7 @@ class AxialToLateralGANDryopsModel(BaseModel):
 
         # define networks (both Generators and discriminators)
         # The naming is different from those used in the paper.
-        # Code (vs. paper): G_A (G), G_B (F), D_A (D_Y), D_B (D_X)
+        # Code (vs. paper): G_A (G),  D_A (D_Y)
         self.netG_A = networks.define_G(opt.input_nc, opt.output_nc, opt.ngf, opt.netG, opt.norm,
                                         not opt.no_dropout, opt.init_type, opt.init_gain, self.gpu_ids,
                                         dimension=self.gen_dimension)
@@ -243,22 +238,22 @@ class AxialToLateralGANDryopsModel(BaseModel):
         # forward
         self.forward()  # compute fake images and reconstruction images.
 
-        # G_A and G_B
+        # G_A
         self.set_requires_grad(
             [self.netD_A_lateral, self.netD_A_axial], False)  # Ds require no gradients when optimizing Gs
-        self.optimizer_G.zero_grad()  # set G_A and G_B's gradients to zero
-        self.backward_G()  # calculate gradients for G_A and G_B
-        self.optimizer_G.step()  # update G_A and G_B's weights
+        self.optimizer_G.zero_grad()  # set G_A's gradients to zero
+        self.backward_G()  # calculate gradients for G_A
+        self.optimizer_G.step()  # update G_A's weights
 
-        # D_A and D_B
+        # D_A
         self.set_requires_grad(
             [self.netD_A_lateral, self.netD_A_axial], True)
-        self.optimizer_D.zero_grad()  # set D_A and D_B's gradients to zero
+        self.optimizer_D.zero_grad()  # set D_A's gradients to zero
 
         self.backward_D_A_lateral()
         self.backward_D_A_axial()  # calculate gradients for D_A's
 
-        self.optimizer_D.step()  # update D_A and D_B's weights
+        self.optimizer_D.step()  # update D_A's weights
 
     # Apply discriminator to each slice in a given dimension and save it as a volume.
     def iter_f(self, input, function, slice_axis):

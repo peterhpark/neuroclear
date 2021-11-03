@@ -23,7 +23,7 @@
           </advancedOptions>
         </fileTransfer>
       </webServer>
-      <webServer id="ca7d1a3f-efa9-4f31-bdf2-71124d0d5911" name="bumsu">
+      <webServer id="ca7d1a3f-efa9-4f31-bdf2-71124d0d5911" name="byeongsu">
         <fileTransfer rootFolder="/home/bs/peterpark" accessType="SFTP" host="143.248.31.73" port="22" sshConfigId="f5e7588e-d38d-48e4-b7a1-586970a776d2" sshConfig="bs@143.248.31.73:22 password">
           <advancedOptions>
             <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />

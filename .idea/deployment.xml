@@ -16,7 +16,7 @@
           </mappings>
         </serverdata>
       </paths>
-      <paths name="bumsu">
+      <paths name="byeongsu">
         <serverdata>
           <mappings>
             <mapping deploy="/neuroclear" local="$PROJECT_DIR$" web="/" />
