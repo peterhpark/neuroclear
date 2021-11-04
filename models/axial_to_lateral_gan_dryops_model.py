@@ -72,7 +72,7 @@ class AxialToLateralGANDryopsModel(BaseModel):
             print("Projection depth is randomized with maximum depth of %d." % (self.max_projection_depth))
 
         # specify the images you want to save/display. The training/test scripts will call <BaseModel.get_current_visuals>
-        visual_names_A = ['real', 'fake', 'rec']
+        visual_names_A = ['real', 'fake']
 
         self.lambda_plane_target, self.lambda_slice, self.lambda_proj = [
             factor / (opt.lambda_plane[0] + opt.lambda_plane[1] + opt.lambda_plane[2]) for factor in opt.lambda_plane]
