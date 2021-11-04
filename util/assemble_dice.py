@@ -38,11 +38,6 @@ class Assemble_Dice():
         if self.skip_real:
             print ("We will skip assembling for the real (input) volume. ")
 
-        if ('normalizedcgan' in opt.preprocess):
-            print ("Converting the image type based on DC-GAN normalization range...")
-            self.use_dcgan_norm = True
-        else:
-            self.use_dcgan_norm = False
 
         self.len_cube_queue = self.z_steps  * self.x_steps * self.y_steps # total number of cubes
 
@@ -145,7 +140,7 @@ class Assemble_Dice():
             cube_dict[name] = cube_numpy
 
         # Perform histogram matching on the output cube to the input cube as post-processing.
-        if not (self.histogram_match):
+        if self.histogram_match:
             cube_dict['fake'] = match_histograms(cube_dict['fake'], cube_dict['real'])
         #
 

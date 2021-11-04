@@ -30,6 +30,13 @@
           </advancedOptions>
         </fileTransfer>
       </webServer>
+      <webServer id="cbdc1ab2-ec8b-4718-9e45-ff8c00187c76" name="anya">
+        <fileTransfer rootFolder="/home/anya/peterpark" accessType="SFTP" host="143.248.31.129" port="22" sshConfigId="3eb57e59-9745-483e-becf-486263e9e47f" sshConfig="anya@143.248.31.129:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
     </option>
   </component>
 </project>
