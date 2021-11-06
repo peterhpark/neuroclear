@@ -156,26 +156,24 @@ if __name__ == '__main__':
             imsave(input_xy_vol_path, real_volume)
             print("Input volume is saved as a tiff file. ")
 
-    # if opt.save_projection:
-    #     start_slice, end_slice = opt.projection_range
-    #     fake_proj_xy = np.amax(fake_volume[start_slice:end_slice], axis=0)
-    #     fake_proj_xz = np.amax(fake_volume[start_slice:end_slice], axis=1)
-    #     fake_proj_yz = np.amax(fake_volume, axis=2)
-    #
-    #     util.mkdir(web_dir + '/projections')
-    #
-    #     util.save_image(fake_proj_xy, web_dir + '/projections/fake_xy_proj.tif')
-    #     util.save_image(fake_proj_xz, web_dir + '/projections/fake_xz_proj.tif')
-    #     util.save_image(fake_proj_yz, web_dir + '/projections/fake_yz_proj.tif')
-    #
-    #     if not opt.skip_real:
-    #         real_proj_xy = np.amax(real_volume, axis=0)
-    #         real_proj_xz = np.amax(real_volume, axis=1)
-    #         real_proj_yz = np.amax(real_volume, axis=2)
-    #
-    #         util.save_image(real_proj_xy, web_dir + '/projections/real_xy_proj.tif')
-    #         util.save_image(real_proj_xz, web_dir + '/projections/real_xz_proj.tif')
-    #         util.save_image(real_proj_yz, web_dir + '/projections/real_yz_proj.tif')
+    if opt.save_projections:
+        fake_proj_xy = np.amax(fake_volume, axis=0)
+        fake_proj_xz = np.amax(fake_volume[:,800:1100,:], axis=1)
+        fake_proj_yz = np.amax(fake_volume[:,:,200:500], axis=2)
+
+        util.mkdir(web_dir + '/projections')
+
+        util.save_image(fake_proj_xy, web_dir + '/projections/fake_xy_proj.tif')
+        util.save_image(fake_proj_xz, web_dir + '/projections/fake_xz_proj.tif')
+        util.save_image(fake_proj_yz, web_dir + '/projections/fake_yz_proj.tif')
+
+        real_proj_xy = np.amax(real_volume, axis=0)
+        real_proj_xz = np.amax(real_volume, axis=1)
+        real_proj_yz = np.amax(real_volume, axis=2)
+
+        util.save_image(real_proj_xy, web_dir + '/projections/real_xy_proj.tif')
+        util.save_image(real_proj_xz, web_dir + '/projections/real_xz_proj.tif')
+        util.save_image(real_proj_yz, web_dir + '/projections/real_yz_proj.tif')
 
     if opt.save_slices:
         output_xy_path = web_dir + '/images/output_xy/output_xy_'

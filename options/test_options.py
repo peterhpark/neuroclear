@@ -28,6 +28,7 @@ class TestOptions(BaseOptions):
         # parser.add_argument('--adaptive_histogram', action='store_true', help='use adaptive histogram for visualization.')
         parser.add_argument('--save_slices', action='store_true', help='save sliced images (in 2D). ')
         parser.add_argument('--save_volume', action='store_true', help='save image volumes (in 3D). ')
+        parser.add_argument('--save_projections', action='store_true', help='save MIP images (in 2D). ')
 
         parser.add_argument('--compare_with_gt', action='store_true', help='load the Ground-truth and compute metrics. ')
         parser.add_argument('--repetition', action='store_true', help='use redundancy in inference to reduce the output variations. ')
