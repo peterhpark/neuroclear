@@ -342,13 +342,8 @@ class Volume():
         self.num_slice = vol.shape[-1]
 
     # returns a slice: # batch, color_channel, y, x
-    def get_slice(self, slice_index, slice_axis, pick_random=False):
-
-        if pick_random:
-            slice_index_pick = np.random.randint(self.num_slice)
-        else:
-            slice_index_pick = slice_index
-
+    def get_slice(self, slice_axis):
+        slice_index_pick = np.random.randint(self.num_slice)
         if slice_axis == 0:
             return self.volume[:, :, slice_index_pick, :, :]
 
@@ -357,16 +352,6 @@ class Volume():
 
         elif slice_axis == 2:
             return self.volume[:, :, :, :, slice_index_pick]
-
-    def set_slice(self, slice_index, slice_axis, new_slice):
-        if slice_axis == 0:
-            self.volume[:, :, slice_index, :, :] = new_slice
-
-        elif slice_axis == 1:
-            self.volume[:, :, :, slice_index, :] = new_slice
-
-        elif slice_axis == 2:
-            self.volume[:, :, :, :, slice_index] = new_slice
 
     def get_projection(self, depth, slice_axis):
         start_index = np.random.randint(0, self.num_slice - depth)
