@@ -97,7 +97,7 @@ python test_dice.py --dataroot **[DATA DIRECTORY]** \
 --preprocess addColorChannel --dataset_mode diceImage \
 --netG unet_deconv --data_name **[DATA NAME]** \
 --gpu_ids 0 --overlap 15 --dice_size 120 120 120 --normalize_intensity \
---image_dimension 3 --model_suffix _A --save_volume --border_cut 10 --skip_real --load_iter **[RESULT DIRECTORY]**
+--image_dimension 3 --model_suffix _A --save_volume --border_cut 10 --skip_real --load_iter **[Iteration Count]**
 
 ```
 
