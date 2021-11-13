@@ -9,7 +9,7 @@ from . import networks
 
 class AxialToLateralGANAthenaModel(BaseModel):
     """
-    This class implements the CycleGAN model with cubes, for learning image-to-image translation without paired data.
+    This class implements the model for super-resolution for OT-LSM images from a badly calibrated system.
 
     The model takes a 3D image cube as an input and outputs a 3D image stack that correspond to the output cube.
     Note that the loss functions are readjusted for cube dataset.
@@ -31,7 +31,6 @@ class AxialToLateralGANAthenaModel(BaseModel):
     We only consider one path: A->B.
     We also do not consider buffering fake images for discriminator.
 
-    CycleGAN paper: https://arxiv.org/pdf/1703.10593.pdf
     """
 
     @staticmethod

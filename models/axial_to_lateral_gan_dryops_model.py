@@ -6,18 +6,7 @@ from . import networks
 
 class AxialToLateralGANDryopsModel(BaseModel):
     """
-    NOTE: This is the Apollo model for ablation studies.
-
-    This class implements the CycleGAN model with cubes, for learning image-to-image translation without paired data.
-
-    The model takes a 3D image cube as an input and outputs a 3D image stack that correspond to the output cube.
-    Note that the loss functions are readjusted for cube dataset.
-
-    GAN Loss is calculated in 2D between axial image and lateral image. -> Discriminator takes 2D images
-                                                                        -> Generator takes 3D images.
-
-    This model is an updated version of Artemis: we take into account of the lateral plane of the blurred image is actually
-    a MIP image (because of blurring in z-axis).
+    NOTE: This is the Apollo model for an ablation case with no backward path.
 
     G_A: original -> isotropic
 
@@ -27,7 +16,6 @@ class AxialToLateralGANDryopsModel(BaseModel):
     We only consider one path: A->B.
     We also do not consider buffering fake images for discriminator.
 
-    CycleGAN paper: https://arxiv.org/pdf/1703.10593.pdf
     """
 
     @staticmethod
