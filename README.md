@@ -96,7 +96,7 @@ python test_dice.py --dataroot **[DATA DIRECTORY]** \
 --name **[MODEL NAME]** --serial_batches \
 --preprocess addColorChannel --dataset_mode diceImage \
 --netG unet_deconv --data_name **[DATA NAME]** \
---gpu_ids 0 --overlap 15 --dice_size 120 120 120 \
+--gpu_ids 0 --overlap 15 --dice_size 120 120 120 --normalize_intensity \
 --image_dimension 3 --model_suffix _A --save_volume --border_cut 10 --skip_real --load_iter **[RESULT DIRECTORY]**
 
 ```
@@ -106,7 +106,7 @@ python test_dice.py --dataroot **[DATA DIRECTORY]** \
 Expected output of test_dice.py
 
 - For inference on 900x900x900 pixel volume, it takes approximately 5-8 minutes on GTX 1080-Ti.
-
+- For quantitative assessments, we recommend to normalize the input and output for fair comparison. For simulation studies, we used histogram-based normalization between 0.25% and 99.75%. 
 ## If you have any questions, please contact me via:
 
 **peterpark828 (at) [icloud.com](http://icloud.com)** OR peterpark828 (at) kaist.ac.kr
