@@ -21,6 +21,9 @@ class TestOptions(BaseOptions):
         parser.add_argument('--data_name', type=str, default=None, help='the name of the dataset that you run inference on.')
         parser.add_argument('--data_type', type=str, default='uint16', help='specify the data type for the output.')
         parser.add_argument('--histogram_match', action='store_true', default = False, help='Do histogram matching with an input sub-volume after inference.')
+        parser.add_argument('--normalize_intensity', action='store_true', default = False, help='Perform intensity normalization after inference based on histogram.')
+        parser.add_argument('--sat_level', type = float, nargs = '+', default = [0.25, 99.75], help='Set saturation levels for intensity normalization.')
+
 
         parser.add_argument('--background_threshold', type = float, nargs = '+', default = [None, None], help='Set the threshold for the background: e.g. background_value threshold: 2570 14000')
         parser.add_argument('--reference_slice_range', type = int, nargs = '+', default = [None, None], help='Set the slice range for calculating metrics.')

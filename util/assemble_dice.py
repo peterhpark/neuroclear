@@ -4,6 +4,7 @@ from collections import OrderedDict
 import scipy.signal
 from util import util
 from skimage.exposure import match_histograms
+from skimage import exposure
 import data
 import torch
 
@@ -32,6 +33,12 @@ class Assemble_Dice():
         self.skip_real = opt.skip_real
 
         self.histogram_match = opt.histogram_match
+        self.normalize_intensity = opt.normalize_intensity
+
+        if self.normalize_intensity:
+            self.p1, self.p99 = opt.sat_level
+
+
         if self.histogram_match:
             print ("We will match the histograms of output sub-volumes with input sub-volumes.")
 
@@ -179,6 +186,11 @@ class Assemble_Dice():
 
                 print ("For debug: maximum iterations of overlaps: " + str(np.max(self.mask_ret[name])))
 
+
+                if self.normalize_intensity:
+                    p1_, p99_ = np.percentile(self.visual_ret[name], (self.p1, self.p99))
+                    self.visual_ret[name] = exposure.rescale_intensity(self.visual_ret[name], in_range=(p1_, p99_))
+
                 ## convert the datatype
                 if self.imtype == 'uint8':
                     # self.visual_ret[name] *= self.img_std
@@ -199,7 +211,6 @@ class Assemble_Dice():
                     padders_ = [self.image_size[i] - self.image_size_original[i] for i in range(len(self.image_size))]
                     print("Image cropped to revert back to the original size by: " + str(padders_))
                     self.visual_ret[name] = self.visual_ret[name][:-padders_[0], :-padders_[1], :-padders_[2]]
-
 
     # tells you if the index corresponds to a cube outside the boundary of the whole image.
     def if_overEdge(self, index):
