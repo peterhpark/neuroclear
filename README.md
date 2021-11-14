@@ -1,6 +1,7 @@
 # README
 
 ### **Github link**: [https://github.com/peterpark-git/neuroclear](https://github.com/peterpark-git/neuroclear)
+### **Data repository:  click [here](https://www.dropbox.com/sh/a83wfw31blf04x9/AACHBx16P9YPEHS7DDQUWBh6a?dl=0).**
 
 # Neuroclear
 
