@@ -45,7 +45,7 @@ tensorboard
 dominate
 ```
 
-For a complete list of dependencies, please refer to the file in **environment folder. 
+For a complete list of dependencies, please refer to the file in **environment folder**. 
 
 - Clone this repo:
 
