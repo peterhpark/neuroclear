@@ -1,0 +1,561 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="d2a9a5b2-cbd6-422a-ac30-5b2aad856d53" name="Changes" comment="normalize before calculating PSNR">
+      <change beforePath="$PROJECT_DIR$/.idea/deployment.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deployment.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/webServers.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/webServers.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_dice.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_dice.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_psf_reconstruct.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/text1.docx" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Merge.Settings">
+    <option name="BRANCH" value="origin/eurydice_added" />
+  </component>
+  <component name="Git.Settings">
+    <favorite-branches>
+      <branch-storage>
+        <map>
+          <entry type="LOCAL">
+            <value>
+              <list>
+                <branch-info repo="$PROJECT_DIR$" source="data-pp-modified" />
+              </list>
+            </value>
+          </entry>
+        </map>
+      </branch-storage>
+    </favorite-branches>
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="eurydice_added" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
+  </component>
+  <component name="ProjectId" id="1xqQNsmuzgtdlIlULZr5aO2A06w" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
+    <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
+    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/../neuroclear_backup_AUG06_2021/assemble_dice.py" />
+  </component>
+  <component name="RunManager">
+    <configuration name="bonnkarneval" type="PyRemoteDebugConfigurationType" factoryName="Python Remote Debug">
+      <module name="neuroclear_V2" />
+      <option name="PORT" value="0" />
+      <option name="HOST" value="localhost" />
+      <PathMappingSettings>
+        <option name="pathMappings">
+          <list />
+        </option>
+      </PathMappingSettings>
+      <option name="REDIRECT_OUTPUT" value="true" />
+      <option name="SUSPEND_AFTER_CONNECT" value="true" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <module name="neuroclear_V2" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="d2a9a5b2-cbd6-422a-ac30-5b2aad856d53" name="Changes" comment="" />
+      <created>1631080102190</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1631080102190</updated>
+      <workItem from="1631080103798" duration="9465000" />
+      <workItem from="1631153734281" duration="7715000" />
+      <workItem from="1631248746034" duration="3172000" />
+      <workItem from="1631498380764" duration="18716000" />
+      <workItem from="1631585395219" duration="6239000" />
+      <workItem from="1631682372614" duration="3863000" />
+      <workItem from="1631785561242" duration="2423000" />
+      <workItem from="1631843457843" duration="600000" />
+      <workItem from="1631870026171" duration="2226000" />
+      <workItem from="1632131343296" duration="764000" />
+      <workItem from="1632221376469" duration="2696000" />
+      <workItem from="1632411392899" duration="1717000" />
+      <workItem from="1632634831465" duration="4982000" />
+      <workItem from="1632719063872" duration="5558000" />
+      <workItem from="1632805374382" duration="1271000" />
+      <workItem from="1632896287922" duration="12648000" />
+      <workItem from="1633085657992" duration="469000" />
+      <workItem from="1633094913169" duration="2212000" />
+      <workItem from="1633421342714" duration="1278000" />
+      <workItem from="1633508364567" duration="3282000" />
+      <workItem from="1633754881176" duration="624000" />
+      <workItem from="1633852460236" duration="629000" />
+      <workItem from="1633949262807" duration="3181000" />
+      <workItem from="1634309959830" duration="2319000" />
+      <workItem from="1635138391670" duration="614000" />
+      <workItem from="1635255656550" duration="3216000" />
+      <workItem from="1635431868653" duration="1129000" />
+      <workItem from="1635482511180" duration="2857000" />
+    </task>
+    <task id="LOCAL-00007" summary="Added write server option.">
+      <created>1631514956324</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1631514956324</updated>
+    </task>
+    <task id="LOCAL-00008" summary="added 'constant' learning policy option.">
+      <created>1631515918974</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1631515918974</updated>
+    </task>
+    <task id="LOCAL-00009" summary="added cube dataset.">
+      <created>1631516802546</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1631516802546</updated>
+    </task>
+    <task id="LOCAL-00010" summary="added cube dataset.">
+      <created>1631516937101</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1631516937101</updated>
+    </task>
+    <task id="LOCAL-00011" summary="added cube dataset.">
+      <created>1631517142354</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1631517142354</updated>
+    </task>
+    <task id="LOCAL-00012" summary="started fixing artemis and changed the normalization to 0-1 scale">
+      <created>1631522578670</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1631522578670</updated>
+    </task>
+    <task id="LOCAL-00013" summary="fixing artemis">
+      <created>1631524320300</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1631524320300</updated>
+    </task>
+    <task id="LOCAL-00014" summary="started working on Apollo. Apollo compares XY and Axial MIPs. We consider that XY images are already MIP images.">
+      <created>1631525374158</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1631525374159</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Got rid of the XY plane MIP preservation">
+      <created>1631526118935</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1631526118935</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Got rid of the XY plane MIP preservation">
+      <created>1631526152870</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1631526152870</updated>
+    </task>
+    <task id="LOCAL-00017" summary="For A-&gt;B path, the lateral discriminator and the axial discriminator both compare a lateral slice image to a lateral/axial MIP image.">
+      <created>1631526985570</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1631526985570</updated>
+    </task>
+    <task id="LOCAL-00018" summary="For A-&gt;B path, the lateral discriminator and the axial discriminator both compare a lateral slice image to a lateral/axial MIP image.">
+      <created>1631527009403</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1631527009403</updated>
+    </task>
+    <task id="LOCAL-00019" summary="Apollo deployed.">
+      <created>1631528428283</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1631528428283</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Got rid of the standardization step">
+      <created>1631593680844</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1631593680844</updated>
+    </task>
+    <task id="LOCAL-00021" summary="minor change">
+      <created>1631604131006</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1631604131006</updated>
+    </task>
+    <task id="LOCAL-00022" summary="minor change">
+      <created>1631604135023</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1631604135023</updated>
+    </task>
+    <task id="LOCAL-00023" summary="changed 'randomrotate' to 'random90rotate'">
+      <created>1631704795056</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1631704795056</updated>
+    </task>
+    <task id="LOCAL-00024" summary="changed 'randomrotate' to 'random90rotate'">
+      <created>1631704839723</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1631704839723</updated>
+    </task>
+    <task id="LOCAL-00025" summary="added some print debuging flags.">
+      <created>1631786030451</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1631786030451</updated>
+    </task>
+    <task id="LOCAL-00026" summary="Removed the standardization (normalization with mean and std).">
+      <created>1631786471427</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1631786471427</updated>
+    </task>
+    <task id="LOCAL-00027" summary="emptied.">
+      <created>1631786610440</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1631786610440</updated>
+    </task>
+    <task id="LOCAL-00028" summary="removed option for image parameters: mean and std.">
+      <created>1631786642935</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1631786642935</updated>
+    </task>
+    <task id="LOCAL-00029" summary="removed option for image parameters: mean and std.">
+      <created>1631786719129</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1631786719129</updated>
+    </task>
+    <task id="LOCAL-00030" summary="Got rid of img param for intensity standardization and also tried to reduce the memory consumption during inference by changing the data type to 'float32' in assemble_dice.py.">
+      <created>1631870865550</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1631870865550</updated>
+    </task>
+    <task id="LOCAL-00031" summary="Got rid of the unused data type change in random contrast">
+      <created>1632131489529</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1632131489529</updated>
+    </task>
+    <task id="LOCAL-00032" summary="added minimum projection depth">
+      <created>1632222462066</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1632222462066</updated>
+    </task>
+    <task id="LOCAL-00033" summary="deleted comment">
+      <created>1632222479573</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1632222479573</updated>
+    </task>
+    <task id="LOCAL-00034" summary="Eurydice model added. This super-resolves based only on comparing XZ and XY plane.">
+      <created>1632636442466</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1632636442466</updated>
+    </task>
+    <task id="LOCAL-00035" summary="Eurydice now has two discriminator for each XZ and YZ.">
+      <created>1632642329289</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1632642329289</updated>
+    </task>
+    <task id="LOCAL-00036" summary="Added the two discriminators for the adam optimizer.">
+      <created>1632643104225</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1632643104225</updated>
+    </task>
+    <task id="LOCAL-00037" summary="double discriminator added to the model_names.">
+      <created>1632643184265</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1632643184265</updated>
+    </task>
+    <task id="LOCAL-00038" summary="Removed flagging for overlap and bordercut in the folder name.">
+      <created>1632720408536</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1632720408536</updated>
+    </task>
+    <task id="LOCAL-00039" summary="Removed flagging for overlap and bordercut in the folder name.">
+      <created>1632720586396</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1632720586396</updated>
+    </task>
+    <task id="LOCAL-00040" summary="Removed flagging for overlap and bordercut in the folder name.">
+      <created>1632721841297</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1632721841297</updated>
+    </task>
+    <task id="LOCAL-00041" summary="Added flag for histogram matching">
+      <created>1632978905046</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1632978905046</updated>
+    </task>
+    <task id="LOCAL-00042" summary="Added standardize function.">
+      <created>1632984114813</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1632984114813</updated>
+    </task>
+    <task id="LOCAL-00043" summary="Added PSNR function">
+      <created>1632988106778</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1632988106778</updated>
+    </task>
+    <task id="LOCAL-00044" summary="Added PSNR function">
+      <created>1632988299926</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1632988299926</updated>
+    </task>
+    <task id="LOCAL-00045" summary="Got rid of unused modules">
+      <created>1633065973688</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1633065973688</updated>
+    </task>
+    <task id="LOCAL-00046" summary="Got rid of unused modules">
+      <created>1633065991069</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1633065991069</updated>
+    </task>
+    <task id="LOCAL-00047" summary="Simplified metric calculation only for PSNR.">
+      <created>1633066313251</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1633066313251</updated>
+    </task>
+    <task id="LOCAL-00048" summary="Apply data type casting and cropping to both fake and real volume">
+      <created>1633067259099</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1633067259099</updated>
+    </task>
+    <task id="LOCAL-00049" summary="Enforce more strict clipping to prevent overflowing in visualization.">
+      <created>1633098139899</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1633098139899</updated>
+    </task>
+    <task id="LOCAL-00050" summary="added skip_real.">
+      <created>1633509226159</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1633509226159</updated>
+    </task>
+    <task id="LOCAL-00051" summary="added skip_real.">
+      <created>1633510605554</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1633510605554</updated>
+    </task>
+    <task id="LOCAL-00052" summary="supporting different data types for normalization">
+      <created>1633949614328</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1633949614328</updated>
+    </task>
+    <task id="LOCAL-00053" summary="convert to float when calculating PSNR">
+      <created>1633949727469</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1633949727469</updated>
+    </task>
+    <task id="LOCAL-00054" summary="convert to float when calculating PSNR">
+      <created>1633949745036</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1633949745036</updated>
+    </task>
+    <task id="LOCAL-00055" summary="normalize before calculating PSNR">
+      <created>1633950034537</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1633950034537</updated>
+    </task>
+    <option name="localTasksCounter" value="56" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.History.Properties">
+    <option name="COLUMN_ID_ORDER">
+      <list>
+        <option value="Default.Root" />
+        <option value="Default.Author" />
+        <option value="Default.Date" />
+        <option value="Default.Subject" />
+        <option value="Space.CommitStatus" />
+      </list>
+    </option>
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="master" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+    <MESSAGE value="added some print debuging flags." />
+    <MESSAGE value="Removed the standardization (normalization with mean and std)." />
+    <MESSAGE value="emptied." />
+    <MESSAGE value="removed option for image parameters: mean and std." />
+    <MESSAGE value="Changed the datatype to float32 to save memory." />
+    <MESSAGE value="Got rid of img param for intensity standardization and also tried to reduce the memory consumption during inference by changing the data type to 'float32' in assemble_dice.py." />
+    <MESSAGE value="Got rid of the unused data type change in random contrast" />
+    <MESSAGE value="added minimum projection depth" />
+    <MESSAGE value="deleted comment" />
+    <MESSAGE value="Eurydice model added. This super-resolves based only on comparing XZ and XY plane." />
+    <MESSAGE value="Eurydice now has two discriminator for each XZ and YZ." />
+    <MESSAGE value="Added the two discriminators for the adam optimizer." />
+    <MESSAGE value="double discriminator added to the model_names." />
+    <MESSAGE value="Removed flagging for overlap and bordercut in the folder name." />
+    <MESSAGE value="Added flag for histogram matching" />
+    <MESSAGE value="Added standardize function." />
+    <MESSAGE value="Added PSNR function" />
+    <MESSAGE value="Got rid of unused modules" />
+    <MESSAGE value="Simplified metric calculation only for PSNR." />
+    <MESSAGE value="Apply data type casting and cropping to both fake and real volume" />
+    <MESSAGE value="Enforce more strict clipping to prevent overflowing in visualization." />
+    <MESSAGE value="added skip_real." />
+    <MESSAGE value="supporting different data types for normalization" />
+    <MESSAGE value="convert to float when calculating PSNR" />
+    <MESSAGE value="normalize before calculating PSNR" />
+    <option name="LAST_COMMIT_MESSAGE" value="normalize before calculating PSNR" />
+  </component>
+</project>
