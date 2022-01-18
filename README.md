@@ -54,7 +54,7 @@ git clone https://github.com/peterpark-git/neuroclear
 cd neuroclear
 ```
 
-### How to create a conda environment from the conda environment file. 
+### How to create a conda environment from the conda environment file (from the conda_environment folder). 
 ```bash
 conda env create -f neuroclear_environment.yml
 ```
