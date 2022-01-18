@@ -21,7 +21,7 @@ Example of large-scale resolution enhancement for axial resolution in confocal f
 - Conda
 - Pytorch 1.8. (tested on)
 - CUDA version 11.4 (tested on)
-- Linux or macOS
+- Linux (tested on Ubuntu 20.04)
 - Jupyter notebook
 
 ### Hardware
