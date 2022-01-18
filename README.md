@@ -55,9 +55,9 @@ cd neuroclear
 ```
 
 ### How to create a conda environment from the conda environment file. 
-'''bash
+```bash
 conda env create -f neuroclear_environment.yml
-'''
+```
 
 - While the typical install time will vary widely depending on the environment, the whole process of installing every software modules and dependencies will take 1-2 hours.
 
