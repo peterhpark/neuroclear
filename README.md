@@ -67,7 +67,8 @@ conda create --name neuroclear --file spec-file.txt
 conda activate neuroclear
 ```
 
-- While the typical install time will vary widely depending on the environment, the whole process of installing every software modules and dependencies will take 1-2 hours.
+- While the typical install time will vary widely depending on the environment, the whole process of installing every software modules and dependencies will take 1-2 hours. 
+- Docker environment will be available soon.
 
 # Demo
 
