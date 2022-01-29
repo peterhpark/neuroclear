@@ -47,6 +47,9 @@ dominate
 
 For a complete list of dependencies, please refer to the file in **conda_environment folder**. 
 
+- Install CUDA
+**Make sure the CUDA environment is set up (tested on CUDA 11.1).**
+
 - Clone this repo:
 
 ```bash
