@@ -25,7 +25,6 @@ https://conda.anaconda.org/conda-forge/linux-64/blosc-1.21.0-h9c3ff4c_0.tar.bz2
 https://repo.anaconda.com/pkgs/main/linux-64/brotli-1.0.9-he6710b0_2.conda
 https://repo.anaconda.com/pkgs/main/linux-64/bzip2-1.0.8-h7b6447c_0.conda
 https://repo.anaconda.com/pkgs/main/linux-64/c-ares-1.17.1-h27cfd23_0.conda
-https://conda.anaconda.org/nvidia/linux-64/cudatoolkit-11.1.74-h6bb024c_0.tar.bz2
 https://repo.anaconda.com/pkgs/main/linux-64/expat-2.4.1-h2531618_2.conda
 https://repo.anaconda.com/pkgs/main/linux-64/fribidi-1.0.10-h7b6447c_0.conda
 https://repo.anaconda.com/pkgs/main/linux-64/giflib-5.2.1-h7b6447c_0.conda
@@ -287,7 +286,6 @@ https://repo.anaconda.com/pkgs/main/noarch/prompt-toolkit-3.0.20-pyhd3eb1b0_0.co
 https://repo.anaconda.com/pkgs/main/noarch/pydocstyle-6.1.1-pyhd3eb1b0_0.conda
 https://repo.anaconda.com/pkgs/main/noarch/python-dateutil-2.8.2-pyhd3eb1b0_0.conda
 https://repo.anaconda.com/pkgs/main/noarch/python-jsonrpc-server-0.4.0-py_0.conda
-https://conda.anaconda.org/pytorch/linux-64/pytorch-1.9.0-py3.8_cuda11.1_cudnn8.0.5_0.tar.bz2
 https://repo.anaconda.com/pkgs/main/noarch/qtawesome-1.0.2-pyhd3eb1b0_0.conda
 https://repo.anaconda.com/pkgs/main/linux-64/setuptools-58.0.4-py38h06a4308_0.conda
 https://repo.anaconda.com/pkgs/main/noarch/singledispatch-3.7.0-pyhd3eb1b0_1001.conda
