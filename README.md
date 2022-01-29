@@ -54,12 +54,21 @@ git clone https://github.com/peterpark-git/neuroclear
 cd neuroclear
 ```
 
-### How to create a conda environment from the conda environment file (from the conda_environment folder). 
+- Set up a virtual conda environment.
+
+1. Go to the conda_environment folder. 
+2. Download the necessary packages and create a virtual environment using the following command. 
 ```bash
-conda env create -f neuroclear_environment.yml
+conda create --name neuroclear --file spec-file.txt
+```
+3. When all packages are installed, activate the environment and you should be able to run the codes without an issue. 
+
+```bash
+conda activate neuroclear
 ```
 
-- While the typical install time will vary widely depending on the environment, the whole process of installing every software modules and dependencies will take 1-2 hours.
+- While the typical install time will vary widely depending on the environment, the whole process of installing every software modules and dependencies will take 1-2 hours. 
+- Docker environment will be available soon.
 
 # Demo
 
