@@ -43,6 +43,10 @@ scikit-learn
 pytorch 
 tensorboard
 dominate
+tqdm
+jupyter notebook
+opencv
+scikit-image
 ```
 
 For a complete list of dependencies, please refer to the file in **conda_environment folder**. 
