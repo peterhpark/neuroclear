@@ -71,7 +71,7 @@ conda env create -f neuroclear_environment.yml
 ```
 
 
- 2b. If you are having trouble setting up the conda enviroment from the yml file, try...
+ 2b. If you are having trouble setting up the conda enviroment from the yml file, try... (step-by-step)
    
   ```bash
   conda create --name neuroclear
