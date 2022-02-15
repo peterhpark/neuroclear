@@ -189,7 +189,6 @@ dependencies:
   - libssh2=1.9.0=h1ba5d50_1
   - libstdcxx-ng=9.3.0=hd4cf53a_17
   - libtasn1=4.16.0=h27cfd23_0
-  - libtiff=4.3.0=hf544144_0
   - libtool=2.4.6=h7b6447c_1005
   - libunistring=0.9.10=h27cfd23_0
   - libuuid=1.0.3=h7f8727e_2
@@ -426,6 +425,7 @@ dependencies:
     - keras==2.6.0
     - keras-preprocessing==1.1.2
     - libsvm==3.23.0.4
+    - libtiff=4.3.0=hf544144_0
     - markdown==3.3.4
     - numpy==1.19.5
     - oauthlib==3.1.1
