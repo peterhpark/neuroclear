@@ -64,19 +64,16 @@ cd neuroclear
 - Set up a virtual conda environment.
 
 1. Go to the conda_environment folder. 
-2. Download the necessary packages and create a virtual environment using the following command. 
+2a. Download the necessary packages and create a virtual environment using the following command. 
 ```bash
 conda env create -f neuroclear_environment.yml
 ```
-3. When all packages are installed, activate the environment and you should be able to run the codes without an issue. 
 
-```bash
-conda activate neuroclear
-```
 
- 3b. If you are having trouble setting up the conda enviroment from the yml file, try...
+ 2b. If you are having trouble setting up the conda enviroment from the yml file, try...
    
   ```bash
+  conda create --name neuroclear
   conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
   conda install -c anaconda scipy
   conda install scikit-image
@@ -87,6 +84,13 @@ conda activate neuroclear
   conda install -c conda-forge notebook
   conda install -c conda-forge nb_conda_kernels
   ```
+  
+  
+3. When all packages are installed, activate the environment and you should be able to run the codes without an issue. 
+
+```bash
+conda activate neuroclear
+```
 
 - While the typical install time will vary widely depending on the environment, the whole process of installing every software modules and dependencies will take 1-2 hours. 
 - Docker environment will be available soon.
