@@ -74,6 +74,20 @@ conda env create -f neuroclear_environment.yml
 conda activate neuroclear
 ```
 
+ 3b. If you are having trouble setting up the conda enviroment from the yml file, try...
+   
+  ```bash
+  conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
+  conda install -c anaconda scipy
+  conda install scikit-image
+  conda install -c conda-forge opencv
+  conda install -c conda-forge dominate
+  conda install -c conda-forge tqdm
+  conda install -c conda-forge tensorboard
+  conda install -c conda-forge notebook
+  conda install -c conda-forge nb_conda_kernels
+  ```
+
 - While the typical install time will vary widely depending on the environment, the whole process of installing every software modules and dependencies will take 1-2 hours. 
 - Docker environment will be available soon.
 
