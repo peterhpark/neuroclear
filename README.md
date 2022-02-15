@@ -64,6 +64,7 @@ cd neuroclear
 - Set up a virtual conda environment.
 
 1. Go to the conda_environment folder. 
+
 2a. Download the necessary packages and create a virtual environment using the following command. 
 ```bash
 conda env create -f neuroclear_environment.yml
