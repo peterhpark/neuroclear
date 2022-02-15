@@ -62,7 +62,7 @@ cd neuroclear
 1. Go to the conda_environment folder. 
 2. Download the necessary packages and create a virtual environment using the following command. 
 ```bash
-conda create --name neuroclear --file spec-file.txt
+conda env create -f neuroclear_environment.yml
 ```
 3. When all packages are installed, activate the environment and you should be able to run the codes without an issue. 
 
