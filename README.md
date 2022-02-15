@@ -75,6 +75,7 @@ conda env create -f neuroclear_environment.yml
    
   ```bash
   conda create --name neuroclear
+  conda activate neuroclear
   conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
   conda install -c anaconda scipy
   conda install scikit-image
