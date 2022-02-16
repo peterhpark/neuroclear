@@ -47,6 +47,7 @@ tqdm
 jupyter notebook
 opencv
 scikit-image
+tifffile
 ```
 
 For a complete list of dependencies, please refer to the file in **conda_environment folder**. 
