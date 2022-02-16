@@ -87,6 +87,11 @@ conda env create -f neuroclear_environment.yml
   conda install -c conda-forge nb_conda_kernels
   ```
   
+  [NOTE]
+  For testing the Jupyter notebook, make sure that the Jupyter notebook kernel is connected to your conda environment. 
+  ```bash
+  python -m ipykernel install --user --name=neuroclear
+  ```
   
 3. When all packages are installed, activate the environment and you should be able to run the codes without an issue. 
 
