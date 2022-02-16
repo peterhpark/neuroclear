@@ -87,6 +87,7 @@ conda env create -f neuroclear_env.yml
   conda install -c conda-forge nb_conda_kernels
   pip install elasticdeform
   ```
+  If there's any missing package, please install them from the Conda repository. 
   
   [NOTE]
   For testing the Jupyter notebook, make sure that the Jupyter notebook kernel is connected to your conda environment. 
