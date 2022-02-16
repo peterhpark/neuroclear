@@ -67,7 +67,7 @@ cd neuroclear
 
 2a. Download the necessary packages and create a virtual environment using the following command. 
 ```bash
-conda env create -f neuroclear_environment.yml
+conda env create -f neuroclear_env.yml
 ```
 
 
@@ -85,6 +85,7 @@ conda env create -f neuroclear_environment.yml
   conda install -c conda-forge tensorboard
   conda install -c conda-forge notebook
   conda install -c conda-forge nb_conda_kernels
+  pip install elasticdeform
   ```
   
   [NOTE]
