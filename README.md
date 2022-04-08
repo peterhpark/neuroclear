@@ -9,6 +9,7 @@ Neuroclear is a deep-learning-based Python module to train a deep neural network
 
 
 Raw -> Super-resolved 
+
 ![Featured image for axial resolution in confocal fluorescence microscopy](imgs/neuroclear_feature.gif)
 
 
