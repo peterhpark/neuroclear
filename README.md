@@ -1,7 +1,6 @@
 # README
 
-### **Nature Comm. Publication**: [Park et al., 2022]([https://github.com/peterpark-git/neuroclear](https://www.nature.com/articles/s41467-022-30949-6#citeas))
-### **Data repository:  click [here](https://www.dropbox.com/sh/a83wfw31blf04x9/AACHBx16P9YPEHS7DDQUWBh6a?dl=0).**
+### **Nature Communications publication**: [Park et al., 2022](https://www.nature.com/articles/s41467-022-30949-6#citeas)
 
 # Neuroclear
 
