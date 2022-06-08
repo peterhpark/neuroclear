@@ -4,14 +4,15 @@
 
 # Neuroclear
 
-Neuroclear is a deep-learning-based Python module to train a deep neural network for the task of applying super-resolution to degraded axial resolution in Fluorescence microscopy, **training with only a single image stack**. For a demo, we provide a Jupyter notebook where you can generate your own randomized synthetic image volume. You can use our github code to train a deep learning model and test with a ground-truth. 
+Neuroclear is a deep-learning-based Python module to train a deep neural network for the task of applying super-resolution to a degraded axial resolution in Fluorescence microscopy, **using a single image stack**. For a demo, we provide a Jupyter notebook where you can generate your own randomized synthetic  volume. You can use our github code to train a deep learning model and test with a ground-truth. 
 
 
 ![Featured image for axial resolution in confocal fluorescence microscopy](imgs/neuroclear_feature.gif)
 
 ---
-![Example of large-scale resolution enhancement for axial resolution in confocal fluorescence microscopy](imgs/SNU_fig_overall.png)
 Example of large-scale resolution enhancement for axial resolution in confocal fluorescence microscopy
+
+![Example of large-scale resolution enhancement for axial resolution in confocal fluorescence microscopy](imgs/SNU_fig_overall.png)
 ---
 
 # System requirements
