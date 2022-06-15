@@ -1,6 +1,6 @@
 # README
 
-### This method is now published on *Nature Communications*: [Park et al., 2022](https://www.nature.com/articles/s41467-022-30949-6)
+### This method is now published in *Nature Communications*: [Park et al., 2022](https://www.nature.com/articles/s41467-022-30949-6)
 
 # Neuroclear
 
