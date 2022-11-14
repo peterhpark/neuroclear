@@ -12,7 +12,7 @@ def numericalSort(value):
     return parts
 
 
-class CubeDataset(BaseDataset):
+class DoubleCubeDataset(BaseDataset):
     """
     Loads image volume dataset. The dataset is consisted of multiple 3D image sub-volumes.
     """
@@ -26,6 +26,7 @@ class CubeDataset(BaseDataset):
 
         BaseDataset.__init__(self, opt)
         self.A_paths = make_dataset(opt.dataroot)
+        self.B_paths = make_dataset(opt.)
         self.A_paths.sort(key = numericalSort)
 
         self.A_size = len(self.A_paths)  # get the size of dataset A
