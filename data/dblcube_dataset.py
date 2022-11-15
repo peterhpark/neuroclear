@@ -17,6 +17,11 @@ class DoubleCubeDataset(BaseDataset):
     Loads image volume dataset. The dataset is consisted of multiple 3D image sub-volumes.
     """
 
+    @staticmethod
+    def modify_commandline_options(parser, is_train=False):
+        parser.add_argument('--dataref', help = 'path to reference images')
+        return parser
+
     def __init__(self, opt):
         """Initialize this dataset class.
 
