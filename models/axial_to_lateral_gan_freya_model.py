@@ -6,8 +6,6 @@ from . import networks
 
 class AxialToLateralGANFreyaModel(BaseModel):
     """
-    This class implements the model for super-resolution for simulations, CFM images, and semi-synthetic images from OT-LSM.
-
     This model uses high-resolution reference from another source.
     The model takes a 3D image cube as an input and outputs a 3D image stack that correspond to the output cube.
     Note that the loss functions are readjusted for cube dataset.
@@ -77,8 +75,8 @@ class AxialToLateralGANFreyaModel(BaseModel):
             print("Projection depth is randomized with maximum depth of %d." % (self.max_projection_depth))
 
         # specify the images you want to save/display. The training/test scripts will call <BaseModel.get_current_visuals>
-        visual_names_A = ['real', 'fake', 'rec']
-        visual_names_B = ['real', 'fake', 'rec']
+        visual_names_A = ['real_tgt', 'real_src', 'fake', 'rec']
+        visual_names_B = ['real_tgt', 'real_src', 'fake', 'rec']
 
         self.lambda_plane_target, self.lambda_slice, self.lambda_proj = [
             factor / (opt.lambda_plane[0] + opt.lambda_plane[1] + opt.lambda_plane[2]) for factor in opt.lambda_plane]
@@ -150,10 +148,13 @@ class AxialToLateralGANFreyaModel(BaseModel):
         The option 'direction' can be used to swap domain A and domain B.
         """
         AtoB = self.opt.direction == 'AtoB'
-        self.real = input['A' if AtoB else 'B'].to(self.device)
-        self.image_paths = input['A_paths' if AtoB else 'B_paths']
+        self.real_src = input['src' if AtoB else 'tgt'].to(self.device)
+        self.real_tgt = input['tgt' if AtoB else 'src'].to(self.device)
 
-        self.cube_shape = self.real.shape
+        self.image_paths_src = input['src_paths' if AtoB else 'tgt_paths']
+        self.image_paths_tgt = input['tgt_paths' if AtoB else 'src_paths']
+
+        self.cube_shape = self.real_src.shape
         self.num_slice = self.cube_shape[-3]
 
         if not (self.randomize_projection_depth):
@@ -165,7 +166,7 @@ class AxialToLateralGANFreyaModel(BaseModel):
         """Run forward pass; called by both functions <optimize_parameters> and <test>.
         In this version, we iterate through each slice in a cube.
         """
-        self.fake = self.netG_A(self.real)  # G_A(A)
+        self.fake = self.netG_A(self.real_src)  # G_A(A)
         self.rec = self.netG_B(self.fake)  # G_B(G_A(A))
 
     def backward_D_slice(self, netD, real, fake, slice_axis_real, slice_axis_fake):
@@ -227,29 +228,29 @@ class AxialToLateralGANFreyaModel(BaseModel):
         return loss_D
 
     def backward_D_A_lateral(self):
-        self.loss_D_A_lateral = self.backward_D_projection(self.netD_A_lateral, self.real, self.fake, self.lateral_axis,
+        self.loss_D_A_lateral = self.backward_D_projection(self.netD_A_lateral, self.real_tgt, self.fake, self.lateral_axis,
                                                       self.lateral_axis)  # comparing XY_original to XY_fake_MIP
 
-    def backward_D_A_axial(self): # compares real XY slice image and fake axial MIP image.
+    def backward_D_A_axial(self): # compares real_tgt XY slice image and fake axial MIP image.
         """Calculate GAN loss for discriminator D_A"""
-        self.loss_D_A_axial_1 = self.backward_D_projection(self.netD_A_axial, self.real, self.fake, self.lateral_axis,
+        self.loss_D_A_axial_1 = self.backward_D_projection(self.netD_A_axial, self.real_tgt, self.fake, self.lateral_axis,
                                                       self.axial_1_axis)  # comparing XY_original to YZ_fake
 
-        self.loss_D_A_axial_2 = self.backward_D_projection(self.netD_A_axial, self.real, self.fake, self.lateral_axis,
+        self.loss_D_A_axial_2 = self.backward_D_projection(self.netD_A_axial, self.real_tgt, self.fake, self.lateral_axis,
                                                       self.axial_2_axis)
 
         self.loss_D_A_axial = (self.loss_D_A_axial_1 + self.loss_D_A_axial_2)*0.5
 
     def backward_D_B_lateral(self):
-        self.loss_D_B_lateral = self.backward_D_slice(self.netD_B_lateral, self.real, self.rec, self.lateral_axis,
+        self.loss_D_B_lateral = self.backward_D_slice(self.netD_B_lateral, self.real_src, self.rec, self.lateral_axis,
                                                       self.lateral_axis)  # comparing XY_original to XY_reconstructed
 
-    def backward_D_B_axial(self): # compares real axial slice image and fake axial slice image.
+    def backward_D_B_axial(self): # compares real_tgt axial slice image and fake axial slice image.
         """Calculate GAN loss for discriminator D_B, which compares the original and the reconstructed. """
-        self.loss_D_B_axial_1 = self.backward_D_slice(self.netD_B_axial, self.real, self.rec, self.axial_1_axis,
+        self.loss_D_B_axial_1 = self.backward_D_slice(self.netD_B_axial, self.real_src, self.rec, self.axial_1_axis,
                                                       self.axial_1_axis)  # comparing YZ_original to YZ_reconstructed
 
-        self.loss_D_B_axial_2 = self.backward_D_slice(self.netD_B_axial, self.real, self.rec, self.axial_2_axis,
+        self.loss_D_B_axial_2 = self.backward_D_slice(self.netD_B_axial, self.real_src, self.rec, self.axial_2_axis,
                                                       self.axial_2_axis)  # comparing YZ_original to YZ_reconstructed
 
         self.loss_D_B_axial = (self.loss_D_B_axial_1 + self.loss_D_B_axial_2)*0.5
@@ -278,7 +279,7 @@ class AxialToLateralGANFreyaModel(BaseModel):
         self.loss_G_B = self.loss_G_B_lateral + self.loss_G_B_axial * 0.5
 
         # This model only includes forward cycle loss || G_B(G_A(A)) - A||
-        self.loss_cycle = self.criterionCycle(self.rec, self.real) * lambda_A
+        self.loss_cycle = self.criterionCycle(self.rec, self.real_src) * lambda_A
 
         # combined loss and calculate gradients
         self.loss_G = self.loss_G_A + self.loss_G_B + self.loss_cycle
