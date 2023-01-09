@@ -168,6 +168,7 @@ class Visualizer():
                 plt.gca().yaxis.set_major_locator(plt.NullLocator())
                 plt.close(fig_slice)
 
+
                 img_mip_xy = np.amax(img_np[0,0], 0)
                 img_mip_xz = np.amax(img_np[0,0], 1)
                 img_mip_yz = np.amax(img_np[0,0], 2)
