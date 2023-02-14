@@ -1,5 +1,3 @@
-## TODO SEP 08 VERSION
-
 """This module implements an abstract base class (ABC) 'BaseDataset' for datasets.
 
 It also includes common transformation functions (e.g., get_transform, __scale_width), which can be later used in subclasses.
@@ -10,7 +8,6 @@ import torch.utils.data as data
 from scipy.ndimage import rotate
 import torchvision.transforms as transforms
 from abc import ABC, abstractmethod
-import skimage.transform as transform
 import torch
 import math
 import cv2
@@ -146,7 +143,7 @@ def __random90rotate(image_vol):
 	angle = np.random.choice((-90,90,-180,180,-270,270))
 	slice_list = []
 	for slice in image_vol:
-		slice_rotated = __rotate_clean(slice, angle)
+		slice_rotated = rotate(slice, angle, axes = (1,2), reshape=False)
 		slice_list.append(slice_rotated)
 	img_vol_rotated = np.array(slice_list)
 	return img_vol_rotated

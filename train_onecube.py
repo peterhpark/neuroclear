@@ -84,12 +84,12 @@ if __name__ == '__main__':
             visualizer.display_current_results(model.get_current_visuals(), total_iters)
 
         if total_iters % opt.print_freq == 0:    # print training losses and save logging information to the disk
-            print ("----------------------------------")
-            print ("exp name: " + str(opt.name) + ", gpu_id:"+str(opt.gpu_ids))
-            print ("----------------------------------")
+            # print ("----------------------------------")
+            # print ("exp name: " + str(opt.name) + ", gpu_id:"+str(opt.gpu_ids))
+            # print ("----------------------------------")
             losses = model.get_current_losses()
             t_comp = (time.time() - iter_start_time) / opt.batch_size
-            visualizer.print_current_losses(1, total_iters, losses, t_comp, t_data)
+            # visualizer.print_current_losses(1, total_iters, losses, t_comp, t_data)
 
             if opt.display_id > 0:
                 visualizer.plot_current_losses(total_iters, losses, is_epoch = False)
@@ -101,8 +101,8 @@ if __name__ == '__main__':
             model.save_networks(save_suffix)
             print('saving the current histogram (iteration %d)' % total_iters)
             visualizer.display_current_histogram(model.get_current_visuals(), total_iters)
-            print('saving the current visuals (iteration %d)' % total_iters)
-            visualizer.save_current_visuals(model.get_current_visuals(), total_iters)
+            # print('saving the current visuals (iteration %d)' % total_iters)
+            # visualizer.save_current_visuals(model.get_current_visuals(), total_iters)
             print ("----------------------------------")
 
         model.update_learning_rate()  # update here instead of at the end of every epoch

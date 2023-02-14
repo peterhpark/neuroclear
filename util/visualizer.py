@@ -107,7 +107,6 @@ class Visualizer():
         util.mkdir(self.tb_dir)
 
         from torch.utils.tensorboard import SummaryWriter
-        #TODO: log differently by time.
         self.log_dir  = os.path.join(self.tb_dir, self.name)
 
         self.tb_writer = SummaryWriter(self.log_dir)
