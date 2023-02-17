@@ -10,7 +10,7 @@ class AxialToLateralGANBragiModel(BaseModel):
     The model takes a 3D image cube as an input and outputs a 3D image stack that correspond to the output cube.
     Note that the loss functions are readjusted for cube dataset.
 
-    This model is a successor to Heimdall; it takes projection from 1 to a pre-set depth, not once but multiple times.  We also try sampling with a probabilistic distribution.
+    This model is a successor to Heimdall; it takes projection from 1 to a pre-set depth, not once but multiple times.
 
     GAN Loss is calculated in 2D between axial image and lateral image. -> Discriminator takes 2D images
                                                                         -> Generator takes 3D images.
@@ -45,6 +45,8 @@ class AxialToLateralGANBragiModel(BaseModel):
                                 help='depth for maximum intensity projections. ')
             parser.add_argument('--min_projection_depth', type=int, default=2,
                                 help='minimum depth for maximum intensity projections. ')
+            parser.add_argument('--projection_sampling', type=int, default=1,
+                                help='how many times a discriminator samples projection images.  ')
 
         parser.add_argument('--netG_B', type=str, default='deep_linear_gen',
                             help='specify the generator in B->A path. ')
@@ -73,7 +75,8 @@ class AxialToLateralGANBragiModel(BaseModel):
         else:
             self.max_projection_depth = opt.projection_depth
             self.min_projection_depth = opt.min_projection_depth
-            print("Projection depth is randomized with maximum depth of %d." % (self.max_projection_depth))
+
+        self.sample_proj = opt.projection_sampling
 
         # specify the images you want to save/display. The training/test scripts will call <BaseModel.get_current_visuals>
         visual_names_A = ['real_tgt', 'real_src', 'fake', 'rec']
@@ -318,10 +321,15 @@ class AxialToLateralGANBragiModel(BaseModel):
 
     def proj_f(self, input, function, slice_axis):
         input_volume = Volume(input, self.device)
-        #TODO this only pushes projection to Discriminator once. Should we do it multiple times?
-        mip = input_volume.get_projection(self.projection_depth, slice_axis)
-        output_mip = function(mip)
-        return output_mip
+        output_list = []
+
+        for i in range(self.sample_proj):
+            mip = input_volume.get_projection(self.projection_depth, slice_axis)
+            output_mip = function(mip)
+            output_list.append(output_mip)
+
+        output_avg = np.mean(output_list)
+        return output_avg
 
 class Volume():
     def __init__(self, vol, device):
