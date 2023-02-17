@@ -10,7 +10,7 @@ class AxialToLateralGANBragiModel(BaseModel):
     The model takes a 3D image cube as an input and outputs a 3D image stack that correspond to the output cube.
     Note that the loss functions are readjusted for cube dataset.
 
-    This model takes projection from 1 to a pre-set depth. We also try sampling with a probabilistic distribution.
+    This model is a successor to Heimdall; it takes projection from 1 to a pre-set depth, not once but multiple times.  We also try sampling with a probabilistic distribution.
 
     GAN Loss is calculated in 2D between axial image and lateral image. -> Discriminator takes 2D images
                                                                         -> Generator takes 3D images.
@@ -318,6 +318,7 @@ class AxialToLateralGANBragiModel(BaseModel):
 
     def proj_f(self, input, function, slice_axis):
         input_volume = Volume(input, self.device)
+        #TODO this only pushes projection to Discriminator once. Should we do it multiple times?
         mip = input_volume.get_projection(self.projection_depth, slice_axis)
         output_mip = function(mip)
         return output_mip
