@@ -328,7 +328,7 @@ class AxialToLateralGANBragiModel(BaseModel):
             output_mip = function(mip)
             output_list.append(output_mip)
 
-        output_avg = np.mean(output_list)
+        output_avg = torch.mean(torch.stack(output_list))
         return output_avg
 
 class Volume():
