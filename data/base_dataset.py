@@ -141,11 +141,7 @@ def __normalize(img_np):
 
 def __random90rotate(image_vol):
 	angle = np.random.choice((-90,90,-180,180,-270,270))
-	slice_list = []
-	for slice in image_vol:
-		slice_rotated = rotate(slice, angle, axes = (1,2), reshape=False)
-		slice_list.append(slice_rotated)
-	img_vol_rotated = np.array(slice_list)
+	img_vol_rotated = rotate(image_vol, angle, axes = (1,2), reshape=False)
 	return img_vol_rotated
 
 def __rotate(img_np, rotate_params):
