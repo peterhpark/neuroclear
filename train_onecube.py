@@ -63,7 +63,8 @@ if __name__ == '__main__':
 
     visualizer.reset()              # reset the visualizer: make sure it saves the results to HTML at least once every epoch
     visualizer.display_model_hyperparameters()
-    print ("Model hyperparameters documented on tensorboard.")
+
+    #TODO Move print statements to a txt file.
     while True: # infinite training within epoch
 
         random_index = np.random.randint(0,10)
@@ -84,9 +85,9 @@ if __name__ == '__main__':
             visualizer.display_current_results(model.get_current_visuals(), total_iters)
 
         if total_iters % opt.print_freq == 0:    # print training losses and save logging information to the disk
-            # print ("----------------------------------")
-            # print ("exp name: " + str(opt.name) + ", gpu_id:"+str(opt.gpu_ids))
-            # print ("----------------------------------")
+            print ("----------------------------------")
+            print ("exp name: " + str(opt.name) + ", gpu_id:"+str(opt.gpu_ids))
+            print ("----------------------------------")
             losses = model.get_current_losses()
             t_comp = (time.time() - iter_start_time) / opt.batch_size
             # visualizer.print_current_losses(1, total_iters, losses, t_comp, t_data)

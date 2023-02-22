@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" remoteFilesAllowedToDisappearOnAutoupload="false">
+  <component name="PublishConfigData" autoUpload="Always" serverName="park@kreshuk-gpu2.embl.de:22" remoteFilesAllowedToDisappearOnAutoupload="false">
     <serverData>
       <paths name="anya">
         <serverdata>
@@ -34,6 +34,13 @@
         <serverdata>
           <mappings>
             <mapping deploy="/home/peterpark/neuroclear_mainztrain" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="park@kreshuk-gpu2.embl.de:22">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/g/kreshuk/park/code/debug_via_ssh" local="$PROJECT_DIR$" />
           </mappings>
         </serverdata>
       </paths>

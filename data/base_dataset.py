@@ -91,28 +91,28 @@ def get_transform(opt, params = None):
 		else:
 			transform_list += [transforms.Lambda(lambda img_np: __rotate_clean_3D_xy(img_np, angle=params['angle_3D']))]
 
-	if 'random90rotate' in opt.preprocess:
-		if params is None:
-			transform_list += [transforms.Lambda(lambda img_np: __random90rotate(img_np))]
-		else:
-			transform_list += [transforms.Lambda(lambda img_np: __rotate(img_np, params['rotate_params']))]
-
 	if 'randomcrop' in opt.preprocess:
 		if params is None:
 			transform_list += [transforms.Lambda(lambda img_np: __randomcrop(img_np, opt.crop_size))]
 		else:
 			transform_list += [transforms.Lambda(lambda img_np: __crop(img_np, params['crop_pos'], opt.crop_size))]
 
+	if 'random90rotate' in opt.preprocess:
+		if params is None:
+			transform_list += [transforms.Lambda(lambda img_np: __random90rotate(img_np))]
+		else:
+			transform_list += [transforms.Lambda(lambda img_np: __rotate(img_np, params['rotate_params']))]
+
 	if 'centercrop' in opt.preprocess:
 		transform_list += [transforms.Lambda(lambda img_np: __centercrop(img_np, opt.crop_portion))]
-
-	transform_list += [transforms.Lambda(lambda img_np: __normalize(img_np))]
 
 	if 'randomflip' in opt.preprocess:
 		if params is None:
 			transform_list+= [transforms.Lambda(lambda  img_np: __randomflip(img_np))]
 		else:
 			transform_list+= [transforms.Lambda(lambda  img_np: __flip(img_np, params['flip_axis']))]
+
+	transform_list += [transforms.Lambda(lambda img_np: __normalize(img_np))]
 
 	if 'addColorChannel' in opt.preprocess:
 		transform_list += [transforms.Lambda(lambda  img_np:__addColorChannel(img_np))]
@@ -140,8 +140,12 @@ def __normalize(img_np):
 	return img_normd
 
 def __random90rotate(image_vol):
-	angle = np.random.choice((-90,90,-180,180,-270,270))
-	img_vol_rotated = rotate(image_vol, angle, axes = (1,2), reshape=False)
+	chance = np.random.uniform(0, 1)
+	if chance < 0.75:
+		angle = np.random.choice((90, 180, 270))
+		img_vol_rotated = rotate(image_vol, angle, axes = (1,2), reshape=False)
+	else:
+		img_vol_rotated = image_vol
 	return img_vol_rotated
 
 def __rotate(img_np, rotate_params):
@@ -271,14 +275,11 @@ def __randomgamma(img_np):
 
 def __randomflip(img_np):
 	axis_len = len(img_np.shape)
-	axis_list = list(range(axis_len))
-	random.shuffle(axis_list)
 	img_np_flipped = img_np
 	for i in range(axis_len):
 		chance = np.random.uniform(0, 1)
 		if chance < 0.5:
-			axis = axis_list.pop()
-			img_np_flipped = np.flip(img_np_flipped, axis)
+			img_np_flipped = np.flip(img_np_flipped, i)
 	return img_np_flipped
 
 def __toTensor(img_np):
