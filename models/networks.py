@@ -400,7 +400,7 @@ def batch_norm(dimension):
     else:
         raise Exception('Invalid image dimension.')
 
-def instance_norm(dimension):
+def instance_norm(dimension, affine = False):
     if dimension == 2:
         return nn.InstanceNorm2d
 
@@ -720,7 +720,6 @@ class VGG_net(nn.Module):
         return nn.Sequential(*layers)
 
 
-
 class ResnetGenerator(nn.Module):
     """Resnet-based generator that consists of Resnet blocks between a few downsampling/upsampling operations.
     We adapt Torch code and idea from Justin Johnson's neural style transfer project(https://github.com/jcjohnson/fast-neural-style)
@@ -939,6 +938,38 @@ class FixedLinearKernel(nn.Module):
         return convd_noised
 
 
+class FiLM(nn.Module):
+    def __init__(self, input_nc):
+        super(FiLM, self).__init__()
+        narrowing_kernels = [5, 3]
+        unit_kernels = [1, 1]
+
+        # hidden layers have 64 channels.
+        feature_block = []  # Stacking intermediate layer
+        feature_block += [
+            nn.Conv3d(in_channels=input_nc, out_channels=input_nc * 64, kernel_size=narrowing_kernels[0],
+                      padding=2, bias=False)]
+        feature_block += [
+            nn.Conv3d(in_channels=input_nc * 64, out_channels=input_nc * 64, kernel_size=narrowing_kernels[1],
+                      padding=1, bias=False)]
+
+        for layer in range(len(unit_kernels)):
+            feature_block += [nn.Conv3d(in_channels=input_nc * int(64 * ((1 / 2) ** layer)),
+                                        out_channels=input_nc * int(64 * ((1 / 2) ** (layer + 1))),
+                                        kernel_size=unit_kernels[layer], padding=0, bias=False)]
+
+        self.feature_block = nn.Sequential(*feature_block)
+
+        # Final layer
+        # NOTE: different from KernelGAN, we do not apply downsampling here.
+        #TODO Figure out the output channel
+        self.final_layer = nn.Linear(in_features=input_nc*int(64*((1/2)**(layer+1))), out_features=2)
+
+    def forward(self, input):
+        features = self.feature_block(input)
+        output = self.final_layer(features)
+        return output
+
 #### OLD UNET IMPLEMENTATION FOR SOMA SEGMENTATION ####
 class UnetTwoOuts(nn.Module):
 
@@ -1030,8 +1061,7 @@ class NLayerDiscriminator(nn.Module):
         kw = 4
         padw = 1
         sequence = [_conv(input_nc, ndf, kernel_size=kw, stride=2, padding=padw), nn.LeakyReLU(0.2, True)]
-        # TODO: Hyungjin's suggestion:
-        # TODO: sequence = spectral_norm([_conv(input_nc, ndf, kernel_size=kw, stride=2, padding=padw), nn.LeakyReLU(0.2, True)])
+
         nf_mult = 1
         nf_mult_prev = 1
 
