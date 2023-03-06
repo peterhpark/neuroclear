@@ -89,13 +89,13 @@ class AxialToLateralGANIdunModel(BaseModel):
 
         # specify the models you want to save to the disk. The training/test scripts will call <BaseModel.save_networks> and <BaseModel.load_networks>.
         if self.isTrain:
-            self.model_names = ['G_A', 'G_B', 'D_A_lateral', 'D_A_axial', 'D_B_lateral', 'D_B_axial']
+            self.model_names = ['G_A', 'G_B', 'D_A_lateral', 'D_A_axial']
         else:  # during test time, only load Gs
             self.model_names = ['G_A', 'G_B']
 
         # define networks (both Generators and discriminators)
         # The naming is different from those used in the paper.
-        # Code (vs. paper): G_A (G), G_B (F), D_A (D_Y), D_B (D_X)
+        # Code (vs. paper): G_A (G), G_B (F), D_A (D_Y)
         self.netG_A = networks.define_G(opt.input_nc, opt.output_nc, opt.ngf, opt.netG, opt.norm,
                                         not opt.no_dropout, opt.init_type, opt.init_gain, self.gpu_ids,
                                         dimension=self.gen_dimension)
@@ -234,15 +234,15 @@ class AxialToLateralGANIdunModel(BaseModel):
         self.backward_G()  # calculate gradients for G_A and G_B
         self.optimizer_G.step()  # update G_A and G_B's weights
 
-        # D_A and D_B
+        # D_A
         self.set_requires_grad(
             [self.netD_A_lateral, self.netD_A_axial], True)
-        self.optimizer_D.zero_grad()  # set D_A and D_B's gradients to zero
+        self.optimizer_D.zero_grad()  # set D_A's gradients to zero
 
         self.backward_D_A_lateral()
         self.backward_D_A_axial()  # calculate gradients for D_A's
 
-        self.optimizer_D.step()  # update D_A and D_B's weights
+        self.optimizer_D.step()  # update D_A's weights
 
     def proj_f(self, input, function, slice_axis):
         input_volume = Volume(input, self.device)
