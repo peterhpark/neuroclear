@@ -63,7 +63,6 @@ class BaseDataset(data.Dataset, ABC):
 		"""
 		pass
 
-# TODO change this to pick just one pair of 2D slices.
 def get_params(opt, vol_shape):
 	crop_z, crop_y, crop_x = opt.crop_size
 
@@ -79,7 +78,9 @@ def get_params(opt, vol_shape):
 
 	angle_3D = random.randint(0, 359)
 
-	return {'crop_pos': (z, y, x), 'flip_axis': flip_axis, 'angle_3D':angle_3D}
+	angle_90 = np.random.choice((0, 90, 180, 270))
+
+	return {'crop_pos': (z, y, x), 'flip_axis': flip_axis, 'angle_3D': angle_3D, 'angle_90': angle_90}
 
 def get_transform(opt, params = None):
 	transform_list = []
@@ -101,7 +102,7 @@ def get_transform(opt, params = None):
 		if params is None:
 			transform_list += [transforms.Lambda(lambda img_np: __random90rotate(img_np))]
 		else:
-			transform_list += [transforms.Lambda(lambda img_np: __rotate(img_np, params['rotate_params']))]
+			transform_list += [transforms.Lambda(lambda img_np: __rotate(img_np, params['angle_90']))]
 
 	if 'centercrop' in opt.preprocess:
 		transform_list += [transforms.Lambda(lambda img_np: __centercrop(img_np, opt.crop_portion))]
@@ -149,8 +150,8 @@ def __random90rotate(image_vol):
 	return img_vol_rotated
 
 def __rotate(img_np, rotate_params):
-	angle, axis = rotate_params
-	img_np_rotated = rotate(img_np, angle, axes = axis, reshape = False, mode = 'reflect')
+	angle = rotate_params
+	img_np_rotated = rotate(img_np, angle,  axes = (1,2), reshape=False)
 	return img_np_rotated
 
 def __permutate(img_np):

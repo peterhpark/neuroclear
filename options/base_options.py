@@ -122,9 +122,7 @@ class BaseOptions():
         else: # save the testing options to the results_dir
             if opt.data_name is not None:
                 expr_dir = os.path.join(opt.results_dir, opt.data_name + '_by_' + opt.name)
-            # elif opt.data_name is not None and opt.overlap > 0 and opt.border_cut > 0 :
-            #     expr_dir = os.path.join(opt.results_dir, opt.data_name + '_by_' + opt.name + '_overlap-' + str(opt.overlap) + '_bordercut-' + str(opt.border_cut),
-            #                    '{}_{}'.format(opt.phase, opt.epoch))
+
             else:
                 expr_dir = os.path.join(opt.results_dir, opt.name)
 

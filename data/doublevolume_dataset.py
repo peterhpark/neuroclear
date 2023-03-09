@@ -1,4 +1,5 @@
-from data.base_dataset import BaseDataset, get_transform
+from data.base_dataset import BaseDataset, get_transform, get_params
+from options.train_options import TrainOptions
 from data.image_folder import make_dataset
 from skimage import io
 import re
@@ -19,7 +20,8 @@ class DoubleVolumeDataset(BaseDataset):
 
     @staticmethod
     def modify_commandline_options(parser, is_train=False):
-        parser.add_argument('--dataref', help = 'path to reference images')
+        parser.add_argument('--data_ref', help = 'path to reference images')
+        parser.add_argument('--data_gt', type=str, default=None, help='specify the path to the groundtruth')
         return parser
 
     def __init__(self, opt):
@@ -32,27 +34,40 @@ class DoubleVolumeDataset(BaseDataset):
         BaseDataset.__init__(self, opt)
         self.A_path = make_dataset(opt.dataroot, 1)[0]  # loads only one image volume.
         self.A_img_np = io.imread(self.A_path)
+        self.A_img_shape = self.A_img_np.shape
 
-        self.B_path = make_dataset(opt.dataref, 1)[0]  # loads only one image volume.
+        self.B_path = make_dataset(opt.data_ref, 1)[0]  # loads only one image volume.
         self.B_img_np = io.imread(self.B_path)
 
+        if opt.data_gt is not None:
+            self.validate = True
+            self.C_path = make_dataset(opt.data_gt, 1)[0] # loads only one image volume.
+            self.C_img_np = io.imread(self.C_path)
+
         btoA = self.opt.direction == 'BtoA'
-        self.transform_A = get_transform(self.opt)
-        self.transform_B = get_transform(self.opt)
 
         self.isTrain = opt.isTrain
 
     def __getitem__(self, index):
         # apply image transformation
-        # iter_index = self.dummy_list[index]
-        A = self.transform_A(self.A_img_np)
-        B = self.transform_B(self.B_img_np)
 
-        return {'src': A, 'src_paths': self.A_path, 'tgt': B, 'tgt_paths': self.B_path}
+
+        transform_params = get_params(self.opt, self.A_img_shape)
+        transform_A = get_transform(self.opt, params = transform_params)
+        transform_B = get_transform(self.opt) # still randomize
+
+        A = transform_A(self.A_img_np)
+        B = transform_B(self.B_img_np)
+        C = transform_A(self.C_img_np)
+
+        if self.validate:
+            return {'src': A, 'src_paths': self.A_path, 'tgt': B, 'tgt_paths': self.B_path, 'gt': C, 'gt_paths': self.C_path}
+
+        else:
+            return {'src': A, 'src_paths': self.A_path, 'tgt': B, 'tgt_paths': self.B_path}
 
     def __len__(self):
         """Return the total number of images in the dataset.
-
         As we have two datasets with potentially different number of images,
         """
 

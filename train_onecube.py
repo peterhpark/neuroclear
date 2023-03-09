@@ -104,7 +104,7 @@ if __name__ == '__main__':
             visualizer.display_current_histogram(model.get_current_visuals(), total_iters)
             # print('saving the current visuals (iteration %d)' % total_iters)
             # visualizer.save_current_visuals(model.get_current_visuals(), total_iters)
-            print ("----------------------------------")
+
 
         model.update_learning_rate()  # update here instead of at the end of every epoch
         iter_data_time = time.time()
