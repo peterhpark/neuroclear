@@ -130,8 +130,10 @@ class AxialToLateralGANIdunModel(BaseModel):
             # define loss functions
             self.criterionGAN = networks.GANLoss(opt.gan_mode).to(self.device)  # define GAN loss.
             self.criterionCycle = torch.nn.L1Loss()
-            self.criterionValidateL1 = torch.nn.L1Loss() # comparison with GT for validation
-            self.criterionValssim =StructuralSimilarityIndexMeasure(data_range=1.0).to(self.device)
+
+            if self.validate:
+                self.criterionValL1 = torch.nn.L1Loss() # comparison with GT for validation
+                self.criterionValssim =StructuralSimilarityIndexMeasure(data_range=1.0).to(self.device)
 
             # initialize optimizers; schedulers will be automatically created by function <BaseModel.setup>.
             self.optimizer_G = torch.optim.Adam(itertools.chain(self.netG_A.parameters(), self.netG_B.parameters()),
@@ -237,9 +239,11 @@ class AxialToLateralGANIdunModel(BaseModel):
         # This model only includes forward cycle loss || G_B(G_A(A)) - A||
         self.loss_cycle = self.criterionCycle(self.rec, self.real_src) * lambda_A
 
-        # calculate validation losses
-        self.loss_valL1 = self.criterionValidateL1(self.fake.detach(), self.real_gt)
-        self.loss_valssim = self.criterionValssim(self.fake.detach(), self.real_gt)
+
+        if self.validate:
+            # calculate validation losses
+            self.loss_valL1 = self.criterionValL1(self.fake.detach(), self.real_gt)
+            self.loss_valssim = self.criterionValssim(self.fake.detach(), self.real_gt)
 
         # combined loss and calculate gradients
         self.loss_G = self.loss_G_A + self.loss_cycle
