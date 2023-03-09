@@ -74,7 +74,7 @@ class AxialToLateralGANIdunModel(BaseModel):
 
         if self.validate:
             self.loss_names += ['valL1', 'valssim']
-            self.visual_names += ['gt']
+            self.visual_names += ['real_gt']
 
         self.gan_mode = opt.gan_mode
 

@@ -167,10 +167,10 @@ class Visualizer():
                 plt.gca().yaxis.set_major_locator(plt.NullLocator())
                 plt.close(fig_slice)
 
-
-                img_mip_xy = np.amax(img_np[0,0], 0)
-                img_mip_xz = np.amax(img_np[0,0], 1)
-                img_mip_yz = np.amax(img_np[0,0], 2)
+                # MIP depth for visualization is 30 slices.
+                img_mip_xy = np.amax(img_np[0, 0, slice_portion-15:slice_portion+15, :, :], 0)
+                img_mip_xz = np.amax(img_np[0, 0, :, slice_portion-15:slice_portion+15, :], 1)
+                img_mip_yz = np.amax(img_np[0, 0, :, :, slice_portion-15:slice_portion+15], 2)
 
                 fig_mip = plt.figure(edgecolor='b', dpi=150)
                 ax_2_1 = fig_mip.add_subplot(1, 3, 1)
