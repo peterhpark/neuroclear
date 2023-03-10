@@ -39,6 +39,7 @@ class DoubleVolumeDataset(BaseDataset):
         self.B_path = make_dataset(opt.data_ref, 1)[0]  # loads only one image volume.
         self.B_img_np = io.imread(self.B_path)
 
+        self.validate = False
         if opt.data_gt is not None:
             self.validate = True
             self.C_path = make_dataset(opt.data_gt, 1)[0] # loads only one image volume.
@@ -58,9 +59,10 @@ class DoubleVolumeDataset(BaseDataset):
 
         A = transform_A(self.A_img_np)
         B = transform_B(self.B_img_np)
-        C = transform_A(self.C_img_np)
+
 
         if self.validate:
+            C = transform_A(self.C_img_np)
             return {'src': A, 'src_paths': self.A_path, 'tgt': B, 'tgt_paths': self.B_path, 'gt': C, 'gt_paths': self.C_path}
 
         else:

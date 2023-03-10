@@ -1,4 +1,3 @@
-# TODO Sep 08 version 
 import numpy as np
 import os
 import sys
