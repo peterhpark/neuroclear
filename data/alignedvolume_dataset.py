@@ -51,16 +51,19 @@ class AlignedVolumeDataset(BaseDataset):
 
 
         transform_params = get_params(self.opt, self.A_img_shape)
-        transform_A = get_transform(self.opt, params = transform_params)
-        transform_B = get_transform(self.opt, params = transform_params) # still randomize
+        transform = get_transform(self.opt, params = transform_params)
 
-        A = transform_A(self.A_img_np)
-        B = transform_B(self.B_img_np)
+        A = transform(self.A_img_np)
+        B = transform(self.B_img_np)
 
 
         if self.validate:
-            C = transform_A(self.C_img_np)
-            return {'src': A, 'src_paths': self.A_path, 'tgt': B, 'tgt_paths': self.B_path, 'gt': C, 'gt_paths': self.C_path}
+            transform_params_val = get_params(self.opt, self.A_img_shape)
+            transform_val = get_transform(self.opt, params = transform_params_val)
+            C = transform_val(self.A_img_np)
+            D = transform_val(self.B_img_np)
+
+            return {'src': A, 'src_paths': self.A_path, 'tgt': B, 'tgt_paths': self.B_path, 'src_val': C, 'tgt_val': D}
 
         else:
             return {'src': A, 'src_paths': self.A_path, 'tgt': B, 'tgt_paths': self.B_path}
