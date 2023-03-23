@@ -15,10 +15,9 @@ class SupervisedModel(BaseModel):
             opt (Option class)-- stores all the experiment flags; needs to be a subclass of BaseOptions
         """
 
-        assert(not opt.isTrain)
         BaseModel.__init__(self, opt)
 
-        if opt.data_gt is not None:
+        if opt.validate:
             self.validate = True
         else:
             self.validate = False
@@ -26,11 +25,11 @@ class SupervisedModel(BaseModel):
         # specify the training losses you want to print out. The training/test scripts  will call <BaseModel.get_current_losses>
         self.loss_names = ['L1']
         # specify the images you want to save/display. The training/test scripts  will call <BaseModel.get_current_visuals>
-        self.visual_names = ['real', 'fake']
+        self.visual_names = ['real_src', 'fake', 'real_tgt']
 
         if self.validate:
             self.loss_names += ['valL1', 'valssim']
-            self.visual_names += ['src_val', 'tgt_val']
+            self.visual_names += ['real_src_val', 'real_tgt_val']
         # specify the models you want to save to the disk. The training/test scripts will call <BaseModel.save_networks> and <BaseModel.load_networks>
         self.model_names = ['G']  # only generator is needed.
 
@@ -47,7 +46,8 @@ class SupervisedModel(BaseModel):
                 self.criterionValL1 = torch.nn.L1Loss() # comparison with GT for validation
                 self.criterionValssim =StructuralSimilarityIndexMeasure(data_range=1.0).to(self.device)
 
-        self.optimizer = torch.optim.Adam(self.netG.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
+            self.optimizer_G = torch.optim.Adam(self.netG.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
+            self.optimizers.append(self.optimizer_G)
 
     def set_input(self, input):
         """Unpack input data from the dataloader and perform necessary pre-processing steps.
@@ -86,4 +86,4 @@ class SupervisedModel(BaseModel):
     def optimize_parameters(self):
         self.forward()
         self.backward_G()
-        self.optimizer.step()
+        self.optimizer_G.step()
