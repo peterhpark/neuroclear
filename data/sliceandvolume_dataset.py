@@ -12,7 +12,7 @@ def numericalSort(value):
     return parts
 
 
-class DoubleVolumeDataset(BaseDataset):
+class SliceAndVolumeDataset(BaseDataset):
     """
     Loads image volume dataset. The dataset is consisted of multiple 3D image sub-volumes.
     This dataset loads one volume each from the source and target datasets.
@@ -32,17 +32,19 @@ class DoubleVolumeDataset(BaseDataset):
         """
 
         BaseDataset.__init__(self, opt)
-        self.A_path = make_dataset(opt.dataroot, 1)[0]  # loads only one image volume.
+        self.A_path = make_dataset(opt.dataroot, 1)[0]  # loads only one 3D image.
         self.A_img_np = io.imread(self.A_path)
         self.A_img_shape = self.A_img_np.shape
 
-        self.B_path = make_dataset(opt.data_ref, 1)[0]  # loads only one image volume.
+        self.B_path = make_dataset(opt.data_ref, 1)[0]  # loads only one 2D image.
         self.B_img_np = io.imread(self.B_path)
+        self.B_img_shape = self.B_img_np.shape
+
 
         self.validate = False
         if opt.data_gt is not None:
             self.validate = True
-            self.C_path = make_dataset(opt.data_gt, 1)[0] # loads only one image volume.
+            self.C_path = make_dataset(opt.data_gt, 1)[0] # loads only one 3D image.
             self.C_img_np = io.imread(self.C_path)
 
         btoA = self.opt.direction == 'BtoA'
@@ -51,8 +53,6 @@ class DoubleVolumeDataset(BaseDataset):
 
     def __getitem__(self, index):
         # apply image transformation
-
-        # transform_params = get_params(self.opt, self.A_img_shape)
         transform_A = get_transform(self.opt)
         transform_B = get_transform(self.opt) # still randomize
 

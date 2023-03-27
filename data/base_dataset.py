@@ -64,23 +64,46 @@ class BaseDataset(data.Dataset, ABC):
 		pass
 
 def get_params(opt, vol_shape):
-	crop_z, crop_y, crop_x = opt.crop_size
+	if len(vol_shape) == 3: # 3D image
+		crop_z, crop_y, crop_x = opt.crop_size
 
-	assert (vol_shape[0] - crop_z >= 0)
-	assert (vol_shape[1] - crop_y >= 0)
-	assert (vol_shape[2] - crop_x >= 0)
+		assert (vol_shape[0] - crop_z >= 0)
+		assert (vol_shape[1] - crop_y >= 0)
+		assert (vol_shape[2] - crop_x >= 0)
 
-	z = random.randint(0, np.maximum(0, vol_shape[0] - crop_z))
-	y = random.randint(0, np.maximum(0, vol_shape[1] - crop_y))
-	x = random.randint(0, np.maximum(0, vol_shape[2] - crop_x))
+		z = random.randint(0, np.maximum(0, vol_shape[0] - crop_z))
+		y = random.randint(0, np.maximum(0, vol_shape[1] - crop_y))
+		x = random.randint(0, np.maximum(0, vol_shape[2] - crop_x))
 
-	flip_axis = np.random.randint(0,3)
+		flip_axis = np.random.randint(0,3)
 
-	angle_3D = random.randint(0, 359)
+		angle_3D = random.randint(0, 359)
 
-	angle_90 = np.random.choice((0, 90, 180, 270))
+		angle_90 = np.random.choice((0, 90, 180, 270))
 
-	return {'crop_pos': (z, y, x), 'flip_axis': flip_axis, 'angle_3D': angle_3D, 'angle_90': angle_90}
+		return {'crop_pos': (z, y, x), 'flip_axis': flip_axis, 'angle_3D': angle_3D, 'angle_90': angle_90}
+
+
+	elif len(vol_shape) == 2: # 2D image
+		crop_y, crop_x = opt.crop_size
+
+		assert (vol_shape[1] - crop_y >= 0)
+		assert (vol_shape[2] - crop_x >= 0)
+
+		y = random.randint(0, np.maximum(0, vol_shape[1] - crop_y))
+		x = random.randint(0, np.maximum(0, vol_shape[2] - crop_x))
+
+		flip_axis = np.random.randint(0,2)
+
+		angle_3D = random.randint(0, 359)
+
+		angle_90 = np.random.choice((0, 90, 180, 270))
+
+		return {'crop_pos': (y, x), 'flip_axis': flip_axis, 'angle_3D': angle_3D, 'angle_90': angle_90}
+
+	else:
+		assert "The image dimension is invalid."
+
 
 def get_transform(opt, params = None):
 	transform_list = []
@@ -91,6 +114,10 @@ def get_transform(opt, params = None):
 			transform_list += [transforms.Lambda(lambda img_np: __randomrotate_clean_3D_xy(img_np))]
 		else:
 			transform_list += [transforms.Lambda(lambda img_np: __rotate_clean_3D_xy(img_np, angle=params['angle_3D']))]
+
+	if 'random2Drotate' in opt.preprocess:
+		if params is None:
+			transform_list += [transforms.Lambda(lambda img_np: __randomrotate_clean_2D_xy(img_np))]
 
 	if 'randomcrop' in opt.preprocess:
 		if params is None:
@@ -137,22 +164,50 @@ def __normalize(img_np):
 		img_normd = (img_np / (2**16*1.0 - 1)).astype(float)
 
 	else:
+		img_normd = img_np
 		assert "Image type is not recognized."
 	return img_normd
 
 def __random90rotate(image_vol):
-	chance = np.random.uniform(0, 1)
-	if chance < 0.75:
-		angle = np.random.choice((90, 180, 270))
-		img_vol_rotated = rotate(image_vol, angle, axes = (1,2), reshape=False)
+	img_dim = image_vol.shape
+	if len(img_dim) == 3: # 3D data
+		chance = np.random.uniform(0, 1)
+		if chance < 0.75:
+			angle = np.random.choice((90, 180, 270))
+			img_vol_rotated = rotate(image_vol, angle, axes = (1,2), reshape=False)
+		else:
+			img_vol_rotated = image_vol
+
+		return img_vol_rotated
+
+	elif len(img_dim) == 2:  # 2D data
+		chance = np.random.uniform(0, 1)
+		if chance < 0.75:
+			angle = np.random.choice((90, 180, 270))
+			img_vol_rotated = rotate(image_vol, angle, reshape=False)
+		else:
+			img_vol_rotated = image_vol
+
+		return img_vol_rotated
+
 	else:
-		img_vol_rotated = image_vol
-	return img_vol_rotated
+		assert "The image dimension is invalid."
 
 def __rotate(img_np, rotate_params):
-	angle = rotate_params
-	img_np_rotated = rotate(img_np, angle,  axes = (1,2), reshape=False)
-	return img_np_rotated
+	img_dim = img_np.shape
+	if len(img_dim) == 3: # 3D data
+		angle = rotate_params
+		img_np_rotated = rotate(img_np, angle,  axes = (1,2), reshape=False)
+		return img_np_rotated
+
+	elif len(img_dim) == 2:  # 2D data
+		angle = rotate_params
+		img_np_rotated = rotate(img_np, angle, reshape=False)
+		return img_np_rotated
+
+	else:
+		assert "The image dimension is invalid."
+
 
 def __permutate(img_np):
 	axis_len = len(img_np.shape)
@@ -184,7 +239,7 @@ def __randomcontrast(img_np, randomcontrast_val): # randomly change the contrast
 
 def __randomcrop(img_np, crop_size):
 
-	if len(img_np.shape) > 2: # 3D data
+	if len(img_np.shape) == 3: # 3D data
 		crop_z, crop_y, crop_x = crop_size
 		assert (img_np.shape[0] - crop_z >= 0)
 		assert (img_np.shape[1] - crop_y >= 0)
@@ -213,6 +268,8 @@ def __randomcrop(img_np, crop_size):
 
 		img_cropped = img_np[z:z_reach, y:y_reach, x:x_reach]
 
+		return img_cropped
+
 	elif len(img_np.shape) == 2: # 2D data
 		crop_y, crop_x = crop_size  # For 2D, crop_z will be ignored.
 
@@ -234,8 +291,12 @@ def __randomcrop(img_np, crop_size):
 			x_reach = x + crop_x
 
 		img_cropped = img_np[y:y_reach, x:x_reach]
+		return img_cropped
 
-	return img_cropped
+	else:
+		pass
+
+
 
 def __reorderColorChannel (img_np):
 	# re-order the order so that y, x, c -> c, y, x
@@ -247,7 +308,7 @@ def __reorderColorChannel (img_np):
 def __centercrop(img_np, crop_portion):
 	crop_portion = (100 - crop_portion*1.0) / 100 # crop_portion of 90% means cropping out 10%.
 
-	if len(img_np.shape) > 2: # 3D data
+	if len(img_np.shape) == 3: # 3D data
 		z, y, x = img_np.shape
 		crop_z, crop_y, crop_x = int(z * crop_portion / 2), int(y * crop_portion / 2), int(x * crop_portion / 2)  # For 2D, crop_z will be ignored.
 		img_cropped = img_np[crop_z:-crop_z, crop_y:-crop_y, crop_x:-crop_x]
@@ -446,10 +507,25 @@ def __rotate_clean_3D_xy(image_vol, angle):
 	return img_vol_rotated
 
 def __randomrotate_clean_3D_xy(image_vol):
-	angle = random.randint(0, 359)
-	slice_list = []
-	for slice in image_vol:
-		slice_rotated = __rotate_clean(slice, angle)
-		slice_list.append(slice_rotated)
-	img_vol_rotated = np.array(slice_list)
-	return img_vol_rotated
+	img_dim = image_vol.shape
+	if len(img_dim) == 3:
+		angle = random.randint(0, 359)
+		slice_list = []
+		for slice in image_vol:
+			slice_rotated = __rotate_clean(slice, angle)
+			slice_list.append(slice_rotated)
+		img_vol_rotated = np.array(slice_list)
+		return img_vol_rotated
+	else:
+		pass
+
+def __randomrotate_clean_2D_xy(image_slice):
+	img_dim = image_slice.shape
+	image_slice = __randomflip(image_slice)
+
+	if len(img_dim) == 2:
+		angle = random.randint(0, 359)
+		slice_rotated = __rotate_clean(image_slice, angle)
+		return slice_rotated
+	else:
+		pass
