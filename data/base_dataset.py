@@ -238,16 +238,16 @@ def __randomcontrast(img_np, randomcontrast_val): # randomly change the contrast
 	return img_normed
 
 def __randomcrop(img_np, crop_size):
+	img_dim = img_np.shape
+	if len(img_dim) == 3: # 3D data
+		crop_z, crop_y, crop_x = crop_size, crop_size, crop_size
+		assert (img_dim[0] - crop_z >= 0)
+		assert (img_dim[1] - crop_y >= 0)
+		assert (img_dim[2] - crop_x >= 0)
 
-	if len(img_np.shape) == 3: # 3D data
-		crop_z, crop_y, crop_x = crop_size
-		assert (img_np.shape[0] - crop_z >= 0)
-		assert (img_np.shape[1] - crop_y >= 0)
-		assert (img_np.shape[2] - crop_x >= 0)
-
-		z = random.randint(0, img_np.shape[0] - crop_z)
-		y = random.randint(0, img_np.shape[1] - crop_y)
-		x = random.randint(0, img_np.shape[2] - crop_x)
+		z = random.randint(0, img_dim[0] - crop_z)
+		y = random.randint(0, img_dim[1] - crop_y)
+		x = random.randint(0, img_dim[2] - crop_x)
 
 		if crop_x == 0:
 			x_reach = None
@@ -270,14 +270,14 @@ def __randomcrop(img_np, crop_size):
 
 		return img_cropped
 
-	elif len(img_np.shape) == 2: # 2D data
-		crop_y, crop_x = crop_size  # For 2D, crop_z will be ignored.
+	elif len(img_dim) == 2: # 2D data
+		crop_y, crop_x = crop_size, crop_size  # For 2D, crop_z will be ignored.
 
-		assert (img_np.shape[0] - crop_y >= 0)
-		assert (img_np.shape[1] - crop_x >= 0)
+		assert (img_dim[0] - crop_y >= 0)
+		assert (img_dim[1] - crop_x >= 0)
 
-		y = random.randint(0, img_np.shape[0] - crop_y)
-		x = random.randint(0, img_np.shape[1] - crop_x)
+		y = random.randint(0, img_dim[0] - crop_y)
+		x = random.randint(0, img_dim[1] - crop_x)
 
 		if crop_y == 0:
 			y_reach = None
@@ -294,8 +294,7 @@ def __randomcrop(img_np, crop_size):
 		return img_cropped
 
 	else:
-		pass
-
+		assert ("The image dimension is invalid.")
 
 
 def __reorderColorChannel (img_np):
@@ -506,26 +505,26 @@ def __rotate_clean_3D_xy(image_vol, angle):
 	img_vol_rotated = np.array(slice_list)
 	return img_vol_rotated
 
-def __randomrotate_clean_3D_xy(image_vol):
-	img_dim = image_vol.shape
+def __randomrotate_clean_3D_xy(img):
+	img_dim = img.shape
 	if len(img_dim) == 3:
 		angle = random.randint(0, 359)
 		slice_list = []
-		for slice in image_vol:
+		for slice in img:
 			slice_rotated = __rotate_clean(slice, angle)
 			slice_list.append(slice_rotated)
 		img_vol_rotated = np.array(slice_list)
 		return img_vol_rotated
 	else:
-		pass
+		return img # this is to skip 2D images
 
-def __randomrotate_clean_2D_xy(image_slice):
-	img_dim = image_slice.shape
-	image_slice = __randomflip(image_slice)
+def __randomrotate_clean_2D_xy(img):
+	img_dim = img.shape
+	img_ = __randomflip(img)
 
 	if len(img_dim) == 2:
 		angle = random.randint(0, 359)
-		slice_rotated = __rotate_clean(image_slice, angle)
+		slice_rotated = __rotate_clean(img_, angle)
 		return slice_rotated
 	else:
-		pass
+		return img # this is to skip 3D images
