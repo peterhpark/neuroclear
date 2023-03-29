@@ -143,21 +143,21 @@ class Visualizer():
                 im1 = ax.imshow(img_sample, cmap='gray')
 
                 divider = make_axes_locatable(ax)
-                cax = divider.append_axes('right', size='5%', pad=0.05)
+                cax = divider.append_axes('right', size='4%', pad=0.05)
                 fig_slice.colorbar(im1, cax=cax, orientation='vertical')
 
                 ax2 = fig_slice.add_subplot(1, 3, 2)
                 im2 = ax2.imshow(img_sample2, cmap='gray')
 
                 divider = make_axes_locatable(ax2)
-                cax = divider.append_axes('right', size='5%', pad=0.05)
+                cax = divider.append_axes('right', size='4%', pad=0.05)
                 fig_slice.colorbar(im2, cax=cax, orientation='vertical')
 
                 ax3 = fig_slice.add_subplot(1, 3, 3)
                 im3 = ax3.imshow(img_sample3, cmap='gray')
 
-                divider = make_axes_locatable(im3)
-                cax = divider.append_axes('right', size='5%', pad=0.05)
+                divider = make_axes_locatable(ax3)
+                cax = divider.append_axes('right', size='4%', pad=0.05)
                 fig_slice.colorbar(im3, cax=cax, orientation='vertical')
 
                 ax.set_axis_off()
@@ -188,21 +188,21 @@ class Visualizer():
                 im4 = ax_2_1.imshow(img_mip_xy, cmap='gray')
 
                 divider = make_axes_locatable(ax_2_1)
-                cax = divider.append_axes('right', size='5%', pad=0.05)
+                cax = divider.append_axes('right', size='4%', pad=0.05)
                 fig_mip.colorbar(im4, cax=cax, orientation='vertical')
 
                 ax_2_2= fig_mip.add_subplot(1, 3, 2)
                 im5 = ax_2_2.imshow(img_mip_xz, cmap='gray')
 
                 divider = make_axes_locatable(ax_2_2)
-                cax = divider.append_axes('right', size='5%', pad=0.05)
+                cax = divider.append_axes('right', size='4%', pad=0.05)
                 fig_mip.colorbar(im5, cax=cax, orientation='vertical')
 
                 ax_2_3 = fig_mip.add_subplot(1, 3, 3)
                 im6 = ax_2_3.imshow(img_mip_yz, cmap='gray')
 
                 divider = make_axes_locatable(ax_2_3)
-                cax = divider.append_axes('right', size='5%', pad=0.05)
+                cax = divider.append_axes('right', size='4%', pad=0.05)
                 fig_mip.colorbar(im6, cax=cax, orientation='vertical')
 
                 ax_2_1.set_axis_off()

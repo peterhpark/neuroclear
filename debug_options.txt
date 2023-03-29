@@ -1,0 +1,7 @@
+--dataroot /home/park/park_g/data/simulation_test/simulation_data/haystack/6000-lines-blurred-by-gaublur-std-4/bornandwolf
+--data_ref /home/park/park_g/data/simulation_test/simulation_data/haystack/6000-lines-blurred-by-gaublur-std-4/GT
+--data_gt /home/park/park_g/data/simulation_test/simulation_data/haystack/6000-lines-blurred-by-gaublur-std-4/GT
+--checkpoints_dir /home/park/park_g/checkpoints/Debug --add_date --name tuisto_test --dataset_mode sliceandvolume
+--print_freq 5 --display_freq 5 --preprocess randomcrop_random90rotate_random2Drotate_randomflip_addColorChannel_addBatchChannel
+--model axial_to_lateral_gan_tuisto --netG unet_deconv --init_type kaiming --norm instance --batch_size 1 --gpu_ids 5
+--crop_size 100 --display_histogram --save_by_iter --save_latest_freq 500 --server labgpu2 --validate

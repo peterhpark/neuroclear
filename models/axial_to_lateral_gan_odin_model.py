@@ -5,7 +5,7 @@ from .base_model import BaseModel
 from torchmetrics import StructuralSimilarityIndexMeasure
 from . import networks
 
-class AxialToLateralGANThorModel(BaseModel):
+class AxialToLateralGANOdinModel(BaseModel):
     """
     This model uses high-resolution reference from another source.
     The model takes a 3D image cube as an input and outputs a 3D image stack that correspond to the output cube.
@@ -321,9 +321,10 @@ class AxialToLateralGANThorModel(BaseModel):
             output_avg = torch.mean(torch.stack(output_list))
             return output_avg
 
-        elif len(img_dim) == 3:  # 2D image
+        elif len(img_dim) == 4:  # 2D image
             output = function(input)
-            return output
+            output_avg = torch.mean(output)
+            return output_avg
 
         else:
             assert ("The image dimension is invalid.")
