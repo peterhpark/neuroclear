@@ -4,10 +4,6 @@ import sys
 import ntpath
 import time
 from . import util, html
-from subprocess import Popen, PIPE
-from PIL import Image
-import torchvision
-import datetime
 import matplotlib.pyplot as plt
 # plt.switch_backend('agg')
 from mpl_toolkits.mplot3d import Axes3D
@@ -16,6 +12,7 @@ from collections import OrderedDict
 from matplotlib import cm
 from tifffile import imsave
 import torch
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 def save_images(webpage, visuals, image_path, aspect_ratio=1.0, width=256):
     """Save images to the disk,
@@ -143,8 +140,25 @@ class Visualizer():
 
                 fig_slice = plt.figure(edgecolor='b', dpi=150)
                 ax = fig_slice.add_subplot(1, 3, 1)
+                ax.imshow(img_sample, cmap='gray')
+
+                divider = make_axes_locatable(ax)
+                cax = divider.append_axes('right', size='5%', pad=0.05)
+                fig_slice.colorbar(img_sample, cax=cax, orientation='vertical')
+
                 ax2 = fig_slice.add_subplot(1, 3, 2)
+                ax2.imshow(img_sample2, cmap='gray')
+
+                divider = make_axes_locatable(ax2)
+                cax = divider.append_axes('right', size='5%', pad=0.05)
+                fig_slice.colorbar(img_sample2, cax=cax, orientation='vertical')
+
                 ax3 = fig_slice.add_subplot(1, 3, 3)
+                ax3.imshow(img_sample3, cmap='gray')
+
+                divider = make_axes_locatable(ax3)
+                cax = divider.append_axes('right', size='5%', pad=0.05)
+                fig_slice.colorbar(img_sample3, cax=cax, orientation='vertical')
 
                 ax.set_axis_off()
                 ax2.set_axis_off()
@@ -154,17 +168,14 @@ class Visualizer():
                 ax2.set_title('XZ slice')
                 ax3.set_title('YZ slice')
 
-                ax.imshow(img_sample, cmap='gray')
-                ax2.imshow(img_sample2, cmap='gray')
-                ax3.imshow(img_sample3, cmap='gray')
 
-                plt.gca().set_axis_off()
-                plt.subplots_adjust(top=1, bottom=0, right=1, left=0,
-                                    hspace=0, wspace=0)
-                plt.margins(0, 0)
-                plt.gca().xaxis.set_major_locator(plt.NullLocator())
-                plt.gca().yaxis.set_major_locator(plt.NullLocator())
-                plt.close(fig_slice)
+                # plt.gca().set_axis_off()
+                # plt.subplots_adjust(top=1, bottom=0, right=1, left=0,
+                #                     hspace=0, wspace=0)
+                # plt.margins(0, 0)
+                # plt.gca().xaxis.set_major_locator(plt.NullLocator())
+                # plt.gca().yaxis.set_major_locator(plt.NullLocator())
+                # plt.close(fig_slice)
 
                 # MIP depth for visualization is 30 slices.
                 img_mip_xy = np.amax(img_np[0, 0, slice_portion-15:slice_portion+15, :, :], 0)
@@ -172,9 +183,27 @@ class Visualizer():
                 img_mip_yz = np.amax(img_np[0, 0, :, :, slice_portion-15:slice_portion+15], 2)
 
                 fig_mip = plt.figure(edgecolor='b', dpi=150)
+
                 ax_2_1 = fig_mip.add_subplot(1, 3, 1)
+                ax_2_1.imshow(img_mip_xy, cmap='gray')
+
+                divider = make_axes_locatable(ax_2_1)
+                cax = divider.append_axes('right', size='5%', pad=0.05)
+                fig_mip.colorbar(img_mip_xy, cax=cax, orientation='vertical')
+
                 ax_2_2= fig_mip.add_subplot(1, 3, 2)
+                ax_2_2.imshow(img_mip_xz, cmap='gray')
+
+                divider = make_axes_locatable(ax_2_2)
+                cax = divider.append_axes('right', size='5%', pad=0.05)
+                fig_mip.colorbar(img_mip_xz, cax=cax, orientation='vertical')
+
                 ax_2_3 = fig_mip.add_subplot(1, 3, 3)
+                ax_2_3.imshow(img_mip_yz, cmap='gray')
+
+                divider = make_axes_locatable(ax_2_3)
+                cax = divider.append_axes('right', size='5%', pad=0.05)
+                fig_mip.colorbar(img_mip_yz, cax=cax, orientation='vertical')
 
                 ax_2_1.set_axis_off()
                 ax_2_2.set_axis_off()
@@ -184,17 +213,14 @@ class Visualizer():
                 ax_2_2.set_title('XZ MIP')
                 ax_2_3.set_title('YZ MIP')
 
-                ax_2_1.imshow(img_mip_xy, vmax=256, cmap='gray')
-                ax_2_2.imshow(img_mip_xz, vmax=256,cmap='gray')
-                ax_2_3.imshow(img_mip_yz, vmax=256, cmap='gray')
 
-                plt.gca().set_axis_off()
-                plt.subplots_adjust(top=1, bottom=0, right=1, left=0,
-                                    hspace=0, wspace=0)
-                plt.margins(0, 0)
-                plt.gca().xaxis.set_major_locator(plt.NullLocator())
-                plt.gca().yaxis.set_major_locator(plt.NullLocator())
-                plt.close(fig_mip)
+                # plt.gca().set_axis_off()
+                # plt.subplots_adjust(top=1, bottom=0, right=1, left=0,
+                #                     hspace=0, wspace=0)
+                # plt.margins(0, 0)
+                # plt.gca().xaxis.set_major_locator(plt.NullLocator())
+                # plt.gca().yaxis.set_major_locator(plt.NullLocator())
+                # plt.close(fig_mip)
 
                 self.tb_writer.add_figure('train_slice_images/' + label, fig_slice, epoch)
                 self.tb_writer.add_figure('train_mip_images/' + label, fig_mip, epoch)
