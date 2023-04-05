@@ -12,6 +12,7 @@ def numericalSort(value):
     return parts
 
 
+#TODO this dataset mode is WRONG. Figure out what to do.
 class AlignedVolumeDataset(BaseDataset):
     """
     Loads image volume dataset. The dataset is consisted of multiple 3D image sub-volumes.
@@ -49,12 +50,11 @@ class AlignedVolumeDataset(BaseDataset):
     def __getitem__(self, index):
         # apply image transformation
 
+        transform_A = get_transform(self.opt)
+        transform_B = get_transform(self.opt)
 
-        transform_params = get_params(self.opt, self.A_img_shape)
-        transform = get_transform(self.opt, params = transform_params)
-
-        A = transform(self.A_img_np)
-        B = transform(self.B_img_np)
+        A = transform_A(self.A_img_np)
+        B = transform_B(self.B_img_np)
 
 
         if self.validate:

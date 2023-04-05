@@ -70,7 +70,7 @@ class AxialToLateralGANMeiliModel(BaseModel):
             self.validate = False
 
         # specify the training losses you want to print out. The training/test scripts will call <BaseModel.get_current_losses>
-        self.loss_names = ['D_A_lateral', 'D_A_axial', 'G_A', 'G_A_lateral', 'G_A_axial', 'cycle',
+        self.loss_names = ['D_A_lateral', 'D_A_axial', 'G_A', 'G_A_lateral', 'G_A_axial', 'cycle_1', 'cycle_2'
                            'D_B_lateral', 'D_B_axial', 'G_B', 'G_B_lateral', 'G_B_axial']
 
         self.gan_mode = opt.gan_mode
@@ -89,7 +89,7 @@ class AxialToLateralGANMeiliModel(BaseModel):
         self.sample_proj = opt.projection_sampling
 
         # specify the images you want to save/display. The training/test scripts will call <BaseModel.get_current_visuals>
-        self.visual_names = ['real_tgt', 'real_src', 'fake', 'rec']
+        self.visual_names = ['real_tgt', 'real_src', 'fake', 'rec_1', 'rec_2']
 
         if self.validate:
             self.loss_names += ['valL1', 'valssim']
