@@ -52,8 +52,8 @@ class DoubleVolumeDataset(BaseDataset):
     def __getitem__(self, index):
         # apply image transformation
 
-        # transform_params = get_params(self.opt, self.A_img_shape)
-        transform_A = get_transform(self.opt)
+        transform_params = get_params(self.opt, self.A_img_shape)
+        transform_A = get_transform(self.opt, params= transform_params)
         transform_B = get_transform(self.opt) # still randomize
 
         A = transform_A(self.A_img_np)
