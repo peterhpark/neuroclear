@@ -14,8 +14,7 @@ def numericalSort(value):
 
 class SliceAndVolumeDataset(BaseDataset):
     """
-    Loads image volume dataset. The dataset is consisted of multiple 3D image sub-volumes.
-    This dataset loads one volume each from the source and target datasets.
+    Loads image volume dataset. The dataset is consisted of one 3D image volume and multiple 2D images
     """
 
     @staticmethod
@@ -36,10 +35,8 @@ class SliceAndVolumeDataset(BaseDataset):
         self.A_img_np = io.imread(self.A_path)
         self.A_img_shape = self.A_img_np.shape
 
-        self.B_path = make_dataset(opt.data_ref, 1)[0]  # loads only one 2D image.
-        self.B_img_np = io.imread(self.B_path)
-        self.B_img_shape = self.B_img_np.shape
-
+        self.B_paths = make_dataset(opt.data_ref, 1)  # loads multiple 2D images
+        self.B_size = len(self.B_paths)
 
         self.validate = False
         if opt.data_gt is not None:
@@ -52,19 +49,25 @@ class SliceAndVolumeDataset(BaseDataset):
         self.isTrain = opt.isTrain
 
     def __getitem__(self, index):
+
+        B_path = self.B_paths[index % self.B_size]  # make sure index is within then range
+
+        # Switch to importing a numpy file.
+        B_img_np = io.imread(B_path)
+
         # apply image transformation
         transform_A = get_transform(self.opt)
-        transform_B = get_transform(self.opt) # still randomize
+        transform_B = get_transform(self.opt, is_2D=True) # randomize separately
 
         A = transform_A(self.A_img_np)
-        B = transform_B(self.B_img_np)
+        B = transform_B(B_img_np)
 
         if self.validate:
             C = transform_A(self.C_img_np)
-            return {'src': A, 'src_paths': self.A_path, 'tgt': B, 'tgt_paths': self.B_path, 'gt': C, 'gt_paths': self.C_path}
+            return {'src': A, 'src_paths': self.A_path, 'tgt': B, 'tgt_paths': B_path, 'gt': C, 'gt_paths': self.C_path}
 
         else:
-            return {'src': A, 'src_paths': self.A_path, 'tgt': B, 'tgt_paths': self.B_path}
+            return {'src': A, 'src_paths': self.A_path, 'tgt': B, 'tgt_paths': B_path}
 
     def __len__(self):
         """Return the total number of images in the dataset.

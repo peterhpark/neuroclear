@@ -105,19 +105,23 @@ def get_params(opt, vol_shape):
 		assert "The image dimension is invalid."
 
 
-def get_transform(opt, params = None):
+def get_transform(opt, params = None, is_2D= False):
 	transform_list = []
 	image_dimension = int(opt.image_dimension)
 
-	if 'random3Drotate' in opt.preprocess:
+	if 'randomrotate' in opt.preprocess:
 		if params is None:
-			transform_list += [transforms.Lambda(lambda img_np: __randomrotate_clean_3D_xy(img_np))]
+			if is_2D:
+				transform_list += [transforms.Lambda(lambda img_np: __randomrotate_clean_2D_xy(img_np))]
+			else:
+				transform_list += [transforms.Lambda(lambda img_np: __randomrotate_clean_3D_xy(img_np))]
 		else:
-			transform_list += [transforms.Lambda(lambda img_np: __rotate_clean_3D_xy(img_np, angle=params['angle_3D']))]
+			assert ("This part is not implemeted yet!")
+			# if is_2D:
+				
+			# else:
+			# 	transform_list += [transforms.Lambda(lambda img_np: __rotate_clean_3D_xy(img_np, angle=params['angle_3D']))]
 
-	if 'random2Drotate' in opt.preprocess:
-		if params is None:
-			transform_list += [transforms.Lambda(lambda img_np: __randomrotate_clean_2D_xy(img_np))]
 
 	if 'randomcrop' in opt.preprocess:
 		if params is None:
@@ -245,28 +249,11 @@ def __randomcrop(img_np, crop_size):
 		assert (img_dim[1] - crop_y >= 0)
 		assert (img_dim[2] - crop_x >= 0)
 
-		z = random.randint(0, img_dim[0] - crop_z)
-		y = random.randint(0, img_dim[1] - crop_y)
-		x = random.randint(0, img_dim[2] - crop_x)
+		z = np.random.randint(0, img_dim[0] - crop_z)
+		y = np.random.randint(0, img_dim[1] - crop_y)
+		x = np.random.randint(0, img_dim[2] - crop_x)
 
-		if crop_x == 0:
-			x_reach = None
-			x = 0
-		else:
-			x_reach = x + crop_x
-		if crop_y == 0:
-			y_reach = None
-			y = 0
-		else:
-			y_reach = y + crop_y
-
-		if crop_z == 0:
-			z_reach = None
-			z = 0
-		else:
-			z_reach = z + crop_z
-
-		img_cropped = img_np[z:z_reach, y:y_reach, x:x_reach]
+		img_cropped = img_np[z:z + crop_z, y:y + crop_y, x:x + crop_x]
 
 		return img_cropped
 
@@ -276,21 +263,11 @@ def __randomcrop(img_np, crop_size):
 		assert (img_dim[0] - crop_y >= 0)
 		assert (img_dim[1] - crop_x >= 0)
 
-		y = random.randint(0, img_dim[0] - crop_y)
-		x = random.randint(0, img_dim[1] - crop_x)
+		y = np.random.randint(0, img_dim[0] - crop_y)
+		x = np.random.randint(0, img_dim[1] - crop_x)
 
-		if crop_y == 0:
-			y_reach = None
-			y = 0
-		else:
-			y_reach = y + crop_y
-		if crop_x == 0:
-			x_reach = None
-			x = 0
-		else:
-			x_reach = x + crop_x
 
-		img_cropped = img_np[y:y_reach, x:x_reach]
+		img_cropped = img_np[y:y + crop_y, x:x + crop_x]
 		return img_cropped
 
 	else:
