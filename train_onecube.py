@@ -31,6 +31,8 @@ from tqdm import tqdm
 
 import numpy as np
 
+#TODO this doesn't work. 
+
 if __name__ == '__main__':
     opt = TrainOptions().parse()   # get training options
 

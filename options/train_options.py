@@ -30,7 +30,7 @@ class TrainOptions(BaseOptions):
         parser.add_argument('--phase', type=str, default='train', help='train, val, test, etc')
 
         # training parameters
-        parser.add_argument('--n_epochs', type=int, default=50000000, help='number of epochs with the initial learning rate')
+        parser.add_argument('--n_epochs', type=int, default=1e50, help='number of epochs with the initial learning rate')
         parser.add_argument('--n_epochs_decay', type=int, default=100, help='number of epochs to linearly decay learning rate to zero')
         parser.add_argument('--beta1', type=float, default=0.1, help='momentum term of adam')
         parser.add_argument('--lr', type=float, default=0.0001, help='initial learning rate for adam')

@@ -78,5 +78,5 @@ class SliceAndVolumeDataset(BaseDataset):
         As we have two datasets with potentially different number of images,
         """
 
-        # each epoch is 10 images.
-        return int(10)
+        # each epoch is 100 images.
+        return int(100)

@@ -73,8 +73,11 @@ if __name__ == '__main__':
                 model.compute_visuals()
                 epoch_progress = round(float(epoch_iter/dataset_size),2) * 100
                 epoch_count = (epoch-1) * 100  #display the progress in percent: for example 30% past two epochs is 230.
-                visualizer.display_current_results(model.get_current_visuals(), epoch_count+epoch_progress)
-                visualizer.display_current_histogram(model.get_current_visuals(), epoch)
+                # visualizer.display_current_results(model.get_current_visuals(), epoch_count+epoch_progress)
+                # visualizer.display_current_histogram(model.get_current_visuals(), epoch)
+
+                visualizer.display_current_results(model.get_current_visuals(), total_iters)
+                visualizer.display_current_histogram(model.get_current_visuals(), total_iters)
 
             if total_iters % opt.print_freq == 0:    # print training losses and save logging information to the disk
                 print ("----------------------------------")
@@ -85,22 +88,28 @@ if __name__ == '__main__':
 
                 epoch_progress = round(float(epoch_iter / dataset_size), 2) * 100
                 epoch_count = (epoch - 1) * 100  # display the progress in percent: for example 30% past two epochs is 230.
-                visualizer.print_current_losses(epoch, epoch_progress, losses, t_comp, t_data)
+                # visualizer.print_current_losses(epoch, epoch_progress, losses, t_comp, t_data)
+    
+                    # visualizer.print_current_losses(epoch, epoch_progress, losses, t_comp, t_data)
 
-                if opt.display_id > 0:
-                    visualizer.plot_current_losses(epoch_count+epoch_progress, losses, is_epoch = False)
+
+                if opt.display_id > 0:                       
+                    visualizer.plot_current_losses(total_iters, losses, is_epoch = False)
+
+                    # visualizer.plot_current_losses(epoch_count+epoch_progress, losses, is_epoch = False)
 
             if total_iters % opt.save_latest_freq == 0:   # cache our latest model every <save_latest_freq> iterations
                 epoch_progress = round(float(epoch_iter / dataset_size), 2) * 100
                 epoch_count = (epoch - 1) * 100  # display the progress in percent: for example 30% past two epochs is 230.
 
-                print('saving the latest model (epoch %d, epoch_progress %d%%)' % (epoch, epoch_progress))
+                # print('saving the latest model (epoch %d, epoch_progress %d%%)' % (epoch, epoch_progress))
                 save_suffix = 'iter_%d' % total_iters if opt.save_by_iter else 'latest'
                 model.save_networks(save_suffix)
             iter_data_time = time.time()
 
         # display the image histogram per epoch.
-        visualizer.display_current_histogram(model.get_current_visuals(), epoch)
+        # visualizer.display_current_histogram(model.get_current_visuals(), epoch)
+        visualizer.display_current_histogram(model.get_current_visuals(), total_iters)
 
         losses = model.get_current_losses()
         visualizer.plot_current_losses(epoch, losses, is_epoch=True)
@@ -108,8 +117,8 @@ if __name__ == '__main__':
         if epoch % opt.save_epoch_freq == 0:              # cache our model every <save_epoch_freq> epochs
             print('saving the model at the end of epoch %d, iters %d' % (epoch, total_iters))
             model.save_networks('latest')
-            model.save_networks(epoch)
-            visualizer.save_current_visuals(model.get_current_visuals(), epoch)
+            # model.save_networks(epoch)
+            visualizer.save_current_visuals(model.get_current_visuals(), total_iters)
 
         model.update_learning_rate()
         print('End of epoch %d / %d \t Time Taken: %d sec' % (epoch, opt.n_epochs + opt.n_epochs_decay, time.time() - epoch_start_time))

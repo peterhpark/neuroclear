@@ -49,7 +49,7 @@ class AxialToLateralGANNepModel(BaseModel):
             parser.add_argument('--projection_sampling', type=int, default=1,
                                 help='how many times a discriminator samples projection images.  ')
 
-        parser.add_argument('--netG_B', type=str, default='deep_linear_gen',
+        parser.add_argument('--netG_B', type=str, default='unet_deconv',
                             help='specify the generator in B->A path. ')
 
         return parser
