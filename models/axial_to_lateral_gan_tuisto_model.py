@@ -35,7 +35,7 @@ class AxialToLateralGANTuistoModel(BaseModel):
         parser.set_defaults(no_dropout=True)  # default CycleGAN did not use dropout
         if is_train:
             parser.add_argument('--lambda_A', type=float, default=10.0, help='weight for cycle loss (A -> B -> A)')
-            parser.add_argument('--gan_mode', type=str, default='vanilla',
+            parser.add_argument('--gan_mode', type=str, default='lsgan',
                                 help='the type of GAN objective. [vanilla| lsgan | wgangp]. vanilla GAN loss is the cross-entropy objective used in the original GAN paper.')
 
             parser.add_argument('--lambda_plane', type=int, nargs='+', default=[1, 1, 1],

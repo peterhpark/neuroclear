@@ -132,87 +132,97 @@ class Visualizer():
             if self.opt.model != 'classifier':
                 img_np = util.tensor2im(image, imtype=np.uint8)
                 img_shape = img_np.shape
-                b, c, d, h, w = img_shape
-                slice_portion = int(d/2) # For 3D images, get three images at increasing depth
-                img_sample = img_np[0, 0, slice_portion, :,:] # choose the first sample in the batch
-                img_sample2 = img_np[0, 0, :, slice_portion, :] # choose the second sample in the batch
-                img_sample3 = img_np[0, 0, :, :, slice_portion] # choose the third sample in the batch
+                if len(img_shape) > 4: 
+                    b, c, d, h, w = img_shape
+                    slice_portion = int(d/2) # For 3D images, get three images at increasing depth
+                    img_sample = img_np[0, 0, slice_portion, :,:] # choose the first sample in the batch
+                    img_sample2 = img_np[0, 0, :, slice_portion, :] # choose the second sample in the batch
+                    img_sample3 = img_np[0, 0, :, :, slice_portion] # choose the third sample in the batch
 
-                fig_slice = plt.figure(edgecolor='b', dpi=150)
-                ax = fig_slice.add_subplot(1, 3, 1)
-                im1 = ax.imshow(img_sample, cmap='gray')
+                    fig_slice = plt.figure(edgecolor='b', dpi=150)
+                    ax = fig_slice.add_subplot(1, 3, 1)
+                    im1 = ax.imshow(img_sample, cmap='gray')
 
-                divider = make_axes_locatable(ax)
-                cax = divider.append_axes('right', size='4%', pad=0.05)
-                fig_slice.colorbar(im1, cax=cax, orientation='vertical')
+                    divider = make_axes_locatable(ax)
+                    cax = divider.append_axes('right', size='4%', pad=0.05)
+                    fig_slice.colorbar(im1, cax=cax, orientation='vertical')
 
-                ax2 = fig_slice.add_subplot(1, 3, 2)
-                im2 = ax2.imshow(img_sample2, cmap='gray')
+                    ax2 = fig_slice.add_subplot(1, 3, 2)
+                    im2 = ax2.imshow(img_sample2, cmap='gray')
 
-                divider = make_axes_locatable(ax2)
-                cax = divider.append_axes('right', size='4%', pad=0.05)
-                fig_slice.colorbar(im2, cax=cax, orientation='vertical')
+                    divider = make_axes_locatable(ax2)
+                    cax = divider.append_axes('right', size='4%', pad=0.05)
+                    fig_slice.colorbar(im2, cax=cax, orientation='vertical')
 
-                ax3 = fig_slice.add_subplot(1, 3, 3)
-                im3 = ax3.imshow(img_sample3, cmap='gray')
+                    ax3 = fig_slice.add_subplot(1, 3, 3)
+                    im3 = ax3.imshow(img_sample3, cmap='gray')
 
-                divider = make_axes_locatable(ax3)
-                cax = divider.append_axes('right', size='4%', pad=0.05)
-                fig_slice.colorbar(im3, cax=cax, orientation='vertical')
+                    divider = make_axes_locatable(ax3)
+                    cax = divider.append_axes('right', size='4%', pad=0.05)
+                    fig_slice.colorbar(im3, cax=cax, orientation='vertical')
 
-                ax.set_axis_off()
-                ax2.set_axis_off()
-                ax3.set_axis_off()
+                    ax.set_axis_off()
+                    ax2.set_axis_off()
+                    ax3.set_axis_off()
 
-                ax.set_title('XY slice')
-                ax2.set_title('XZ slice')
-                ax3.set_title('YZ slice')
+                    ax.set_title('XY slice')
+                    ax2.set_title('XZ slice')
+                    ax3.set_title('YZ slice')
 
 
-                # plt.gca().set_axis_off()
-                # plt.subplots_adjust(top=1, bottom=0, right=1, left=0,
-                #                     hspace=0, wspace=0)
-                # plt.margins(0, 0)
-                # plt.gca().xaxis.set_major_locator(plt.NullLocator())
-                # plt.gca().yaxis.set_major_locator(plt.NullLocator())
-                # plt.close(fig_slice)
+                    # plt.gca().set_axis_off()
+                    # plt.subplots_adjust(top=1, bottom=0, right=1, left=0,
+                    #                     hspace=0, wspace=0)
+                    # plt.margins(0, 0)
+                    # plt.gca().xaxis.set_major_locator(plt.NullLocator())
+                    # plt.gca().yaxis.set_major_locator(plt.NullLocator())
+                    # plt.close(fig_slice)
 
-                # MIP depth for visualization is 30 slices.
-                img_mip_xy = np.amax(img_np[0, 0, slice_portion-15:slice_portion+15, :, :], 0)
-                img_mip_xz = np.amax(img_np[0, 0, :, slice_portion-15:slice_portion+15, :], 1)
-                img_mip_yz = np.amax(img_np[0, 0, :, :, slice_portion-15:slice_portion+15], 2)
+                    # MIP depth for visualization is 30 slices.
+                    img_mip_xy = np.amax(img_np[0, 0, slice_portion-15:slice_portion+15, :, :], 0)
+                    img_mip_xz = np.amax(img_np[0, 0, :, slice_portion-15:slice_portion+15, :], 1)
+                    img_mip_yz = np.amax(img_np[0, 0, :, :, slice_portion-15:slice_portion+15], 2)
 
-                fig_mip = plt.figure(edgecolor='b', dpi=150)
+                    fig_mip = plt.figure(edgecolor='b', dpi=150)
 
-                ax_2_1 = fig_mip.add_subplot(1, 3, 1)
-                im4 = ax_2_1.imshow(img_mip_xy, cmap='gray')
+                    ax_2_1 = fig_mip.add_subplot(1, 3, 1)
+                    im4 = ax_2_1.imshow(img_mip_xy, cmap='gray')
 
-                divider = make_axes_locatable(ax_2_1)
-                cax = divider.append_axes('right', size='4%', pad=0.05)
-                fig_mip.colorbar(im4, cax=cax, orientation='vertical')
+                    divider = make_axes_locatable(ax_2_1)
+                    cax = divider.append_axes('right', size='4%', pad=0.05)
+                    fig_mip.colorbar(im4, cax=cax, orientation='vertical')
 
-                ax_2_2= fig_mip.add_subplot(1, 3, 2)
-                im5 = ax_2_2.imshow(img_mip_xz, cmap='gray')
+                    ax_2_2= fig_mip.add_subplot(1, 3, 2)
+                    im5 = ax_2_2.imshow(img_mip_xz, cmap='gray')
 
-                divider = make_axes_locatable(ax_2_2)
-                cax = divider.append_axes('right', size='4%', pad=0.05)
-                fig_mip.colorbar(im5, cax=cax, orientation='vertical')
+                    divider = make_axes_locatable(ax_2_2)
+                    cax = divider.append_axes('right', size='4%', pad=0.05)
+                    fig_mip.colorbar(im5, cax=cax, orientation='vertical')
 
-                ax_2_3 = fig_mip.add_subplot(1, 3, 3)
-                im6 = ax_2_3.imshow(img_mip_yz, cmap='gray')
+                    ax_2_3 = fig_mip.add_subplot(1, 3, 3)
+                    im6 = ax_2_3.imshow(img_mip_yz, cmap='gray')
 
-                divider = make_axes_locatable(ax_2_3)
-                cax = divider.append_axes('right', size='4%', pad=0.05)
-                fig_mip.colorbar(im6, cax=cax, orientation='vertical')
+                    divider = make_axes_locatable(ax_2_3)
+                    cax = divider.append_axes('right', size='4%', pad=0.05)
+                    fig_mip.colorbar(im6, cax=cax, orientation='vertical')
 
-                ax_2_1.set_axis_off()
-                ax_2_2.set_axis_off()
-                ax_2_3.set_axis_off()
+                    ax_2_1.set_axis_off()
+                    ax_2_2.set_axis_off()
+                    ax_2_3.set_axis_off()
 
-                ax_2_1.set_title('XY MIP')
-                ax_2_2.set_title('XZ MIP')
-                ax_2_3.set_title('YZ MIP')
+                    ax_2_1.set_title('XY MIP')
+                    ax_2_2.set_title('XZ MIP')
+                    ax_2_3.set_title('YZ MIP')
 
+                    self.tb_writer.add_figure('train_mip_images/' + label, fig_mip, epoch)
+                    self.tb_writer.add_figure('train_slice_images/' + label, fig_slice, epoch)
+
+                elif len(img_shape) == 4: 
+                    img_np = img_np.squeeze()
+                    fig_slice = plt.figure(edgecolor='b', dpi=150)
+                    plt.imshow(img_np, cmap='gray')
+                    plt.close(fig_slice)
+                    self.tb_writer.add_figure('train_slice_images/' + label, fig_slice, epoch)
 
                 # plt.gca().set_axis_off()
                 # plt.subplots_adjust(top=1, bottom=0, right=1, left=0,
@@ -222,8 +232,6 @@ class Visualizer():
                 # plt.gca().yaxis.set_major_locator(plt.NullLocator())
                 # plt.close(fig_mip)
 
-                self.tb_writer.add_figure('train_slice_images/' + label, fig_slice, epoch)
-                self.tb_writer.add_figure('train_mip_images/' + label, fig_mip, epoch)
 
             else: # if the model is a classifier, display with the labels.
                 if label == 'output_tr_softmax' or label == 'output_val_softmax' or label =='label_GT':

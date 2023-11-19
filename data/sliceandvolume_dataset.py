@@ -3,7 +3,8 @@ from options.train_options import TrainOptions
 from data.image_folder import make_dataset
 from skimage import io
 import re
-
+import util.util as util
+import numpy as np
 
 def numericalSort(value):
     numbers = re.compile(r'(\d+)')
@@ -61,6 +62,9 @@ class SliceAndVolumeDataset(BaseDataset):
 
         A = transform_A(self.A_img_np)
         B = transform_B(B_img_np)
+
+        # A_np = util.tensor2im(A, imtype=np.uint8).squeeze()[:,20]
+        # B_np = util.tensor2im(B, imtype=np.uint8).squeeze()
 
         if self.validate:
             C = transform_A(self.C_img_np)
