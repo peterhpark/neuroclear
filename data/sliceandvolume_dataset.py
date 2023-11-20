@@ -36,7 +36,7 @@ class SliceAndVolumeDataset(BaseDataset):
         self.A_img_np = io.imread(self.A_path)
         self.A_img_shape = self.A_img_np.shape
 
-        self.B_paths = make_dataset(opt.data_ref, 1)  # loads multiple 2D images
+        self.B_paths = make_dataset(opt.data_ref, 100)  # loads multiple 2D images
         self.B_size = len(self.B_paths)
 
         self.validate = False
