@@ -1,23 +1,5 @@
 """General-purpose training script for image-to-image translation.
 
-This script works for various models (with option '--model': e.g., pix2pix, cyclegan, colorization) and
-different datasets (with option '--dataset_mode': e.g., aligned, unaligned, single, colorization).
-You need to specify the dataset ('--dataroot'), experiment name ('--name'), and model ('--model').
-
-It first creates model, dataset, and visualizer given the option.
-It then does standard network training. During the training, it also visualize/save the images, print/save the loss plot, and save models.
-The script supports continue/resume training. Use '--continue_train' to resume your previous training.
-
-Example:
-    Train a CycleGAN model:
-        python train.py --dataroot ./datasets/maps --name maps_cyclegan --model cycle_gan
-    Train a pix2pix model:
-        python train.py --dataroot ./datasets/facades --name facades_pix2pix --model pix2pix --direction BtoA
-
-See options/base_options.py and options/train_options.py for more training options.
-See training and test tips at: https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/blob/master/docs/tips.md
-See frequently asked questions at: https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/blob/master/docs/qa.md
-
 ### Train script that follows the original cycleGAN training routine, with no repetition.###
 
 """
@@ -29,16 +11,6 @@ from util.visualizer import Visualizer
 
 if __name__ == '__main__':
     opt = TrainOptions().parse()   # get training options
-
-    ## DEBUG FLAG
-    if opt.debug:
-        print ("DEBUG MODE ACTIVATED.")
-        import pydevd_pycharm
-        Host_IP_address = '143.248.31.79'
-        print ("For debug, listening to...{}".format(Host_IP_address))
-        # pydevd_pycharm.settrace('143.248.31.79', port=5678, stdoutToServer=True, stderrToServer=True)
-        pydevd_pycharm.settrace(Host_IP_address, port=5678, stdoutToServer=True, stderrToServer=True)
-    ##
 
     dataset = create_dataset(opt)  # create a dataset given opt.dataset_mode and other options
     dataset_size = len(dataset)    # get the number of images in the dataset.
@@ -53,7 +25,7 @@ if __name__ == '__main__':
     print ("Model hyperparameters documented on tensorboard.")
 
     print ("start the epoch training...")
-    for epoch in range(opt.epoch_count, opt.n_epochs + opt.n_epochs_decay + 1): # outer loop for different epochs; we save the model by <epoch_count>, <epoch_count>+<save_latest_freq>
+    for epoch in range(opt.epoch_count, int(opt.n_epochs) + opt.n_epochs_decay + 1): # outer loop for different epochs; we save the model by <epoch_count>, <epoch_count>+<save_latest_freq>
         epoch_start_time = time.time()  # timer for entire epoch
         iter_data_time = time.time()    # timer for data loading per iteration
         epoch_iter = 0                  # the number of training iterations in current epoch, reset to 0 every epoch
@@ -92,7 +64,6 @@ if __name__ == '__main__':
     
                     # visualizer.print_current_losses(epoch, epoch_progress, losses, t_comp, t_data)
 
-
                 if opt.display_id > 0:                       
                     visualizer.plot_current_losses(total_iters, losses, is_epoch = False)
 
@@ -109,16 +80,16 @@ if __name__ == '__main__':
 
         # display the image histogram per epoch.
         # visualizer.display_current_histogram(model.get_current_visuals(), epoch)
-        visualizer.display_current_histogram(model.get_current_visuals(), total_iters)
+        # visualizer.display_current_histogram(model.get_current_visuals(), total_iters)
 
-        losses = model.get_current_losses()
-        visualizer.plot_current_losses(epoch, losses, is_epoch=True)
+        # losses = model.get_current_losses()
+        # visualizer.plot_current_losses(epoch, losses, is_epoch=True)
 
-        if epoch % opt.save_epoch_freq == 0:              # cache our model every <save_epoch_freq> epochs
-            print('saving the model at the end of epoch %d, iters %d' % (epoch, total_iters))
-            model.save_networks('latest')
-            # model.save_networks(epoch)
-            visualizer.save_current_visuals(model.get_current_visuals(), total_iters)
+        # if epoch % opt.save_epoch_freq == 0:              # cache our model every <save_epoch_freq> epochs
+        #     print('saving the model at the end of epoch %d, iters %d' % (epoch, total_iters))
+        #     model.save_networks('latest')
+        #     # model.save_networks(epoch)
+        #     visualizer.save_current_visuals(model.get_current_visuals(), total_iters)
 
-        model.update_learning_rate()
-        print('End of epoch %d / %d \t Time Taken: %d sec' % (epoch, opt.n_epochs + opt.n_epochs_decay, time.time() - epoch_start_time))
+        # model.update_learning_rate()
+        # print('End of epoch %d / %d \t Time Taken: %d sec' % (epoch, int(opt.n_epochs) + opt.n_epochs_decay, time.time() - epoch_start_time))

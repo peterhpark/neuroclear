@@ -273,8 +273,9 @@ class Visualizer():
 
     def display_current_histogram(self, visuals, epoch):
         for label, image in visuals.items():
+            image = image.squeeze()
             if self.display_histogram:
-                self.tb_writer.add_histogram('train_histograms/' + label, image[0][0], epoch)
+                self.tb_writer.add_histogram('train_histograms/' + label, image, epoch)
 
     def display_graph(self, model, visuals):
         for label, image in visuals.items():
@@ -297,8 +298,9 @@ class Visualizer():
         for label, loss in losses.items():
             if is_epoch:
                 self.tb_writer.add_scalar('train_by_epoch/' + label, loss, plot_count)
+                
             else:
-                self.tb_writer.add_scalar('train_by_epoch_progress/' + label, loss, plot_count)
+                self.tb_writer.add_scalar('train_by_iter/' + label, loss, plot_count)
 
     def print_current_losses(self, epoch, epoch_progress, losses, t_comp, t_data):
         """print current losses on console; also save the losses to the disk
