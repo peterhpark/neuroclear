@@ -15,7 +15,8 @@
         "--display_freq", "30", "--print_freq", "30", "--checkpoints_dir", "/home/park/park_g/checkpoints/neuroclear/debug", 
         "--name", "debugging_axial-to-lateral", "--gpu_ids", "6",
         "--model", "axial_to_lateral_gan_nep", "--preprocess", "randomrotate_randomcrop_randomflip_addBatchChannel",
-        "--projection_depth", "10","--crop_size", "64", "--netG", "unet_deconv", "--netG_B", "unet_deconv", "--netD", "basic"
+        "--projection_depth", "10","--crop_size", "64", "--netG", "unet_deconv", "--netG_B", "unet_deconv", "--netD", "basic",
+        "--targetsizing", "4"
     ],
             "justMyCode": true
         }

@@ -49,17 +49,6 @@ from tifffile import imsave
 if __name__ == '__main__':
     opt = TestOptions().parse()  # get test options
 
-    ## DEBUG FLAG
-    if opt.debug:
-        print("DEBUG MODE ACTIVATED.")
-        import pydevd_pycharm
-
-        Host_IP_address = '143.248.31.79'
-        print("For debug, listening to...{}".format(Host_IP_address))
-        # pydevd_pycharm.settrace('143.248.31.79', port=5678, stdoutToServer=True, stderrToServer=True)
-        pydevd_pycharm.settrace(Host_IP_address, port=5678, stdoutToServer=True, stderrToServer=True)
-    ##
-
     # hard-code some parameters for test
     opt.num_threads = 0  # test code only supports num_threads = 1
     opt.batch_size = 1  # test code only supports batch_size = 1

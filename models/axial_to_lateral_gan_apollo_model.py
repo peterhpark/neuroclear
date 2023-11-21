@@ -45,7 +45,7 @@ class AxialToLateralGANApolloModel(BaseModel):
             parser.add_argument('--min_projection_depth', type=int, default=2,
                                 help='minimum depth for maximum intensity projections. ')
 
-        parser.add_argument('--netG_B', type=str, default='deep_linear_gen',
+        parser.add_argument('--netG_B', type=str, default='unet_deconv',
                             help='specify the generator in B->A path. ')
 
         return parser

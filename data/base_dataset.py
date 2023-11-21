@@ -65,7 +65,7 @@ class BaseDataset(data.Dataset, ABC):
 
 def get_params(opt, vol_shape):
 	if len(vol_shape) == 3: # 3D image
-		crop_z, crop_y, crop_x = opt.crop_size
+		crop_z, crop_y, crop_x = opt.crop_size, opt.crop_size,  opt.crop_size
 
 		assert (vol_shape[0] - crop_z >= 0)
 		assert (vol_shape[1] - crop_y >= 0)
@@ -85,7 +85,7 @@ def get_params(opt, vol_shape):
 
 
 	elif len(vol_shape) == 2: # 2D image
-		crop_y, crop_x = opt.crop_size
+		crop_y, crop_x = opt.crop_size, opt.crop_size
 
 		assert (vol_shape[1] - crop_y >= 0)
 		assert (vol_shape[2] - crop_x >= 0)
@@ -111,7 +111,8 @@ def get_transform(opt, params = None, is_2D= False):
 	if 'randomrotate' in opt.preprocess:
 		if params is None:
 			if is_2D:
-				transform_list += [transforms.Lambda(lambda img_np: __cropbeforerot2D(img_np, opt.crop_size))]
+				crop_size = opt.targetsizing * opt.crop_size
+				transform_list += [transforms.Lambda(lambda img_np: __cropbeforerot2D(img_np, crop_size))]
 				transform_list += [transforms.Lambda(lambda img_np: __randomrotate_clean_2D_xy(img_np))]
 			else:
 				transform_list += [transforms.Lambda(lambda img_np: __cropbeforerot3D(img_np, opt.crop_size))]
@@ -125,7 +126,8 @@ def get_transform(opt, params = None, is_2D= False):
 				# do not apply random cropping here; we apply it separately when running the discriminator 
 				# pass
 				# TODO see if we can skip this step and it will be better for discriminator to take 2x size images 
-				transform_list += [transforms.Lambda(lambda img_np: __randomcrop2D(img_np, opt.crop_size))]
+				crop_size = opt.targetsizing * opt.crop_size
+				transform_list += [transforms.Lambda(lambda img_np: __randomcrop2D(img_np, crop_size))]
 			else:
 				transform_list += [transforms.Lambda(lambda img_np: __randomcrop3D(img_np, opt.crop_size))]
 
@@ -323,7 +325,7 @@ def __centercrop(img_np, crop_portion):
 
 def __crop(img_np, pos, crop_size):
 	z, y, x = pos
-	crop_z, crop_y, crop_x = crop_size
+	crop_z, crop_y, crop_x = crop_size, crop_size, crop_size
 	img_cube = img_np[z:z + crop_z, y:y + crop_y, x:x + crop_x]
 	return img_cube
 

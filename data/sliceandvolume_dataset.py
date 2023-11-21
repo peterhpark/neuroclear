@@ -22,6 +22,8 @@ class SliceAndVolumeDataset(BaseDataset):
     def modify_commandline_options(parser, is_train=False):
         parser.add_argument('--data_ref', help = 'path to reference images')
         parser.add_argument('--data_gt', type=str, default=None, help='specify the path to the groundtruth')
+        parser.add_argument('--targetsizing', type=int, default=1, help='specify how big to make (xTimes) the crop size in the target domain for 2D discriminator')
+
         return parser
 
     def __init__(self, opt):
@@ -63,8 +65,8 @@ class SliceAndVolumeDataset(BaseDataset):
         A = transform_A(self.A_img_np)
         B = transform_B(B_img_np)
 
-        # A_np = util.tensor2im(A, imtype=np.uint8).squeeze()[:,20]
-        # B_np = util.tensor2im(B, imtype=np.uint8).squeeze()
+        A_np = util.tensor2im(A, imtype=np.uint8).squeeze()[:,20]
+        B_np = util.tensor2im(B, imtype=np.uint8).squeeze()
 
         if self.validate:
             C = transform_A(self.C_img_np)

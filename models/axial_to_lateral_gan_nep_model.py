@@ -224,6 +224,7 @@ class AxialToLateralGANNepModel(BaseModel):
         loss_D.backward()
         return loss_D
 
+    #TODO think of a model that only takes partial loss from the target 2D images, we mix the loss with source XY
     def backward_D_A_lateral(self):
         self.loss_D_A_lateral = self.backward_D_projection(self.netD_A_lateral, self.real_tgt, self.fake, self.lateral_axis,
                                                       self.lateral_axis, use_2Dreal=True)  # comparing XY_original to XY_fake_MIP
