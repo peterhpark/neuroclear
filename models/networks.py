@@ -269,7 +269,7 @@ class GANLoss(nn.Module):
         """
         super(GANLoss, self).__init__()
         self.register_buffer('real_label', torch.tensor(target_real_label)) # what's the need for a buffer here?
-        self.register_buffer('fake_label', torch.tensor(target_fake_label)) # if you make a parameter like this, the value gets pushed to the GPU
+        self.register_buffer('fake_label', torch.tensor(target_fake_label)) # if you make a parameter like this, the value gets stored in the GPU
                                                                             # https://discuss.pytorch.org/t/what-is-the-difference-between-register-buffer-and-register-parameter-of-nn-module/32723/7
         self.gan_mode = gan_mode
         if gan_mode == 'lsgan':
