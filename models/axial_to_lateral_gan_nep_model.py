@@ -312,30 +312,6 @@ class AxialToLateralGANNepModel(BaseModel):
         self.backward_D_B_axial()  # calculate gradients for D_B's
         self.optimizer_D.step()  # update D_A and D_B's weights
 
-    # TODO decide whether to apply random crops if self.sample_proj > 1
-    # def __randomcrop2D(img_slice, crop_size):
-    #     """
-    #     img_slice is a 2D image tensor. 
-    #     """
-    #     _, _, y_dim, x_dim = img_slice.size()
-    #     crop_y, crop_x = crop_size, crop_size  # For 2D, crop_z will be ignored.
-
-    #     assert (y_dim - crop_y >= 0)
-    #     assert (x_dim - crop_x >= 0)
-
-    #     y = np.random.randint(0, y_dim - crop_y)
-    #     x = np.random.randint(0, x_dim - crop_x)
-
-    #     img_cropped = img_slice[y:y + crop_y, x:x + crop_x]
-    #     return img_cropped
-
-    # def slice_f(self, input, function):
-    #     '''
-    #     Applies function to randomly cropped regions  
-    #     '''
-
-    #     for i in range(self.sample_proj):
-    #         input = 
 
     def proj_f(self, input, function, slice_axis):
         input_volume = Volume(input, self.device)

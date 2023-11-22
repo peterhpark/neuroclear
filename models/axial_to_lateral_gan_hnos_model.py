@@ -5,11 +5,11 @@ from .base_model import BaseModel
 from torchmetrics import StructuralSimilarityIndexMeasure
 from . import networks
 
-class AxialToLateralGANTifModel(BaseModel):
+class AxialToLateralGANHnosModel(BaseModel):
     """
     This model uses high-resolution reference from another source.
 
-    This model takes a different approach: we apply 2D (instead of 3D) convolutions for generators. 
+    This model is a successor to Tif; it considers loss from both 3D input's lateral and the 2D target image. 
 
     The model takes a 3D image cube as an input and outputs a 3D image stack that correspond to the output cube.
     Note that the loss functions are readjusted for cube dataset.
