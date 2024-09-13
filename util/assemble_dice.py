@@ -1,8 +1,8 @@
 # TODO Sep 08 version
 import numpy as np
 from collections import OrderedDict
-import scipy.signal
-from util import util
+# import scipy.signal
+# from util import util
 from skimage.exposure import match_histograms
 from skimage import exposure
 import data
@@ -185,7 +185,6 @@ class Assemble_Dice():
                     print("All gaps merged for {} image volume.".format(str(name)))
 
                 print ("For debug: maximum iterations of overlaps: " + str(np.max(self.mask_ret[name])))
-
 
                 if self.normalize_intensity:
                     p1_, p99_ = np.percentile(self.visual_ret[name], (self.p1, self.p99))

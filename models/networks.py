@@ -1267,6 +1267,11 @@ class UnetSkipConnectionBlock(nn.Module):
         super(UnetSkipConnectionBlock, self).__init__()
         self.outermost = outermost
 
+        if type(norm_layer) == functools.partial:
+            use_bias = norm_layer.func == instance_norm
+        else:
+            use_bias = norm_layer == instance_norm
+            
         if input_nc is None:
             input_nc = outer_nc
 
@@ -1274,7 +1279,7 @@ class UnetSkipConnectionBlock(nn.Module):
         transconv_ = convtranspose(op_dim)
 
         downconv = downconv_(input_nc, inner_nc, kernel_size=4,
-                             stride=2, padding=1, bias=False)
+                             stride=2, padding=1, bias=use_bias)
         
          
         downrelu = nn.LeakyReLU(0.2, True)
@@ -1287,19 +1292,19 @@ class UnetSkipConnectionBlock(nn.Module):
                                         kernel_size=4, stride=2,
                                         padding=1)
             down = [downconv]
-            up = [uprelu, upconv, nn.Tanh()]
+            up = [uprelu, upconv, nn.Sigmoid()]
             model = down + [submodule] + up
         elif innermost:
             upconv = transconv_(inner_nc, outer_nc,
                                         kernel_size=4, stride=2,
-                                        padding=1, bias=False)
+                                        padding=1, bias=use_bias)
             down = [downrelu, downconv]
             up = [uprelu, upconv, upnorm]
             model = down + up
         else:
             upconv = transconv_(inner_nc * 2, outer_nc,
                                         kernel_size=4, stride=2,
-                                        padding=1, bias=False)
+                                        padding=1, bias=use_bias)
             down = [downrelu, downconv, downnorm]
             up = [uprelu, upconv, upnorm]
 

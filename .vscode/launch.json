@@ -47,6 +47,32 @@
 //     ]
 // }
 
+// {
+//     // Use IntelliSense to learn about possible attributes.
+//     // Hover to view descriptions of existing attributes.
+//     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+//     "version": "0.2.0",
+//     "configurations": [
+//         {
+//             "name": "Python: Current File",
+//             "type": "python",
+//             "request": "launch",
+//             "program": "${workspaceFolder}/train.py",
+//             "console": "integratedTerminal",
+//             "args": ["--dataroot", "/scratch/park/Banterle/4th/train/3D", "--add_date", "--verbose", "--batch_size", "1",
+//             "--data_ref", "/scratch/park/Banterle/4th/train/2D", "--display_histogram",
+//         "--display_freq", "30", "--print_freq", "30", "--checkpoints_dir", "/home/park/park_g/checkpoints/neuroclear/debug", 
+//         "--name", "debugging_axial-to-lateral", "--gpu_ids", "6",
+//         "--model", "axial_to_lateral_gan_tif", "--preprocess", "randomrotate_randomcrop_randomflip_addBatchChannel",
+//         "--projection_depth", "10","--crop_size", "64", "--netG", "unet_classic", "--netG_B", "unet_classic", "--netD", "basic",
+//         "--targetsizing", "4"
+//     ],
+//             "justMyCode": true
+//         }
+//     ]
+// }
+
+
 {
     // Use IntelliSense to learn about possible attributes.
     // Hover to view descriptions of existing attributes.
@@ -57,17 +83,38 @@
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/train.py",
+            "program": "${workspaceFolder}/validate.py",
             "console": "integratedTerminal",
-            "args": ["--dataroot", "/scratch/park/Banterle/4th/train/3D", "--add_date", "--verbose", "--batch_size", "1",
-            "--data_ref", "/scratch/park/Banterle/4th/train/2D", "--display_histogram",
-        "--display_freq", "30", "--print_freq", "30", "--checkpoints_dir", "/home/park/park_g/checkpoints/neuroclear/debug", 
-        "--name", "debugging_axial-to-lateral", "--gpu_ids", "6",
-        "--model", "axial_to_lateral_gan_tif", "--preprocess", "randomrotate_randomcrop_randomflip_addBatchChannel",
-        "--projection_depth", "10","--crop_size", "64", "--netG", "unet_classic", "--netG_B", "unet_classic", "--netD", "basic",
-        "--targetsizing", "4"
+            "args": ["--dataroot", "/scratch/park/Banterle/4th/test/160x160x160_cube",
+        "--checkpoints_dir", "/home/park/park_g/checkpoints/deepclear", 
+        "--gpu_ids", "6", "--dataset_mode", "cube",
+        "--name", "20231120-0135_banterle-4th_3Dvs2D", "--preprocess", "addBatchChannel",
+        "--netG", "unet_deconv", "--load_iter", "46000", "--model_suffix", "_A" 
     ],
             "justMyCode": true
         }
     ]
 }
+
+// {
+//     // Use IntelliSense to learn about possible attributes.
+//     // Hover to view descriptions of existing attributes.
+//     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+//     "version": "0.2.0",
+//     "configurations": [
+//         {
+//             "name": "Python: Current File",
+//             "type": "python",
+//             "request": "launch",
+//             "program": "${workspaceFolder}/validate.py",
+//             "console": "integratedTerminal",
+//             "args": ["--dataroot", "/scratch/park/Banterle/4th/test/512x512x160_blocks/256x256x160_blocks",
+//         "--checkpoints_dir", "/home/park/park_g/checkpoints/deepclear", 
+//         "--gpu_ids", "5", "--dataset_mode", "cube",
+//         "--name", "20231120-2351_Apollo_banterle-4th", "--preprocess", "addBatchChannel",
+//         "--netG", "unet_deconv", "--load_iter", "46000", "--model_suffix", "_A" 
+//     ],
+//             "justMyCode": true
+//         }
+//     ]
+// }

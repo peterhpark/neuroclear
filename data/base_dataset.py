@@ -181,6 +181,20 @@ def __normalize(img_np):
 		assert "Image type is not recognized."
 	return img_normd
 
+# normalize to -1-1 range. Note that mean and std. are calculated as scaled on 0-1 scale.
+# def __normalize(img_np):
+# 	if img_np.dtype == 'uint8':
+# 		img_normd = (img_np / (2**8*1.0 - 1)).astype(float)
+
+# 	elif img_np.dtype == 'uint16':
+# 		img_normd = (img_np / (2**16*1.0 - 1)).astype(float)
+
+# 	else:
+# 		img_normd = img_np
+# 		assert "Image type is not recognized."
+# 	return img_normd
+
+
 def __random90rotate_3D(image_vol):
 	chance = np.random.uniform(0, 1)
 	if chance < 0.75:

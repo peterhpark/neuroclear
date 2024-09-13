@@ -23,6 +23,7 @@ def tensor2im(input_image, imtype=np.uint16):
         image_numpy_og = image_tensor.cpu().float().numpy()  # convert it into a numpy array
         image_numpy = image_numpy_og.copy()
 
+        # TODO Notice that we assume the data range to be (0,1). Be carefull if you set it to (-1,1)
         if imtype == np.uint8:
             image_numpy = np.clip(image_numpy, 0, 1)
             image_numpy *= (2 ** 8 * 1.0 - 1)
