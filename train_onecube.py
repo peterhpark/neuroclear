@@ -36,16 +36,6 @@ import numpy as np
 if __name__ == '__main__':
     opt = TrainOptions().parse()   # get training options
 
-    ## DEBUG FLAG
-    if opt.debug:
-        print ("DEBUG MODE ACTIVATED.")
-        import pydevd_pycharm
-        Host_IP_address = '143.248.31.79'
-        print ("For debug, listening to...{}".format(Host_IP_address))
-        # pydevd_pycharm.settrace('143.248.31.79', port=5678, stdoutToServer=True, stderrToServer=True)
-        pydevd_pycharm.settrace(Host_IP_address, port=5678, stdoutToServer=True, stderrToServer=True)
-    ##
-
     dataset_class = data.find_dataset_using_name(opt.dataset_mode)
     dataset = dataset_class(opt)
 
