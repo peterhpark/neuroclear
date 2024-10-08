@@ -1,8 +1,8 @@
 import torch
 import itertools
 import numpy as np
-from .base_model import BaseModel
-from . import networks
+from ..base_model import BaseModel
+from .. import networks
 
 class AxialToLateralGANFreyaModel(BaseModel):
     """

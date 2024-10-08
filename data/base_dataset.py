@@ -105,31 +105,11 @@ def get_params(opt, vol_shape):
 		assert "The image dimension is invalid."
 
 
-def get_transform(opt, params = None, is_2D= False):
+def get_transform(opt, params = None):
 	transform_list = []
-
-	if 'randomrotate' in opt.preprocess:
-		if params is None:
-			if is_2D:
-				crop_size = opt.targetsizing * opt.crop_size
-				transform_list += [transforms.Lambda(lambda img_np: __cropbeforerot2D(img_np, crop_size))]
-				transform_list += [transforms.Lambda(lambda img_np: __randomrotate_clean_2D_xy(img_np))]
-			else:
-				transform_list += [transforms.Lambda(lambda img_np: __cropbeforerot3D(img_np, opt.crop_size))]
-				transform_list += [transforms.Lambda(lambda img_np: __randomrotate_clean_3D_xy(img_np))]
-		else:
-			assert ("This case is not implemeted yet!")
-
 	if 'randomcrop' in opt.preprocess:
 		if params is None:
-			if is_2D:
-				# do not apply random cropping here; we apply it separately when running the discriminator 
-				# pass
-				# TODO see if we can skip this step and it will be better for discriminator to take 2x size images 
-				crop_size = opt.targetsizing * opt.crop_size
-				transform_list += [transforms.Lambda(lambda img_np: __randomcrop2D(img_np, crop_size))]
-			else:
-				transform_list += [transforms.Lambda(lambda img_np: __randomcrop3D(img_np, opt.crop_size))]
+			transform_list += [transforms.Lambda(lambda img_np: __randomcrop3D(img_np, opt.crop_size))]
 
 		else:
 			transform_list += [transforms.Lambda(lambda img_np: __crop(img_np, params['crop_pos'], opt.crop_size))]
@@ -143,9 +123,6 @@ def get_transform(opt, params = None, is_2D= False):
 		else:
 			assert ("This case is not implemeted yet!")
 			# transform_list += [transforms.Lambda(lambda img_np: __rotate(img_np, params['angle_90']))]
-
-	# if 'centercrop' in opt.preprocess:
-	# 	transform_list += [transforms.Lambda(lambda img_np: __centercrop(img_np, opt.crop_portion))]
 
 	if 'randomflip' in opt.preprocess:
 		if params is None:
@@ -180,20 +157,6 @@ def __normalize(img_np):
 		img_normd = img_np
 		assert "Image type is not recognized."
 	return img_normd
-
-# normalize to -1-1 range. Note that mean and std. are calculated as scaled on 0-1 scale.
-# def __normalize(img_np):
-# 	if img_np.dtype == 'uint8':
-# 		img_normd = (img_np / (2**8*1.0 - 1)).astype(float)
-
-# 	elif img_np.dtype == 'uint16':
-# 		img_normd = (img_np / (2**16*1.0 - 1)).astype(float)
-
-# 	else:
-# 		img_normd = img_np
-# 		assert "Image type is not recognized."
-# 	return img_normd
-
 
 def __random90rotate_3D(image_vol):
 	chance = np.random.uniform(0, 1)
@@ -513,7 +476,6 @@ def __rotate_clean(image, angle):
 		image_height,
 		math.radians(angle)
 	))
-
 	return image_rotated_cropped
 
 def __rotate_clean_3D_xy(image_vol, angle):
@@ -532,7 +494,6 @@ def __randomrotate_clean_3D_xy(img):
 		slice_list.append(slice_rotated)
 	img_vol_rotated = np.array(slice_list)
 	return img_vol_rotated
-
 
 def __randomrotate_clean_2D_xy(img):
 	angle = random.randint(0, 359)

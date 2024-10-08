@@ -1,4 +1,3 @@
-#TODO Sep 08 version
 import random
 import torch
 

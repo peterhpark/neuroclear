@@ -193,10 +193,6 @@ def mkdir(path):
     if not os.path.exists(path):
         os.makedirs(path)
 
-def slice_block(img_block, axis):
-    
-
-
 def pad_for_dicing(image, roi_size, overlap=0):
     image_z = image.shape[0]
     image_y = image.shape[1]

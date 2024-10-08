@@ -1,8 +1,5 @@
-# TODO Sep 08 version
 import numpy as np
 from collections import OrderedDict
-# import scipy.signal
-# from util import util
 from skimage.exposure import match_histograms
 from skimage import exposure
 import data

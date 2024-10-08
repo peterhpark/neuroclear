@@ -1,0 +1,49 @@
+device: 'cuda'
+
+name: 'microtubule-simulation'
+data_dir:  '/scratch/park/data/deepclear/'
+log_dir: '/scratch/park/checkpoints/logs'
+save_model_dir: '/scratch/park/checkpoints/models'
+
+data_parameters:
+  dataset_mode: singlevolume # 
+  direction: AtoB # direction of image translation: AtoB or BtoA
+  serial_batches: if true, sample images in sequential order to make batches, otherwise sample them randomly
+
+model_parameters:
+  model: NeRF_vanilla
+  input_nc: 1 # number of input image channels: 3 for RGB and 1 for grayscale
+  output_nc: 1 # number of output image channels: 3 for RGB and 1 for grayscale
+  ngf: 64 # number of gen filters in the last conv layer 
+  ndf: 64 # number of discrim filters in the first conv layer
+  netD: basic # specify discriminator architecture [basic | n_layers | pixel]. The basic model is a 70x70 PatchGAN. n_layers allows you to specify the layers in the discriminator
+  netG: unet_deconv # specify generator architecture [resnet_9blocks | resnet_6blocks | unet_256 | unet_128]
+  norm: instance # instance normalization or batch normalization [instance | batch | spectral | none]
+  init_type: kaiming # network initialization [normal | xavier | kaiming | orthogonal]
+  init_gain: 0.02 # scaling factor for normal, xavier and orthogonal.
+  no_dropout: False # no dropout for the generator. For cycleGAN, no_dropout is a default option.
+  
+training_parameters:
+  gpu_ids: 0 # gpu ids: e.g. 0  0,1,2, 0,2. use -1 for CPU
+  batch_size: 1
+  preprocess: random3Drotate_randomcrop_randomflip_addColorChannel_addBatchChannel # preprocessing for input images: [randomcrop | randomrotate | randomflip | normalize | none]
+  aug_rotate_freq: 25 # how often rotate the sample for data augmentation
+  save_freq: 10
+  pretrain: False 
+  pretrain_iter: 2000
+  use_softplus: True
+  batch_size: 4096
+  n_epochs: 1000 # number of epochs with the initial learning rate
+  n_epochs_decay: 100
+  learning_rate:
+    lr: 0.0001
+    beta1: 0.1
+    momentum: 0.9
+    lr_policy: linear
+    lr_decay_iters: 50
+
+monitoring_parameters: 
+    save_epoch_freq: 500
+    display_freq: 500 
+  
+    

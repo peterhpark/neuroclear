@@ -4,7 +4,8 @@ from data.image_folder import make_dataset
 from skimage import io
 import re
 import util.util as util
-import numpy as np
+from data.base_dataset import __rotate_clean_3D_xy
+import random 
 
 def numericalSort(value):
     numbers = re.compile(r'(\d+)')
@@ -37,8 +38,9 @@ class SliceAndVolumeDataset(BaseDataset):
         self.A_path = make_dataset(opt.dataroot, 1)[0]  # loads only one 3D image.
         self.A_img_np = io.imread(self.A_path)
         self.A_img_shape = self.A_img_np.shape
+        self.aug_rotate_freq = opt.aug_rotate_freq
 
-        self.B_paths = make_dataset(opt.data_ref, 100)  # loads multiple 2D images
+        self.B_paths = make_dataset(opt.data_ref)  # loads multiple 2D images
         self.B_size = len(self.B_paths)
 
         self.validate = False
@@ -49,9 +51,13 @@ class SliceAndVolumeDataset(BaseDataset):
 
         btoA = self.opt.direction == 'BtoA'
 
+        self.img_vol_rotated = self.img_vol # initialize it as not rotated. 
         self.isTrain = opt.isTrain
 
     def __getitem__(self, index):
+        if index % self.aug_rotate_freq == 0: 
+            angle = random.randint(0, 359)
+            self.img_vol_rotated = __rotate_clean_3D_xy(self.img_vol, angle) # 3D rotate at a random angle 
 
         B_path = self.B_paths[index % self.B_size]  # make sure index is within then range
 
@@ -60,13 +66,10 @@ class SliceAndVolumeDataset(BaseDataset):
 
         # apply image transformation
         transform_A = get_transform(self.opt)
-        transform_B = get_transform(self.opt, is_2D=True) # randomize separately
+        transform_B = get_transform(self.opt) # randomize separately
 
         A = transform_A(self.A_img_np)
         B = transform_B(B_img_np)
-
-        # A_np = util.tensor2im(A, imtype=np.uint8).squeeze()[:,20]
-        # B_np = util.tensor2im(B, imtype=np.uint8).squeeze()
 
         if self.validate:
             C = transform_A(self.C_img_np)

@@ -28,7 +28,6 @@ class TestOptions(BaseOptions):
         parser.add_argument('--background_threshold', type = float, nargs = '+', default = [None, None], help='Set the threshold for the background: e.g. background_value threshold: 2570 14000')
         parser.add_argument('--reference_slice_range', type = int, nargs = '+', default = [None, None], help='Set the slice range for calculating metrics.')
 
-        # parser.add_argument('--adaptive_histogram', action='store_true', help='use adaptive histogram for visualization.')
         parser.add_argument('--save_slices', action='store_true', help='save sliced images (in 2D). ')
         parser.add_argument('--save_volume', action='store_true', help='save image volumes (in 3D). ')
         parser.add_argument('--save_projections', action='store_true', help='save MIP images (in 2D). ')
@@ -36,10 +35,6 @@ class TestOptions(BaseOptions):
         parser.add_argument('--compare_with_gt', action='store_true', help='load the Ground-truth and compute metrics. ')
         parser.add_argument('--repetition', action='store_true', help='use redundancy in inference to reduce the output variations. ')
         parser.add_argument('--skip_real', action='store_true', help='Skip saving input image files. ')
-
-        # parser.add_argument('--kernel_space', default = 41, type = int, help = 'overall domain space for convolution')
-        # parser.add_argument('--kernel_size', default = 0, type = int, help ='size of the cropped kernel for convolution (for comparison with ground-truth kernel')
-
 
         # rewrite devalue values
         parser.set_defaults(model='test')

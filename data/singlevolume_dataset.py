@@ -1,13 +1,10 @@
-#TODO SEP 08 version
 import os.path
 from data.base_dataset import BaseDataset, get_transform
 from data.image_folder import make_dataset
 from skimage import io
-from data.image_folder import merge_datasets
 import random
-import numpy as np
 import re
-
+from data.base_dataset import __rotate_clean_3D_xy
 
 def numericalSort(value):
     numbers = re.compile(r'(\d+)')
@@ -29,21 +26,28 @@ class SingleVolumeDataset(BaseDataset):
         """
 
         BaseDataset.__init__(self, opt)
-        self.A_path = make_dataset(opt.dataroot, 1)[0] # loads only one image volume.
-        self.A_img_np = io.imread(self.A_path)
+        self.img_path = make_dataset(opt.dataroot, 1)[0] # loads only one image volume.
+        self.img_vol = io.imread(self.img_path)
+        self.aug_rotate_freq = opt.aug_rotate_freq
 
         btoA = self.opt.direction == 'BtoA'
         self.transform_A = get_transform(self.opt)
-        self.isTrain = opt.isTrain
 
+        self.img_vol_rotated = self.img_vol # initialize it as not rotated. 
+        self.isTrain = opt.isTrain
 
     def __getitem__(self, index):
 
         # apply image transformation
         # iter_index = self.dummy_list[index]
-        A = self.transform_A(self.A_img_np)
-        return {'A': A, 'A_paths': self.A_path}
 
+        if index % self.aug_rotate_freq == 0: 
+            angle = random.randint(0, 359)
+            self.img_vol_rotated = __rotate_clean_3D_xy(self.img_vol, angle) # 3D rotate at a random angle 
+        
+        A = self.transform_A(self.img_vol_rotated)
+        return {'A': A, 'A_paths': self.img_path}
+        
     def __len__(self):
         """Return the total number of images in the dataset.
 

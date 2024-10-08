@@ -3,7 +3,8 @@ from options.train_options import TrainOptions
 from data.image_folder import make_dataset
 from skimage import io
 import re
-
+from data.base_dataset import __rotate_clean_3D_xy
+import random 
 
 def numericalSort(value):
     numbers = re.compile(r'(\d+)')
@@ -39,6 +40,8 @@ class DoubleVolumeDataset(BaseDataset):
         self.B_path = make_dataset(opt.data_ref, 1)[0]  # loads only one image volume.
         self.B_img_np = io.imread(self.B_path)
 
+        self.aug_rotate_freq = opt.aug_rotate_freq
+    
         self.validate = False
         if opt.data_gt is not None:
             self.validate = True
@@ -47,10 +50,14 @@ class DoubleVolumeDataset(BaseDataset):
 
         btoA = self.opt.direction == 'BtoA'
 
+        self.img_vol_rotated = self.img_vol # initialize it as not rotated. 
         self.isTrain = opt.isTrain
 
     def __getitem__(self, index):
         # apply image transformation
+        if index % self.aug_rotate_freq == 0: 
+            angle = random.randint(0, 359)
+            self.img_vol_rotated = __rotate_clean_3D_xy(self.img_vol, angle) # 3D rotate at a random angle 
 
         transform_params = get_params(self.opt, self.A_img_shape)
         transform_A = get_transform(self.opt, params= transform_params)

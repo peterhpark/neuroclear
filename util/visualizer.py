@@ -1,21 +1,12 @@
 import numpy as np
 import os
-import sys
 import ntpath
-import time
-from . import util, html
+from . import util
 import matplotlib.pyplot as plt
 # plt.switch_backend('agg')
-from mpl_toolkits.mplot3d import Axes3D
-# import matplotlib.gridspec as gridspec
 from collections import OrderedDict
-from matplotlib import cm
-from tifffile import imsave
-import torch
-from mpl_toolkits.axes_grid1 import make_axes_locatable
 from tifffile import imsave
 import ntpath
-
 import wandb
 
 def save_images(visuals, save_dir, name = ""):
@@ -44,34 +35,6 @@ def save_images(visuals, save_dir, name = ""):
         image_numpy = image_numpy.squeeze()
         imsave(save_path, image_numpy)
 
-def save_test_metrics(save_dir, opt, ssims, psnrs):
-    ssim_avg_input_gt = ssims[0]
-    ssim_avg_output_gt = ssims[1]
-    ssim_whole_input_gt = ssims[2]
-    ssim_whole_output_gt = ssims[3]
-
-    psnr_avg_input_gt = psnrs[0]
-    psnr_avg_output_gt = psnrs[1]
-    psnr_avg_whole_input_gt = psnrs[2]
-    psnr_avg_whole_output_gt = psnrs[3]
-
-    message = 'Experiment Name: ' + opt.name + '\n'
-    message += '-------------------------------------------------\n'
-    message += 'Network Input vs. Groundtruth\n'
-    message += '(ssim_avg: %.4f, psnr_avg: %.4f, ssim_whole: %.4f, psnr_whole: %.4f)\n' % (ssim_avg_input_gt, psnr_avg_input_gt, ssim_whole_input_gt, psnr_avg_whole_input_gt)
-    message += '-------------------------------------------------\n'
-    message += 'Network Output vs. Groundtruth\n'
-    message += '(ssim_avg: %.4f, psnr_avg: %.4f, ssim_whole: %.4f, psnr_whole: %.4f)\n' % (ssim_avg_output_gt, psnr_avg_output_gt, ssim_whole_output_gt, psnr_avg_whole_output_gt)
-    message += '-------------------------------------------------'
-
-    print(message)  # print the message
-    filename = os.path.join(save_dir, 'metrics.txt')
-
-    with open(filename, "a") as metric_file:
-        metric_file.write('%s\n' % message)  # save the message
-
-
-import numpy as np
 
 class Visualizer():
     def __init__(self, opt):
@@ -81,7 +44,6 @@ class Visualizer():
         self.name = opt.name
         self.log_dir = opt.log_dir
         self.saved = False
-
 
         if not os.path.exists(self.log_dir):
             print('creating the train log directory %s...' % self.log_dir)
@@ -141,13 +103,6 @@ class Visualizer():
 
         self.wandb.log(image_dict | {'epoch': epoch}, commit=True) # type: ignore
 
-    def display_model_hyperparameters(self): # note that in tensorboard, it is shown as markdowns.
-        message = '--------------- Options ------------------  \n'
-        for k, v in sorted(vars(self.opt).items()):
-            comment = ''
-            message += '**{:>1}**: {:>10}{}  \n'.format(str(k), str(v), comment)
-        message += '----------------- End -------------------'
-        self.tb_writer.add_text('Model_hyperparameters', message)
 
     # TODO add if needed 
     # def display_current_histogram(self, visuals, epoch):
@@ -160,16 +115,15 @@ class Visualizer():
     #     for label, image in visuals.items():
     #         self.tb_writer.add_graph(model, image)
 
-    def save_current_visuals(self, visuals, epoch):
-        image_dict = {}
-        for label, image in visuals.items():
-            img_np = util.tensor2im(image[0], imtype=np.uint8)
-            file_name = os.path.join(self.img_dir, str(epoch) + '_' + str(label)+'.tif')
-            imsave(file_name, img_np)
+    # def save_current_visuals(self, visuals, epoch):
+    #     image_dict = {}
+    #     for label, image in visuals.items():
+    #         img_np = util.tensor2im(image[0], imtype=np.uint8)
+    #         file_name = os.path.join(self.img_dir, str(epoch) + '_' + str(label)+'.tif')
+    #         imsave(file_name, img_np)
 
     def plot_current_losses(self, losses, step=None, commit=True):
         # Note that you need to add a global point (like step or iteration or epoch count)
-        losses_dict = losses
         self.wandb.log(losses, step=step, commit=commit)
         
         # for label, loss in losses.items():
