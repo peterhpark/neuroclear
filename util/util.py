@@ -6,6 +6,8 @@ import numpy as np
 from PIL import Image
 import os
 import math
+import ntpath
+from tifffile import imsave
 
 
 def tensor2im(input_image, imtype=np.uint16):
@@ -55,6 +57,49 @@ def tensor2im(input_image, imtype=np.uint16):
 #     return img_normd
 
 
+def save_images(visuals, save_dir, name = ""):
+    """Save images to the disk,
+
+    Parameters:
+        visuals (OrderedDict)    -- an ordered dictionary that stores (name, images (either tensor or numpy) ) pairs
+        image_path (str)         -- the string is used to create image paths
+        aspect_ratio (float)     -- the aspect ratio of saved images
+        width (int)              -- the images will be resized to width x width
+
+    This function will save images stored in 'visuals' to the HTML file specified by 'webpage'.
+    """
+
+    img_name = ntpath.basename(name[0])
+
+    for label, im_data in visuals.items():
+        image_numpy = tensor2im(im_data)
+
+        label_image_dir = save_dir+'/'+label+'/'
+        if not os.path.exists(label_image_dir):
+            os.makedirs(label_image_dir)
+
+        file_name = '%s_%s.tif' % (img_name, label)
+        save_path = os.path.join(label_image_dir, file_name)
+        image_numpy = image_numpy.squeeze()
+        imsave(save_path, image_numpy)
+
+def save_image(image_numpy, image_path, aspect_ratio=1.0, save_all=False):
+    """Save a numpy image to the disk
+
+    Parameters:
+        image_numpy (numpy array) -- input numpy array
+        image_path (str)          -- the path of the image
+    """
+    image_pil = Image.fromarray(image_numpy)
+    h, w = image_numpy.shape
+    # if aspect_ratio > 1.0:
+    #     image_pil = image_pil.resize((h, int(w * aspect_ratio)), Image.BICUBIC)
+    # if aspect_ratio < 1.0:
+    #     image_pil = image_pil.resize((int(h / aspect_ratio), w), Image.BICUBIC)
+    # save_all is an option for saving a 3D image.
+    image_pil.save(image_path, save_all=save_all)
+
+    
 def normalize(img_np, data_type = float):
     img_min = np.min(img_np)
     img_max = np.max(img_np)
@@ -138,21 +183,7 @@ def diagnose_network(net, name='network'):
     print(mean)
 
 
-def save_image(image_numpy, image_path, aspect_ratio=1.0, save_all=False):
-    """Save a numpy image to the disk
 
-    Parameters:
-        image_numpy (numpy array) -- input numpy array
-        image_path (str)          -- the path of the image
-    """
-    image_pil = Image.fromarray(image_numpy)
-    h, w = image_numpy.shape
-    # if aspect_ratio > 1.0:
-    #     image_pil = image_pil.resize((h, int(w * aspect_ratio)), Image.BICUBIC)
-    # if aspect_ratio < 1.0:
-    #     image_pil = image_pil.resize((int(h / aspect_ratio), w), Image.BICUBIC)
-    # save_all is an option for saving a 3D image.
-    image_pil.save(image_path, save_all=save_all)
 
 
 def print_numpy(x, val=True, shp=False):

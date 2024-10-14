@@ -3,7 +3,8 @@ from options.train_options import TrainOptions
 from data.image_folder import make_dataset
 from skimage import io
 import re
-from data.base_dataset import __rotate_clean_3D_xy
+from data.base_dataset import rotate_clean_3D_xy
+import os 
 import random 
 
 def numericalSort(value):
@@ -19,12 +20,6 @@ class DoubleVolumeDataset(BaseDataset):
     This dataset loads one volume each from the source and target datasets.
     """
 
-    @staticmethod
-    def modify_commandline_options(parser, is_train=False):
-        parser.add_argument('--data_ref', help = 'path to reference images')
-        parser.add_argument('--data_gt', type=str, default=None, help='specify the path to the groundtruth')
-        return parser
-
     def __init__(self, opt):
         """Initialize this dataset class.
 
@@ -33,50 +28,59 @@ class DoubleVolumeDataset(BaseDataset):
         """
 
         BaseDataset.__init__(self, opt)
-        self.A_path = make_dataset(opt.dataroot, 1)[0]  # loads only one image volume.
-        self.A_img_np = io.imread(self.A_path)
-        self.A_img_shape = self.A_img_np.shape
+        self.A_path = make_dataset(opt.data_source)[0]
+        self.A_img_vol = io.imread(self.A_path)
+        self.A_img_shape = self.A_img_vol.shape
 
-        self.B_path = make_dataset(opt.data_ref, 1)[0]  # loads only one image volume.
-        self.B_img_np = io.imread(self.B_path)
-
+        self.B_path = make_dataset(opt.data_target)[0]
+        self.B_img_vol = io.imread(self.B_path)
         self.aug_rotate_freq = opt.aug_rotate_freq
+        self.epoch_length = self.aug_rotate_freq * 2327 * 10 # how many iterations per epoch? 2327 is minimum iterations to cover all angles
+
+        self.rotate3D = 'random3Drotate' in opt.preprocess
+        if self.rotate3D:
+            print ("The dataloader will apply 3D rotation as part of data augmentation. This will slow down the data loading.")
     
         self.validate = False
-        if opt.data_gt is not None:
-            self.validate = True
-            self.C_path = make_dataset(opt.data_gt, 1)[0] # loads only one image volume.
-            self.C_img_np = io.imread(self.C_path)
+        # if opt.data_gt is not None:
+        #     self.validate = True
+        #     self.C_path = make_dataset(opt.data_gt, 1)[0] # loads only one image volume.
+        #     self.C_img_np = io.imread(self.C_path)
 
         btoA = self.opt.direction == 'BtoA'
 
-        self.img_vol_rotated = self.img_vol # initialize it as not rotated. 
+        self.A_img_vol_rotated = self.A_img_vol # initialize it as not rotated. 
         self.isTrain = opt.isTrain
 
     def __getitem__(self, index):
         # apply image transformation
-        if index % self.aug_rotate_freq == 0: 
-            angle = random.randint(0, 359)
-            self.img_vol_rotated = __rotate_clean_3D_xy(self.img_vol, angle) # 3D rotate at a random angle 
+        if self.rotate3D: 
+            if index % self.aug_rotate_freq == 0: 
+                angle = random.randint(0, 359) # to cover all angles we need to sample 2327 times (coupon collector's problem)
+                self.A_img_vol_rotated = rotate_clean_3D_xy(self.A_img_vol, angle) # 3D rotate at a random angle 
 
-        transform_params = get_params(self.opt, self.A_img_shape)
-        transform_A = get_transform(self.opt, params= transform_params)
+        transform_A = get_transform(self.opt)
         transform_B = get_transform(self.opt) # still randomize
 
-        A = transform_A(self.A_img_np)
-        B = transform_B(self.B_img_np)
+        A = transform_A(self.A_img_vol_rotated)
+        B = transform_B(self.B_img_vol)
 
         if self.validate:
             C = transform_A(self.C_img_np)
             return {'src': A, 'src_paths': self.A_path, 'tgt': B, 'tgt_paths': self.B_path, 'gt': C, 'gt_paths': self.C_path}
 
         else:
+            # from PIL import Image
+            # test_img_A = A[0,0,50,:,:].cpu().float().numpy()*255.0
+            # im = Image.fromarray(test_img_A).convert('RGB')
+            # im.save("test_img_A.png")
+            # test_img_B = B[0,0,50,:,:].cpu().float().numpy()*255.0
+            # im2 = Image.fromarray(test_img_B).convert('RGB')
+            # im2.save("test_img_B.png")
             return {'src': A, 'src_paths': self.A_path, 'tgt': B, 'tgt_paths': self.B_path}
 
     def __len__(self):
         """Return the total number of images in the dataset.
         As we have two datasets with potentially different number of images,
         """
-
-        # each epoch is 10 images.
-        return int(10)
+        return self.epoch_length

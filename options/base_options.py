@@ -33,8 +33,28 @@ class BaseOptions():
         
         recursive_attr(self, yaml_config)
         
+        if not hasattr(self, 'load_iter'):
+            self.load_iter = 0 
+        if not hasattr(self, 'epoch_count'):
+            self.epoch_count = 0 
+        if not hasattr(self, 'continue_train'):
+            self.continue_train = False 
+        if not hasattr(self, 'verbose'):
+            self.verbose = False 
+
         setattr(self, 'time', self.time)
         setattr(self, 'name', f"{self.name}_exp_{self.time}") # type: ignore 
+
+        # # modify model-related parser options
+        # model_name = self.model
+        # model_option_setter = models.get_option_setter(model_name) # initialize model-specific conditions
+        # parser = model_option_setter(parser, self.isTrain)
+        # opt, _ = parser.parse_known_args()  # parse again with new defaults
+
+        # # modify dataset-related parser options
+        # dataset_name = self.dataset_mode
+        # dataset_option_setter = data.get_option_setter(dataset_name) 
+        # parser = dataset_option_setter(parser, self.isTrain)
 
         return self
 

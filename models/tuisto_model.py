@@ -2,10 +2,9 @@ import torch
 import itertools
 import numpy as np
 from .base_model import BaseModel
-from torchmetrics import StructuralSimilarityIndexMeasure
 from . import networks
 
-class AxialToLateralGANTuistoModel(BaseModel):
+class TuistoModel(BaseModel):
     """
     This model uses high-resolution reference from another source.
     The model takes a 3D image cube as an input and outputs a 3D image stack that correspond to the output cube.
@@ -29,33 +28,9 @@ class AxialToLateralGANTuistoModel(BaseModel):
     We also do not consider buffering fake images for discriminator.
 
     """
-
-    @staticmethod
-    def modify_commandline_options(parser, is_train=True):
-        parser.set_defaults(no_dropout=True)  # default CycleGAN did not use dropout
-        if is_train:
-            parser.add_argument('--lambda_A', type=float, default=10.0, help='weight for cycle loss (A -> B -> A)')
-            parser.add_argument('--gan_mode', type=str, default='lsgan',
-                                help='the type of GAN objective. [vanilla| lsgan | wgangp]. vanilla GAN loss is the cross-entropy objective used in the original GAN paper.')
-
-            parser.add_argument('--lambda_plane', type=int, nargs='+', default=[1, 1, 1],
-                                help='weight ratio for matching (target vs. target) and (target vs. source) and (MIP target vs. MIP source).')
-
-            parser.add_argument('--randomize_projection_depth', action='store_true', help='randomize the depth for MIP')
-            parser.add_argument('--projection_depth', type=int, default=10,
-                                help='depth for maximum intensity projections. ')
-            parser.add_argument('--min_projection_depth', type=int, default=2,
-                                help='minimum depth for maximum intensity projections. ')
-            parser.add_argument('--projection_sampling', type=int, default=1,
-                                help='how many times a discriminator samples projection images.  ')
-
-        parser.add_argument('--netG_B', type=str, default='deep_linear_gen',
-                            help='specify the generator in B->A path. ')
-
-        return parser
-
+    
     def __init__(self, opt):
-        """Initialize the CycleGAN class.
+        """ The Tuisto Class 
 
         Parameters:
             opt (Option class)-- stores all the experiment flags; needs to be a subclass of BaseOptions
@@ -63,10 +38,10 @@ class AxialToLateralGANTuistoModel(BaseModel):
 
         BaseModel.__init__(self, opt)
 
-        if opt.data_gt is not None:
-            self.validate = True
-        else:
-            self.validate = False
+        # if opt.data_gt is not None:
+        #     self.validate = True
+        # else:
+        #     self.validate = False
 
         # specify the training losses you want to print out. The training/test scripts will call <BaseModel.get_current_losses>
         self.loss_names = ['D_A_lateral', 'D_A_axial', 'G_A', 'G_A_lateral', 'G_A_axial', 'cycle',
@@ -77,7 +52,8 @@ class AxialToLateralGANTuistoModel(BaseModel):
         self.gen_dimension = 3  # 3D convolutions in generators
         self.dis_dimension = 2  # 2D convolutions in discriminators
 
-        self.randomize_projection_depth = opt.randomize_projection_depth
+        # self.randomize_projection_depth = opt.randomize_projection_depth
+        self.randomize_projection_depth = False 
 
         if not (self.randomize_projection_depth):
             self.projection_depth_custom = opt.projection_depth
@@ -85,14 +61,14 @@ class AxialToLateralGANTuistoModel(BaseModel):
             self.max_projection_depth = opt.projection_depth
             self.min_projection_depth = opt.min_projection_depth
 
-        self.sample_proj = opt.projection_sampling
+        self.sample_proj = opt.projection_sampling # how many times do we sample?
 
         # specify the images you want to save/display. The training/test scripts will call <BaseModel.get_current_visuals>
         self.visual_names = ['real_tgt', 'real_src', 'fake', 'rec']
 
-        if self.validate:
-            self.loss_names += ['valL1', 'valssim']
-            self.visual_names += ['real_gt']
+        # if self.validate:
+        #     self.loss_names += ['valL1', 'valssim']
+        #     self.visual_names += ['real_gt']
 
         self.lambda_plane_target, self.lambda_slice, self.lambda_proj = [
             factor / (opt.lambda_plane[0] + opt.lambda_plane[1] + opt.lambda_plane[2]) for factor in opt.lambda_plane]
@@ -141,9 +117,9 @@ class AxialToLateralGANTuistoModel(BaseModel):
             self.criterionGAN = networks.GANLoss(opt.gan_mode).to(self.device)  # define GAN loss.
             self.criterionCycle = torch.nn.L1Loss()
 
-            if self.validate:
-                self.criterionValL1 = torch.nn.L1Loss() # comparison with GT for validation
-                self.criterionValssim =StructuralSimilarityIndexMeasure(data_range=1.0).to(self.device)
+            # if self.validate:
+            #     self.criterionValL1 = torch.nn.L1Loss() # comparison with GT for validation
+            #     self.criterionValssim =StructuralSimilarityIndexMeasure(data_range=1.0).to(self.device)
 
             # initialize optimizers; schedulers will be automatically created by function <BaseModel.setup>.
             self.optimizer_G = torch.optim.Adam(itertools.chain(self.netG_A.parameters(), self.netG_B.parameters()),
@@ -169,9 +145,9 @@ class AxialToLateralGANTuistoModel(BaseModel):
         self.real_src = input['src' if AtoB else 'tgt'].to(self.device)
         self.real_tgt = input['tgt' if AtoB else 'src'].to(self.device)
 
-        if self.validate:
-            self.real_gt = input['gt'].to(self.device)
-            self.image_paths_gt = input['gt_paths']
+        # if self.validate:
+        #     self.real_gt = input['gt'].to(self.device)
+        #     self.image_paths_gt = input['gt_paths']
 
         self.image_paths_src = input['src_paths' if AtoB else 'tgt_paths']
         self.image_paths_tgt = input['tgt_paths' if AtoB else 'src_paths']
@@ -273,10 +249,10 @@ class AxialToLateralGANTuistoModel(BaseModel):
         # This model only includes forward cycle loss || G_B(G_A(A)) - A||
         self.loss_cycle = self.criterionCycle(self.rec, self.real_src) * lambda_A
 
-        if self.validate:
-            # calculate validation losses
-            self.loss_valL1 = self.criterionValL1(self.fake.detach(), self.real_gt)
-            self.loss_valssim = self.criterionValssim(self.fake.detach(), self.real_gt)
+        # if self.validate:
+        #     # calculate validation losses
+        #     self.loss_valL1 = self.criterionValL1(self.fake.detach(), self.real_gt)
+        #     self.loss_valssim = self.criterionValssim(self.fake.detach(), self.real_gt)
 
         # combined loss and calculate gradients
         self.loss_G = self.loss_G_A + self.loss_G_B + self.loss_cycle

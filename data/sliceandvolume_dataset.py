@@ -4,7 +4,7 @@ from data.image_folder import make_dataset
 from skimage import io
 import re
 import util.util as util
-from data.base_dataset import __rotate_clean_3D_xy
+from data.base_dataset import rotate_clean_3D_xy
 import random 
 
 def numericalSort(value):
@@ -57,7 +57,7 @@ class SliceAndVolumeDataset(BaseDataset):
     def __getitem__(self, index):
         if index % self.aug_rotate_freq == 0: 
             angle = random.randint(0, 359)
-            self.img_vol_rotated = __rotate_clean_3D_xy(self.img_vol, angle) # 3D rotate at a random angle 
+            self.img_vol_rotated = rotate_clean_3D_xy(self.img_vol, angle) # 3D rotate at a random angle 
 
         B_path = self.B_paths[index % self.B_size]  # make sure index is within then range
 

@@ -4,7 +4,7 @@ from data.image_folder import make_dataset
 from skimage import io
 import random
 import re
-from data.base_dataset import __rotate_clean_3D_xy
+from data.base_dataset import rotate_clean_3D_xy
 
 def numericalSort(value):
     numbers = re.compile(r'(\d+)')
@@ -43,7 +43,7 @@ class SingleVolumeDataset(BaseDataset):
 
         if index % self.aug_rotate_freq == 0: 
             angle = random.randint(0, 359)
-            self.img_vol_rotated = __rotate_clean_3D_xy(self.img_vol, angle) # 3D rotate at a random angle 
+            self.img_vol_rotated = rotate_clean_3D_xy(self.img_vol, angle) # 3D rotate at a random angle 
         
         A = self.transform_A(self.img_vol_rotated)
         return {'A': A, 'A_paths': self.img_path}

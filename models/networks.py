@@ -46,7 +46,6 @@ def get_norm_layer(norm_type='instance', dimension =3):
 
 
 
-
 def get_scheduler(optimizer, opt):
     """Return a learning rate scheduler
     Parameters:

@@ -1,5 +1,3 @@
-## TODO AUG 06 version
-
 """This package contains modules related to objective functions, optimizations, and network architectures.
 
 To add a custom model class called 'dummy', you need to add a file called 'dummy_model.py' and define a subclass DummyModel inherited from BaseModel.
@@ -51,7 +49,6 @@ def get_option_setter(model_name):
     """Return the static method <modify_commandline_options> of the model class."""
     model_class = find_model_using_name(model_name)
     return model_class.modify_commandline_options
-
 
 def create_model(opt):
     """Create a model given the option.

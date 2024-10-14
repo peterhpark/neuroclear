@@ -31,7 +31,6 @@ class BaseDataset(data.Dataset, ABC):
 			opt (Option class)-- stores all the experiment flags; needs to be a subclass of BaseOptions
 		"""
 		self.opt = opt
-		self.root = opt.dataroot
 
 	@staticmethod
 	def modify_commandline_options(parser, is_train):
@@ -114,14 +113,14 @@ def get_transform(opt, params = None):
 		else:
 			transform_list += [transforms.Lambda(lambda img_np: __crop(img_np, params['crop_pos'], opt.crop_size))]
 
-	if 'random90rotate' in opt.preprocess:
-		if params is None:
-			if is_2D:				
-				transform_list += [transforms.Lambda(lambda img_np: __random90rotate_2D(img_np))]
-			else:
-				transform_list += [transforms.Lambda(lambda img_np: __random90rotate_3D(img_np))]
-		else:
-			assert ("This case is not implemeted yet!")
+	# if 'random90rotate' in opt.preprocess:
+	# 	if params is None:
+	# 		if is_2D:				
+	# 			transform_list += [transforms.Lambda(lambda img_np: __random90rotate_2D(img_np))]
+	# 		else:
+	# 			transform_list += [transforms.Lambda(lambda img_np: __random90rotate_3D(img_np))]
+	# 	else:
+	# 		assert ("This case is not implemeted yet!")
 			# transform_list += [transforms.Lambda(lambda img_np: __rotate(img_np, params['angle_90']))]
 
 	if 'randomflip' in opt.preprocess:
@@ -478,7 +477,7 @@ def __rotate_clean(image, angle):
 	))
 	return image_rotated_cropped
 
-def __rotate_clean_3D_xy(image_vol, angle):
+def rotate_clean_3D_xy(image_vol, angle):
 	slice_list = []
 	for slice in image_vol:
 		slice_rotated = __rotate_clean(slice, angle)
