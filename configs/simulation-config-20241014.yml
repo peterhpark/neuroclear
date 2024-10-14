@@ -42,7 +42,7 @@ training_parameters:
   data_augmentation: 
     preprocess: random3Drotate_randomcrop_randomflip_addColorChannel_addBatchChannel # preprocessing for input images: [randomcrop | randomrotate | randomflip | normalize | none]
     aug_rotate_freq: 10 # how often rotate the sample for data augmentation
-    crop_size: 100
+    crop_size: 140
   save_freq: 10
   n_epochs: 1000 # number of epochs with the initial learning rate
   n_epochs_decay: 100
@@ -54,7 +54,7 @@ training_parameters:
     lr_decay_iters: 50
 
 monitoring_parameters: 
-    save_epoch_freq: 500
-    display_freq: 5 
+    save_epoch_freq: 100
+    display_freq: 1000
     visual_projection_depth: 20
     
