@@ -1,9 +1,9 @@
 device: 'cuda'
 
-name: 'microtubule-simulation'
+name: 'DEBUG-microtubule-simulation'
 data_dir:  '/scratch/park/data/deepclear/'
 log_dir: '/scratch/park/checkpoints/logs'
-checkpoints_dir: '/scratch/park/checkpoints/models/DeepClarity'
+checkpoints_dir: '/scratch/park/checkpoints/models/DeepClarity_debug'
 verbose: True 
 
 data_parameters:
@@ -31,7 +31,7 @@ model_parameters:
       lambda_A: 10.0 # weight for cycle loss (A -> B -> A)
       gan_mode: lsgan 
       lambda_plane: [1, 1, 1] # weight ratio for matching (target vs. target) and (target vs. source) and (MIP target vs. MIP source).
-      projection_sampling: 5 # how many times you sample within one sample volume for discriminator
+      projection_sampling: 3 # how many times you sample within one sample volume for discriminator
       netG_B: deep_linear_gen # specify the geneorator for B->A path. 
 
 training_parameters:
@@ -42,19 +42,18 @@ training_parameters:
   data_augmentation: 
     preprocess: random3Drotate_randomcrop_randomflip_addColorChannel_addBatchChannel # preprocessing for input images: [randomcrop | randomrotate | randomflip | normalize | none]
     aug_rotate_freq: 10 # how often rotate the sample for data augmentation
-    crop_size: 140
-  save_freq: 10
-  n_epochs: 1000 # number of epochs with the initial learning rate
-  n_epochs_decay: 100
+    crop_size: 96
+  n_epochs: 3000 # number of epochs with the initial learning rate
+  # n_epochs_decay: 100
   learning_rate:
     lr: 0.0001
     beta1: 0.1
     momentum: 0.9
-    lr_policy: linear
-    lr_decay_iters: 50
+    lr_policy: constant 
+    # lr_decay_epochs: 50
 
 monitoring_parameters: 
-    save_epoch_freq: 100
-    display_freq: 1000
+    save_epoch_freq: 1
+    display_freq: 2000
     visual_projection_depth: 20
     

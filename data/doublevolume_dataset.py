@@ -35,7 +35,7 @@ class DoubleVolumeDataset(BaseDataset):
         self.B_path = make_dataset(opt.data_target)[0]
         self.B_img_vol = io.imread(self.B_path)
         self.aug_rotate_freq = opt.aug_rotate_freq
-        self.epoch_length = self.aug_rotate_freq * 2327 * 10 # how many iterations per epoch? 2327 is minimum iterations to cover all angles
+        self.epoch_length = int(self.aug_rotate_freq * 2327 * 0.25) # how many iterations per epoch? 2327 is minimum iterations to cover all angles
 
         self.rotate3D = 'random3Drotate' in opt.preprocess
         if self.rotate3D:

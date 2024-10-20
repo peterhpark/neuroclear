@@ -20,15 +20,15 @@ from data.image_folder import make_dataset
 from tifffile import imsave
 
 if __name__ == '__main__':
-    opt = TestOptions().parse()  # get test options
+    opt = BaseOptions().gather_options() # load configs from an YAML file 
 
     # hard-code some parameters for test
     opt.num_threads = 0  # test code only supports num_threads = 1
     opt.batch_size = 1  # test code only supports batch_size = 1
     opt.serial_batches = True  # disable data shuffling; comment this line if results on randomly chosen images are needed.
     opt.no_flip = True  # no flip; comment this line if results on flipped images are needed.
-    opt.display_id = -1  # no visdom display; the test code saves the results to a HTML file.
 
+    # not necessary
     dataset_class = data.find_dataset_using_name(opt.dataset_mode)
     dataset_tolook_shape = dataset_class(opt)
     dataset_size_original = dataset_tolook_shape.size_original()  # return the image size before padding.
@@ -112,47 +112,4 @@ if __name__ == '__main__':
             imsave(input_xy_vol_path, real_volume)
             print("Input volume is saved as a tiff file. ")
 
-
-    if opt.dataroot_gt is not None:
-        GT_path = make_dataset(opt.dataroot_gt, 1)[0]
-        gt_volume = io.imread(GT_path)
-        # Ground_truth = Ground_truth[-z:, -y:, -x:] #crop to match the cropped input and output
-
-        print("Calculating PSNR for the whole image volume...")
-
-        ##
-        # Calculate image metrics
-
-        datarange = 2**8-1
-
-        real_volume = util.normalize(util.standardize(real_volume), data_type=np.uint8)
-        fake_volume = util.normalize(util.standardize(fake_volume), data_type=np.uint8)
-        gt_volume = util.normalize(util.standardize(gt_volume), data_type=np.uint8)
-
-        real_volume = util.normalize(util.standardize(real_volume), data_type=np.uint8)
-        fake_volume = util.normalize(util.standardize(fake_volume), data_type=np.uint8)
-        gt_volume = util.normalize(util.standardize(gt_volume), data_type=np.uint8)
-
-        psnr_input_gt = util.get_psnr(real_volume, gt_volume, datarange)
-        psnr_output_gt = util.get_psnr(fake_volume, gt_volume, datarange)
-        print ("Metrics are calculated.")
-
-        message = 'Experiment Name: ' + opt.name + '\n'
-        message += '---------------------------------------------------------\n'
-        message += '\nWhole_volume\n'
-        message += '---------------------------------------------------------\n'
-        message += 'Network Input vs. Groundtruth\n'
-        message += '(psnr: %.4f) \n' % (
-        psnr_input_gt)
-        message += '---------------------------------------------------------\n'
-        message += 'Network Output vs. Groundtruth\n'
-        message += '(psnr: %.4f) \n' % (
-        psnr_output_gt)
-        message += '---------------------------------------------------------'
-
-        print (message)
-        filename = os.path.join(save_dir, 'metrics.txt')
-
-        with open(filename, "a") as metric_file:
-            metric_file.write('%s\n' % message)  # save the message
     print("----Test done----")

@@ -37,6 +37,10 @@ class BaseModel(ABC):
 
         self.device = torch.device('cuda:{}'.format(self.gpu_ids[0])) if self.gpu_ids else torch.device('cpu')  # get device name: CPU or GPU
         self.save_dir = os.path.join(opt.checkpoints_dir, opt.name)  # save all the checkpoints to save_dir
+
+        if not os.path.isdir(self.save_dir):
+            os.makedirs(self.save_dir)
+
         if opt.preprocess != 'scale_width':  # with [scale_width], input images might have different sizes, which hurts the performance of cudnn.benchmark.
             torch.backends.cudnn.benchmark = True
         self.loss_names = []
@@ -125,7 +129,7 @@ class BaseModel(ABC):
                 scheduler.step()
 
         lr = self.optimizers[0].param_groups[0]['lr']
-        # print('learning rate = %.7f' % lr)
+        print('learning rate = %.7f' % lr)
 
     def get_current_visuals(self):
         """Return visualization images."""

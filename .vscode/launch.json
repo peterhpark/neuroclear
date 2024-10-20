@@ -9,7 +9,7 @@
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/train_onecube.py",
-            "args":["--config_path", "configs/simulation-config.yml"],
+            "args":["--config_path", "configs/simulation-config-20241014.yml"],
             "console": "integratedTerminal"
         }
     ]
