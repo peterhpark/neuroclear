@@ -11,11 +11,6 @@ from skimage import io
 import data
 from tqdm import tqdm
 import numpy as np
-# from skimage.metrics import structural_similarity as get_ssim
-# from skimage.metrics import peak_signal_noise_ratio as get_psnr
-# from skimage.metrics import normalized_root_mse as get_nrmse
-# from skimage.metrics import mean_squared_error as get_mse
-
 from data.image_folder import make_dataset
 from tifffile import imsave
 

@@ -39,7 +39,6 @@ class TestModel(BaseModel):
         # specify the models you want to save to the disk. The training/test scripts will call <BaseModel.save_networks> and <BaseModel.load_networks>
         self.model_names = ['G' + opt.model_suffix]  # only generator is needed.
         self.dimension = opt.image_dimension
-        print (self.dimension)
 
         self.netG = networks.define_G(opt.input_nc, opt.output_nc, opt.ngf, opt.netG,
                                       opt.norm, not opt.no_dropout, opt.init_type, opt.init_gain, self.gpu_ids, dimension = self.dimension)
@@ -54,8 +53,8 @@ class TestModel(BaseModel):
             input: a dictionary that contains the data itself and its metadata information.
         We need to use 'single_dataset' dataset mode. It only load images from one domain.
         """
-        self.real = input['A'].to(self.device)
-        self.image_paths = input['A_paths']
+        self.real = input['src'].to(self.device)
+        self.image_paths = input['src_paths']
 
     def forward(self):
         """Run forward pass."""

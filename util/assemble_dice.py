@@ -4,6 +4,7 @@ from skimage.exposure import match_histograms
 from skimage import exposure
 import data
 import torch
+from util import util
 
 class Assemble_Dice():
     def __init__(self, opt):
@@ -13,7 +14,7 @@ class Assemble_Dice():
         self.image_size = dataset_tolook_shape.size() # Get the y,x,z volume sizes of the image volume.
         self.border_cut = opt.border_cut
 
-        self.roi_size = opt.dice_size[0]
+        self.roi_size = opt.dice_size
         self.overlap = opt.overlap
         self.step = self.roi_size - self.overlap
 
@@ -134,7 +135,7 @@ class Assemble_Dice():
             _, _, h, w, d = cube_numpy.shape # When we add an output cube from the network, it include two extra dimensions: batch_index, color_channel
             cube_numpy = cube_numpy.squeeze() # remove the batch and color channel axis.
 
-            cube_numpy = cube_numpy.astype(np.float32) # saves memory
+            # cube_numpy = cube_numpy.astype(np.float32) # saves memory
 
             # Remove the border regions to avoid the popping effect.
             cube_numpy = cube_numpy[self.border_cut:-self.border_cut, self.border_cut:-self.border_cut, self.border_cut:-self.border_cut]
@@ -187,20 +188,24 @@ class Assemble_Dice():
                     p1_, p99_ = np.percentile(self.visual_ret[name], (self.p1, self.p99))
                     self.visual_ret[name] = exposure.rescale_intensity(self.visual_ret[name], in_range=(p1_, p99_))
 
-                ## convert the datatype
-                if self.imtype == 'uint8':
-                    # self.visual_ret[name] *= self.img_std
-                    # self.visual_ret[name] += self.img_mean # then the image is scaled to 0-1.
+                
+                self.visual_ret[name] = util.tensor2im(self.visual_ret[name], np.uint16)
 
-                    self.visual_ret[name] *= 255
-                    self.visual_ret[name] = self.visual_ret[name].astype(np.uint8)
+                # ## convert the datatype
+                # if self.imtype == 'uint8':
+                #     # self.visual_ret[name] *= self.img_std
+                #     # self.visual_ret[name] += self.img_mean # then the image is scaled to 0-1.
 
-                if self.imtype == 'uint16':
-                    # self.visual_ret[name] *= self.img_std
-                    # self.visual_ret[name] += self.img_mean # then the image is scaled to 0-1.
+                #     self.visual_ret[name] =util.tensor2im()
+                #     self.visual_ret[name] *= 255
+                #     self.visual_ret[name] = self.visual_ret[name].astype(np.uint8)
 
-                    self.visual_ret[name] *= 2 ** 16 - 1
-                    self.visual_ret[name] = self.visual_ret[name].astype(np.uint16)
+                # if self.imtype == 'uint16':
+                #     # self.visual_ret[name] *= self.img_std
+                #     # self.visual_ret[name] += self.img_mean # then the image is scaled to 0-1.
+
+                #     self.visual_ret[name] *= 2 ** 16 - 1
+                #     self.visual_ret[name] = self.visual_ret[name].astype(np.uint16)
 
                 # crop the regions that were padded for clean-cut dicing.
                 if self.image_size_original is not None:

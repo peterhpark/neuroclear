@@ -27,8 +27,8 @@ class DiceImageDataSet(BaseDataset):
             opt (Option class) -- stores all the experiment flags; needs to be a subclass of BaseOptions
         """
         BaseDataset.__init__(self, opt)
-        self.A_path = make_dataset(opt.dataroot, 1)[0] # loads only one image volume.
-        self.roi_size = opt.dice_size[0]
+        self.A_path = make_dataset(opt.data_source, 1)[0] # loads only one image volume.
+        self.roi_size = opt.dice_size
         self.overlap = opt.overlap
         self.border_cut = opt.border_cut
 
@@ -63,7 +63,7 @@ class DiceImageDataSet(BaseDataset):
         cube = self.cube[index]
         A = self.transform(cube)
 
-        return {'A': A, 'A_paths': str(index)}
+        return {'src': A, 'src_paths': str(index)}
 
     def __len__(self):
         """Return the total number of images in the dataset."""

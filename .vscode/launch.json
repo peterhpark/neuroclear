@@ -1,3 +1,21 @@
+// {
+//     // Use IntelliSense to learn about possible attributes.
+//     // Hover to view descriptions of existing attributes.
+//     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+//     "version": "0.2.0",
+//     "configurations": [
+//         {
+//             "name": "Python: Current File",
+//             "type": "debugpy",
+//             "request": "launch",
+//             "program": "${workspaceFolder}/train_onecube.py",
+//             "args":["--config_path", "configs/simulation-config-20241014.yml"],
+//             "console": "integratedTerminal"
+//         }
+//     ]
+// }
+
+
 {
     // Use IntelliSense to learn about possible attributes.
     // Hover to view descriptions of existing attributes.
@@ -8,8 +26,8 @@
             "name": "Python: Current File",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/train_onecube.py",
-            "args":["--config_path", "configs/simulation-config-20241014.yml"],
+            "program": "${workspaceFolder}/run_inference.py",
+            "args":["--config_path", "configs/banterle4th-inference-config-20241020-1.yml"],
             "console": "integratedTerminal"
         }
     ]

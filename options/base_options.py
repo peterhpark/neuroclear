@@ -43,7 +43,8 @@ class BaseOptions():
             self.verbose = False 
 
         setattr(self, 'time', self.time)
-        setattr(self, 'name', f"{self.name}_exp_{self.time}") # type: ignore 
+        if self.isTrain:
+            setattr(self, 'name', f"{self.name}_exp_{self.time}") # type: ignore 
 
         # # modify model-related parser options
         # model_name = self.model

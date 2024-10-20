@@ -1,14 +1,14 @@
 device: 'cuda'
 
-name: 'banterle-4th-real-to-simulation-v2_UNET-UNET-proj15'
+name: 'banterle-2nd-real-to-simulation_UNET-DLG-5-lvl'
 data_dir:  '/scratch/park/data/deepclear/'
 log_dir: '/scratch/park/checkpoints/logs'
 checkpoints_dir: '/scratch/park/checkpoints/models/DeepClarity'
 verbose: True 
 
 data_parameters:
-  data_source: '/scratch/park/data/Banterle/4th/train/3D_v1'
-  data_target: '/scratch/park/data/Banterle/4th/train/simulation_data/thinner_curved-haystack'
+  data_source: '/scratch/park/data/Banterle/2nd/ppd/AiryMPLX_stack-crop-z-resized_crop'
+  data_target: '/scratch/park/data/Banterle/4th/train/simulation_data/curved-haystack-cropped'
   dataset_mode: doublevolume # 
   direction: AtoB # direction of image translation: AtoB or BtoA
   serial_batches: False #if true, sample images in sequential order to make batches, otherwise sample them randomly
@@ -20,29 +20,19 @@ model_parameters:
   ngf: 64 # number of gen filters in the last conv layer 
   ndf: 64 # number of discrim filters in the first conv layer
   netD: basic # specify discriminator architecture [basic | n_layers | pixel]. The basic model is a 70x70 PatchGAN. n_layers allows you to specify the layers in the discriminator
-  n_layers_D: 3
+  n_layers_D: 5
   netG: unet_deconv # specify generator architecture [resnet_9blocks | resnet_6blocks | unet_256 | unet_128]
   norm: instance # instance normalization or batch normalization [instance | batch | spectral | none]
   init_type: kaiming # network initialization [normal | xavier | kaiming | orthogonal]
   init_gain: 0.02 # scaling factor for normal, xavier and orthogonal.
   no_dropout: False # no dropout for the generator. For cycleGAN, no_dropout is a default option.
   model_specific:
-      projection_depth: 15
+      projection_depth: 10
       lambda_A: 10.0 # weight for cycle loss (A -> B -> A)
       gan_mode: lsgan 
       lambda_plane: [1, 1, 1] # weight ratio for matching (target vs. target) and (target vs. source) and (MIP target vs. MIP source).
-      projection_sampling: 3 # how many times you sample within one sample volume for discriminator
-      netG_B: unet_deconv # specify the geneorator for B->A path. 
-
-inference_parameters:
-  dicing_parameters:
-    border_cut: 10 
-    dice_size: [140, 140, 140]
-  
-  sat_level: [0.25, 99.75]
-  
-
-
+      projection_sampling: 5 # how many times you sample within one sample volume for discriminator
+      netG_B: deep_linear_gen # specify the geneorator for B->A path. 
 
 training_parameters:
   isTrain: True 
@@ -52,7 +42,7 @@ training_parameters:
   data_augmentation: 
     preprocess: random3Drotate_randomcrop_randomflip_addColorChannel_addBatchChannel # preprocessing for input images: [randomcrop | randomrotate | randomflip | normalize | none]
     aug_rotate_freq: 10 # how often rotate the sample for data augmentation
-    crop_size: 96
+    crop_size: 160
   n_epochs: 3000 # number of epochs with the initial learning rate
   # n_epochs_decay: 100
   learning_rate:
@@ -66,4 +56,4 @@ monitoring_parameters:
     save_epoch_freq: 1
     display_freq: 1000
     visual_projection_depth: 20
-    
+  

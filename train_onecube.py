@@ -1,7 +1,6 @@
 """
 """
 import time
-from options.train_options import TrainOptions
 from options.base_options import BaseOptions
 import data
 from models import create_model

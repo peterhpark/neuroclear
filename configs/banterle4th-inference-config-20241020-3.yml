@@ -1,0 +1,64 @@
+device: 'cuda'
+
+name: 'banterle-4th-real-to-simulation_UNET-DLG-5-lvl_exp_241020-155315'
+load_iter: 29085
+phase: 'test'
+data_dir:  '/scratch/park/data/deepclear/'
+checkpoints_dir: '/scratch/park/checkpoints/models/DeepClarity'
+results_dir: '/scratch/park/results/DeepClarity'
+skip_real: True
+verbose: False
+save_volume: True 
+eval: True 
+
+inference_parameters:
+  batch_size: 1
+  gpu_ids: [0] # gpu ids: e.g. 0  0,1,2, 0,2. use -1 for CPU
+  preprocess: addColorChannel # preprocessing for input images: [randomcrop | randomrotate | randomflip | normalize | none]
+  dicing_parameters:
+    border_cut: 20 
+    dice_size: 192
+    overlap: 15
+  data_type: 'uint16'
+  post_processing_parameters:
+    histogram_match: False 
+    normalize_intensity: False
+    sat_level: [0.25, 99.75] # only valid if normalize_intensity is True. 
+
+data_parameters:
+  data_source: '/scratch/park/data/Banterle/4th/train/3D_v1'
+  image_dimension: 3
+  direction: AtoB # direction of image translation: AtoB or BtoA
+  serial_batches: False #if true, sample images in sequential order to make batches, otherwise sample them randomly
+
+model_parameters:
+  model: test # Source volume and Target volume 
+  model_suffix: _A # which generator?
+  input_nc: 1 # number of input image channels: 3 for RGB and 1 for grayscale
+  output_nc: 1 # number of output image channels: 3 for RGB and 1 for grayscale
+  ngf: 64 # number of gen filters in the last conv layer 
+  netG: unet_deconv # specify generator architecture [resnet_9blocks | resnet_6blocks | unet_256 | unet_128]
+  norm: instance # instance normalization or batch normalization [instance | batch | spectral | none]
+  init_type: kaiming # network initialization [normal | xavier | kaiming | orthogonal]
+  init_gain: 0.02 # scaling factor for normal, xavier and orthogonal.
+  no_dropout: False # no dropout for the generator. For cycleGAN, no_dropout is a default option.
+ 
+
+training_parameters:
+  isTrain: False 
+  gpu_ids: [0] # gpu ids: e.g. 0  0,1,2, 0,2. use -1 for CPU
+  batch_size: 1
+  # epoch_length: 1000 # how many iterations per epoch
+  data_augmentation: 
+    preprocess: addColorChannel # preprocessing for input images: [randomcrop | randomrotate | randomflip | normalize | none]
+  learning_rate:
+    lr: 0.0001
+    beta1: 0.1
+    momentum: 0.9
+    lr_policy: constant # do not apply scheduler yet. 
+
+monitoring_parameters: 
+    save_epoch_freq: 1
+    display_freq: 1000
+    visual_projection_depth: 20
+    

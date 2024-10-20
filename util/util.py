@@ -38,7 +38,18 @@ def tensor2im(input_image, imtype=np.uint16):
         elif imtype == float:
             pass
     else:  # if it is a numpy array, do nothing
-        image_numpy = input_image
+
+        if imtype == np.uint8:
+            image_numpy = np.clip(input_image, 0, 1)
+            image_numpy *= (2 ** 8 * 1.0 - 1)
+            image_numpy = np.clip(image_numpy, 0, 255)
+        elif imtype == np.uint16:
+            image_numpy = np.clip(input_image, 0, 1)
+            image_numpy *= (2 ** 16 * 1.0 - 1)
+            image_numpy = np.clip(image_numpy, 0, 2**16-1)
+        elif imtype == float:
+            pass
+        # image_numpy = input_image
     return image_numpy.astype(imtype)
 
 #
