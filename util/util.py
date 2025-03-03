@@ -1,4 +1,3 @@
-# TODO Sep 08 version
 """This module contains simple helper functions """
 from __future__ import print_function
 import torch
@@ -25,7 +24,7 @@ def tensor2im(input_image, imtype=np.uint16):
         image_numpy_og = image_tensor.cpu().float().numpy()  # convert it into a numpy array
         image_numpy = image_numpy_og.copy()
 
-        # TODO Notice that we assume the data range to be (0,1). Be carefull if you set it to (-1,1)
+        # NOTE Notice that we assume the data range to be (0,1). Be carefull if you set it to (-1,1)
         if imtype == np.uint8:
             image_numpy = np.clip(image_numpy, 0, 1)
             image_numpy *= (2 ** 8 * 1.0 - 1)
@@ -280,3 +279,124 @@ def crop_for_dicing(image, roi_size, overlap=0):
 
 
 
+# Patch-wise operations for 3D volumes
+def extract_3d_patches(volume, patch_size=(64, 64, 32), stride=(32, 32, 16)):
+    """
+    Extracts overlapping 3D patches from a given volume.
+    
+    Args:
+        volume (np.ndarray): 3D input volume of shape (D, H, W).
+        patch_size (tuple): Size of the extracted patches (depth, height, width).
+        stride (tuple): Step size for the sliding window (depth, height, width).
+    
+    Returns:
+        patches (list): List of 3D patches.
+        indices (list): List of coordinates corresponding to patches.
+    """
+    D, H, W = volume.shape
+    d_step, h_step, w_step = stride
+    d_size, h_size, w_size = patch_size
+    
+    patches = []
+    indices = []
+    
+    for d in range(0, D - d_size + 1, d_step):
+        for h in range(0, H - h_size + 1, h_step):
+            for w in range(0, W - w_size + 1, w_step):
+                patch = volume[d:d+d_size, h:h+h_size, w:w+w_size]
+                patches.append(patch)
+                indices.append((d, h, w))
+    
+    return np.array(patches), indices
+
+
+# reconstruct_from patches 
+def reconstruct_from_patches(patch_preds, indices, volume_shape, patch_size, stride):
+    """
+    Reconstructs the full 3D volume from overlapping patches using average weighting.
+    
+    Args:
+        patch_preds (np.ndarray): Array of predicted patches.
+        indices (list): List of patch starting coordinates.
+        volume_shape (tuple): Shape of the original 3D volume (D, H, W).
+        patch_size (tuple): Size of each patch.
+        stride (tuple): Stride used during patch extraction.
+    
+    Returns:
+        np.ndarray: Reconstructed 3D volume.
+    """
+    D, H, W = volume_shape
+    d_size, h_size, w_size = patch_size
+    
+    output_volume = np.zeros(volume_shape)
+    weight_map = np.zeros(volume_shape)
+    
+    for patch, (d, h, w) in zip(patch_preds, indices):
+        output_volume[d:d+d_size, h:h+h_size, w:w+w_size] += patch
+        weight_map[d:d+d_size, h:h+h_size, w:w+w_size] += 1
+    
+    # Avoid division by zero
+    weight_map[weight_map == 0] = 1
+    return output_volume / weight_map
+
+# create a gansisan mask 
+def gaussian_3d(shape, sigma_scale=0.5):
+    """
+    Generates a 3D Gaussian weight mask.
+    
+    Args:
+        shape (tuple): The shape of the patch (depth, height, width).
+        sigma_scale (float): Scaling factor for Gaussian standard deviation.
+    
+    Returns:
+        np.ndarray: A 3D Gaussian weight mask.
+    """
+    d, h, w = shape
+    dz, dy, dx = np.meshgrid(
+        np.linspace(-1, 1, d),
+        np.linspace(-1, 1, h),
+        np.linspace(-1, 1, w),
+        indexing="ij"
+    )
+    
+    # Compute squared distance from the center
+    distance = dx**2 + dy**2 + dz**2
+    sigma = sigma_scale  # Controls spread of Gaussian
+    gaussian_mask = np.exp(-distance / (2 * sigma**2))
+    
+    return gaussian_mask
+
+def reconstruct_from_patches_gaussian(patch_preds, indices, volume_shape, patch_size, stride):
+    """
+    Reconstructs a 3D volume using Gaussian-weighted blending of patches.
+    
+    Args:
+        patch_preds (np.ndarray): Predicted patches.
+        indices (list): List of patch coordinates.
+        volume_shape (tuple): Shape of the original 3D volume (D, H, W).
+        patch_size (tuple): Size of each patch (depth, height, width).
+        stride (tuple): Stride used for patch extraction.
+    
+    Returns:
+        np.ndarray: Reconstructed 3D volume.
+    """
+    D, H, W = volume_shape
+    d_size, h_size, w_size = patch_size
+    
+    output_volume = np.zeros(volume_shape)
+    weight_map = np.zeros(volume_shape)
+    
+    # Generate the Gaussian weight mask
+    gaussian_mask = gaussian_3d(patch_size)
+
+    for patch, (d, h, w) in zip(patch_preds, indices):
+        # Apply Gaussian weighting
+        weighted_patch = patch * gaussian_mask
+
+        # Add weighted patch to volume
+        output_volume[d:d+d_size, h:h+h_size, w:w+w_size] += weighted_patch
+        weight_map[d:d+d_size, h:h+h_size, w:w+w_size] += gaussian_mask  # Track weight contributions
+
+    # Normalize the volume by total weights to avoid over-representation
+    weight_map[weight_map == 0] = 1  # Avoid division by zero
+    return output_volume / weight_map

@@ -103,14 +103,20 @@ def get_params(opt, vol_shape):
 	else:
 		assert "The image dimension is invalid."
 
-
-def get_transform(opt, params = None):
+def get_transform(opt, params = None, crop_size = None, is_2D = False):
 	transform_list = []
 	if 'randomcrop' in opt.preprocess:
 		if params is None:
-			transform_list += [transforms.Lambda(lambda img_np: __randomcrop3D(img_np, opt.crop_size))]
+			if crop_size is None:
+				transform_list += [transforms.Lambda(lambda img_np: __randomcrop3D(img_np, opt.crop_size))]
+			else:
+				if is_2D:
+					transform_list += [transforms.Lambda(lambda img_np: __randomcrop2D(img_np, crop_size))]
+				else:
+					transform_list += [transforms.Lambda(lambda img_np: __randomcrop3D(img_np, crop_size))]
 
 		else:
+			# transform_list += [transforms.Lambda(lambda img_np: __randomcrop3D(img_np, params['crop_size']))]
 			transform_list += [transforms.Lambda(lambda img_np: __crop(img_np, params['crop_pos'], opt.crop_size))]
 
 	# if 'random90rotate' in opt.preprocess:
@@ -466,7 +472,7 @@ def crop_around_center(image, width, height):
 
 	return image[y1:y2, x1:x2]
 
-def __rotate_clean(image, angle):
+def rotate_clean_2D(image, angle):
 	image_height, image_width = image.shape
 
 	image_rotated = rotate_image(image, angle)
@@ -480,7 +486,7 @@ def __rotate_clean(image, angle):
 def rotate_clean_3D_xy(image_vol, angle):
 	slice_list = []
 	for slice in image_vol:
-		slice_rotated = __rotate_clean(slice, angle)
+		slice_rotated = rotate_clean_2D(slice, angle)
 		slice_list.append(slice_rotated)
 	img_vol_rotated = np.array(slice_list)
 	return img_vol_rotated
@@ -489,12 +495,12 @@ def __randomrotate_clean_3D_xy(img):
 	angle = random.randint(0, 359)
 	slice_list = []
 	for slice in img:
-		slice_rotated = __rotate_clean(slice, angle)
+		slice_rotated = rotate_clean_2D(slice, angle)
 		slice_list.append(slice_rotated)
 	img_vol_rotated = np.array(slice_list)
 	return img_vol_rotated
 
 def __randomrotate_clean_2D_xy(img):
 	angle = random.randint(0, 359)
-	slice_rotated = __rotate_clean(img, angle)
+	slice_rotated = rotate_clean_2D(img, angle)
 	return slice_rotated
