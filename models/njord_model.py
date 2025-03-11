@@ -4,13 +4,14 @@ import numpy as np
 from .base_model import BaseModel
 from . import networks
 
-class SifModel(BaseModel):
+class NjordModel(BaseModel):
     """
     This model uses high-resolution reference from another source.
     The model takes a 3D image cube as an input and outputs a 3D image stack that correspond to the output cube.
     Note that the loss functions are readjusted for cube dataset.
 
-    This model is a successor to ymir; the model takes only slices from the target images.
+    This model is a successor to Sif; it implements 2.5D UNET for shallow images. 
+    This model also uses torchio for patch sampling. 
 
     GAN Loss is calculated in 2D between axial image and lateral image. -> Discriminator takes 2D images
                                                                         -> Generator takes 3D images.
@@ -30,18 +31,12 @@ class SifModel(BaseModel):
     """
     
     def __init__(self, opt):
-        """ The Tuisto Class 
-
+        """ 
         Parameters:
             opt (Option class)-- stores all the experiment flags; needs to be a subclass of BaseOptions
         """
 
         BaseModel.__init__(self, opt)
-
-        # if opt.data_gt is not None:
-        #     self.validate = True
-        # else:
-        #     self.validate = False
 
         # specify the training losses you want to print out. The training/test scripts will call <BaseModel.get_current_losses>
         self.loss_names = ['D_A_lateral', 'D_A_axial', 'G_A', 'G_A_lateral', 'G_A_axial', 'cycle',
@@ -49,7 +44,7 @@ class SifModel(BaseModel):
 
         self.gan_mode = opt.gan_mode
 
-        self.gen_dimension = 3  # 3D convolutions in generators
+        self.gen_dimension = 2  # 2.5 D convolutions in generators
         self.dis_dimension = 2  # 2D convolutions in discriminators
 
         self.randomize_projection_depth = opt.randomize_projection_depth
@@ -87,11 +82,11 @@ class SifModel(BaseModel):
         # Code (vs. paper): G_A (G), G_B (F), D_A (D_Y), D_B (D_X)
         self.netG_A = networks.define_G(opt.input_nc, opt.output_nc, opt.ngf, opt.netG, opt.norm,
                                         not opt.no_dropout, opt.init_type, opt.init_gain, self.gpu_ids,
-                                        dimension=self.gen_dimension, use_sigmoid=opt.use_sigmoid)
+                                        dimension=self.gen_dimension)
 
         self.netG_B = networks.define_G(opt.output_nc, opt.input_nc, opt.ngf, opt.netG_B, opt.norm,
                                         not opt.no_dropout, opt.init_type, opt.init_gain, self.gpu_ids,
-                                        dimension=self.gen_dimension, use_sigmoid=opt.use_sigmoid)
+                                        dimension=self.gen_dimension)
 
         if self.isTrain:  # define discriminators
             self.netD_A_axial = networks.define_D(opt.output_nc, opt.ndf, opt.netD,
@@ -141,7 +136,7 @@ class SifModel(BaseModel):
         The option 'direction' can be used to swap domain A and domain B.
         """
         AtoB = self.opt.direction == 'AtoB'
-        self.real_src = input['src' if AtoB else 'tgt'].to(self.device) # 3D image
+        self.real_src = input['src' if AtoB else 'tgt'].to(self.device) # 2.5 D image - takes adjance slices in the z-axis and treat them as color channel. 
         self.real_tgt = input['tgt' if AtoB else 'src'].to(self.device) # 2D image
 
         # if self.validate:

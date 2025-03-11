@@ -143,7 +143,7 @@ def init_net(net, init_type='normal', init_gain=0.02, gpu_ids=[]):
 
 
 def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, init_type='normal', init_gain=0.02, gpu_ids=[],
-             kernel_size=9, given_psf=None, noise_setting = None, dimension = 3):
+             kernel_size=9, given_psf=None, noise_setting = None, dimension = 3, use_sigmoid=False):
     """Create a generator
 
     Parameters:
@@ -176,7 +176,7 @@ def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, in
     if netG == 'unet_twoouts':
         net = UnetTwoOuts(4, output_nc)
     elif netG== 'unet_deconv':
-        net = Unet_deconv(1, output_nc, norm_layer=norm_layer, dimension=dimension)
+        net = Unet_deconv(1, output_nc, norm_layer=norm_layer, dimension=dimension, use_sigmoid=use_sigmoid)
     elif netG== 'unet_vanilla':
         net = Unet_vanilla(1, output_nc, norm_layer=norm_layer, dimension=dimension)
     elif netG == 'unet_classic':
@@ -419,7 +419,7 @@ def instance_norm(dimension, affine = False):
 ###########################PETER'S UNET IMPLEMENTATION##############################################
 class double_conv(nn.Module):
 
-    def __init__(self, in_channels, out_channels, kernel_size=3, stride=1, padding=0, norm_layer=None, dimension = 3):
+    def __init__(self, in_channels, out_channels, norm_layer, kernel_size=3, stride=1, padding=0, dimension = 3):
         super(double_conv, self).__init__()
         _conv = conv(dimension)
 
@@ -440,7 +440,7 @@ class double_conv(nn.Module):
 
 class last_conv(nn.Module):
 
-    def __init__(self, in_channels, out_channels, kernel_size=3, stride=1, padding=0, norm_layer=None, dimension = 3):
+    def __init__(self, in_channels, out_channels,norm_layer, kernel_size=3, stride=1, padding=0,  dimension = 3):
         super(last_conv, self).__init__()
 
         _conv = conv(dimension)
@@ -458,7 +458,7 @@ class last_conv(nn.Module):
 
 class triple_conv(nn.Module):
 
-    def __init__(self, in_channels, out_channels, kernel_size=3, stride=1, padding=0, norm_layer=None, dimension = 3):
+    def __init__(self, in_channels, out_channels, norm_layer, kernel_size=3, stride=1, padding=0, dimension = 3):
         super(triple_conv, self).__init__()
 
         _conv = conv(dimension)
@@ -481,10 +481,10 @@ class triple_conv(nn.Module):
     def forward(self, x):
         x = self.convolution(x)
         return x
-
+    
 class Unet_deconv(nn.Module):
 
-    def __init__(self, input_nc, output_nc, norm_layer=None, dimension = 3):
+    def __init__(self, input_nc, output_nc, norm_layer, dimension=3, use_sigmoid=False):
 
         _maxpool = maxpool(dimension)
         _conv = conv(dimension)
@@ -494,27 +494,29 @@ class Unet_deconv(nn.Module):
         start_nc = input_nc * 64
 
         # Downsampling
-        self.double_conv1 = double_conv(input_nc,  start_nc, 3, 1, 1, norm_layer, dimension)
+        self.double_conv1 = double_conv(input_nc, start_nc, norm_layer, 3, 1, 1, dimension)
         self.maxpool1 = _maxpool(2)
 
-        self.double_conv2 = double_conv(start_nc, start_nc*2, 3, 1, 1, norm_layer, dimension)
+        self.double_conv2 = double_conv(start_nc, start_nc * 2, norm_layer, 3, 1, 1, dimension)
         self.maxpool2 = _maxpool(2)
 
         # bottom floor
-        self.bottom_layer = triple_conv(start_nc *2, start_nc*4, 3, 1, 1, norm_layer, dimension)
+        self.bottom_layer = triple_conv(start_nc * 2, start_nc * 4, norm_layer, 3, 1, 1, dimension)
 
         # Upsampling = transposed convolution
-        self.t_conv2 = _convtranspose (start_nc*4, start_nc*2, 2, 2)
-        self.ex_double_conv2 = double_conv(start_nc*4, start_nc*2, 3, 1, 1, norm_layer, dimension)
+        self.t_conv2 = _convtranspose(start_nc * 4, start_nc * 2, 2, 2)
+        self.ex_double_conv2 = double_conv(start_nc * 4, start_nc * 2, norm_layer, 3, 1, 1, dimension)
 
-        self.t_conv1 = _convtranspose(start_nc*2, start_nc, 2, 2)
-        self.ex_conv1_1 = last_conv(start_nc*2, start_nc, 3, 1, 1, norm_layer, dimension)
+        self.t_conv1 = _convtranspose(start_nc * 2, start_nc, 2, 2)
+        self.ex_conv1_1 = last_conv(start_nc * 2, start_nc, norm_layer, 3, 1, 1, dimension)
 
         # last stage
         self.one_by_one = _conv(start_nc, output_nc, 1, 1, 0)
         self.one_by_one_2 = _conv(output_nc, output_nc, 1, 1, 0)
 
-        self.sigmoid = nn.Sigmoid()
+        self.use_sigmoid = use_sigmoid
+        if self.use_sigmoid:
+            self.sigmoid = nn.Sigmoid()
 
     def forward(self, inputs):
 
@@ -540,10 +542,89 @@ class Unet_deconv(nn.Module):
 
         one_by_one = self.one_by_one(ex_conv1)
         one_by_one_2 = self.one_by_one_2(one_by_one)
-        last_val = self.sigmoid(one_by_one_2)
+        
+        if self.use_sigmoid:
+            last_val = self.sigmoid(one_by_one_2)
+        else:
+            last_val = one_by_one_2
 
         return last_val
 
+class AnisotropicConv3DBlock(nn.Module):
+    def __init__(self, in_channels, out_channels, norm_layer, kernel_size=(3, 3, 1), padding=(1, 1, 0)):
+        super(AnisotropicConv3DBlock, self).__init__()
+        self.conv = nn.Sequential(
+            nn.Conv3d(in_channels, out_channels, kernel_size=kernel_size, padding=padding),
+            norm_layer(out_channels),
+            nn.ReLU(inplace=True)
+        )
+
+    def forward(self, x):
+        return self.conv(x)
+    
+class UNet3DAnisotropic(nn.Module):
+    def __init__(self, in_channels, out_channels, norm_layer, base_filters=32):
+        super(UNet3DAnisotropic, self).__init__()
+
+        # Encoder
+        self.enc1 = nn.Sequential(
+            AnisotropicConv3DBlock(in_channels, base_filters, norm_layer, (3, 3, 1), (1, 1, 0)),
+            AnisotropicConv3DBlock(base_filters, base_filters, norm_layer, (3, 3, 3), (1, 1, 1))
+        )
+        self.pool1 = nn.MaxPool3d((2, 2, 1))  # Downsample only spatially
+
+        self.enc2 = nn.Sequential(
+            AnisotropicConv3DBlock(base_filters, base_filters * 2, norm_layer, (3, 3, 1), (1, 1, 0)),
+            AnisotropicConv3DBlock(base_filters * 2, base_filters * 2, norm_layer, (3, 3, 3), (1, 1, 1))
+        )
+        self.pool2 = nn.MaxPool3d((2, 2, 2))  # Downsample spatially + depth
+
+        # Bottleneck
+        self.bottleneck = nn.Sequential(
+            AnisotropicConv3DBlock(base_filters * 2, base_filters * 4, norm_layer, (3, 3, 3), (1, 1, 1)),
+            AnisotropicConv3DBlock(base_filters * 4, base_filters * 4, norm_layer, (3, 3, 3), (1, 1, 1))
+        )
+
+        # Decoder
+        self.up1 = nn.ConvTranspose3d(base_filters * 4, base_filters * 2, (2, 2, 2), stride=(2, 2, 2))
+        self.dec1 = nn.Sequential(
+            AnisotropicConv3DBlock(base_filters * 4, base_filters * 2, norm_layer, (3, 3, 1), (1, 1, 0)),
+            AnisotropicConv3DBlock(base_filters * 2, base_filters * 2, norm_layer, (3, 3, 3), (1, 1, 1))
+        )
+
+        self.up2 = nn.ConvTranspose3d(base_filters * 2, base_filters, (2, 2, 1), stride=(2, 2, 1))
+        self.dec2 = nn.Sequential(
+            AnisotropicConv3DBlock(base_filters * 2, base_filters, norm_layer, (3, 3, 1), (1, 1, 0)),
+            AnisotropicConv3DBlock(base_filters, base_filters, norm_layer, (3, 3, 3), (1, 1, 1))
+        )
+
+        # Final output layer
+        self.final = nn.Conv3d(base_filters, out_channels, kernel_size=1)
+
+    def forward(self, x):
+        # Encoder
+        e1 = self.enc1(x)
+        p1 = self.pool1(e1)
+
+        e2 = self.enc2(p1)
+        p2 = self.pool2(e2)
+
+        # Bottleneck
+        b = self.bottleneck(p2)
+
+        # Decoder
+        up1 = self.up1(b)
+        cat1 = torch.cat([up1, e2], dim=1)  # Skip connection
+        d1 = self.dec1(cat1)
+
+        up2 = self.up2(d1)
+        cat2 = torch.cat([up2, e1], dim=1)  # Skip connection
+        d2 = self.dec2(cat2)
+
+        # Final layer
+        out = self.final(d2)
+        return out
+    
 class Unet_vanilla(nn.Module):
 
     def __init__(self, input_nc, output_nc, norm_layer=None, dimension=3):

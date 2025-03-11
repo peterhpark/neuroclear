@@ -35,17 +35,18 @@ model_parameters:
       projection_sampling: 5 # how many times you sample within one sample volume for discriminator
       netG_B: unet_deconv # specify the geneorator for B->A path. 
       randomize_projection_depth: True 
-      
+      use_sigmoid: False # use sigmoid activation for the last layer of the generator
+
 training_parameters:
   isTrain: True 
   gpu_ids: [0] # gpu ids: e.g. 0  0,1,2, 0,2. use -1 for CPU
   batch_size: 1
   # epoch_length: 1000 # how many iterations per epoch
   data_augmentation: 
-    preprocess: random3Drotate_randomcrop_randomflip_addColorChannel_addBatchChannel # preprocessing for input images: [randomcrop | randomrotate | randomflip | normalize | none]
+    preprocess: random3Drotate_randomcrop_sample_adjacent_slices_randomflip_addColorChannel_torchioChannelorder_addBatchChannel # preprocessing for input images: [randomcrop | randomrotate | randomflip | normalize | none]
     aug_rotate_freq: 10 # how often rotate the sample for data augmentation
-    crop_size_2D: 256
-    crop_size_3D: 44
+    crop_size_2D: 256, 256
+    crop_size_3D: 256, 256, 20
   n_epochs: 3000 # number of epochs with the initial learning rate
   # n_epochs_decay: 100
   learning_rate:

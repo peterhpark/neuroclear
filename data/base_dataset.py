@@ -116,7 +116,6 @@ def get_transform(opt, params = None, crop_size = None, is_2D = False):
 					transform_list += [transforms.Lambda(lambda img_np: __randomcrop3D(img_np, crop_size))]
 
 		else:
-			# transform_list += [transforms.Lambda(lambda img_np: __randomcrop3D(img_np, params['crop_size']))]
 			transform_list += [transforms.Lambda(lambda img_np: __crop(img_np, params['crop_pos'], opt.crop_size))]
 
 	# if 'random90rotate' in opt.preprocess:
@@ -129,6 +128,9 @@ def get_transform(opt, params = None, crop_size = None, is_2D = False):
 	# 		assert ("This case is not implemeted yet!")
 			# transform_list += [transforms.Lambda(lambda img_np: __rotate(img_np, params['angle_90']))]
 
+	if 'sample_adjacent_slices' in opt.preprocess:
+		transform_list += [transforms.Lambda(lambda img_np: __sample_adjacent_slices(img_np, 10))]
+
 	if 'randomflip' in opt.preprocess:
 		if params is None:
 			transform_list+= [transforms.Lambda(lambda  img_np: __randomflip(img_np))]
@@ -140,7 +142,7 @@ def get_transform(opt, params = None, crop_size = None, is_2D = False):
 	if 'addColorChannel' in opt.preprocess:
 		transform_list += [transforms.Lambda(lambda  img_np:__addColorChannel(img_np))]
 
-	if 'reorderColorChannel' in opt.preprocess:
+	if 'torchioChannelorder' in opt.preprocess:
 		transform_list += [transforms.Lambda(lambda  img_np:__reorderColorChannel(img_np))]
 
 	if 'addBatchChannel' in opt.preprocess:
@@ -149,6 +151,15 @@ def get_transform(opt, params = None, crop_size = None, is_2D = False):
 	transform_list += [transforms.Lambda(lambda  img_np:__toTensor(img_np))]
 
 	return transforms.Compose(transform_list)
+
+# sample adjacent slices for 3D data
+def __sample_adjacent_slices(image_vol, slice_num):
+	depth = image_vol.shape[0]
+	start_slice = random.randint(0, depth - slice_num)
+	sampled_slices = image_vol[start_slice:start_slice + slice_num]
+	sampled_slices = np.stack(sampled_slices, axis=0)
+	return sampled_slices
+
 
 # normalize to 0-1 range. Note that mean and std. are calculated as scaled on 0-1 scale.
 def __normalize(img_np):
@@ -227,9 +238,9 @@ def __randomcontrast(img_np, randomcontrast_val): # randomly change the contrast
 
 	return img_normed
 
-def __randomcrop2D(img_np, crop_size):
+def __randomcrop2D(img_np, crop_size: list):
 	img_dim = img_np.shape
-	crop_y, crop_x = crop_size, crop_size  # For 2D, crop_z will be ignored.
+	crop_y, crop_x = crop_size  # For 2D, crop_z will be ignored.
 
 	assert (img_dim[0] - crop_y >= 0)
 	assert (img_dim[1] - crop_x >= 0)
@@ -240,9 +251,9 @@ def __randomcrop2D(img_np, crop_size):
 	img_cropped = img_np[y:y + crop_y, x:x + crop_x]
 	return img_cropped
 
-def __randomcrop3D(img_np, crop_size):
+def __randomcrop3D(img_np, crop_size: list):
 	img_dim = img_np.shape
-	crop_z, crop_y, crop_x = crop_size, crop_size, crop_size
+	crop_z, crop_y, crop_x = crop_size 
 	assert (img_dim[0] - crop_z >= 0)
 	assert (img_dim[1] - crop_y >= 0)
 	assert (img_dim[2] - crop_x >= 0)
@@ -284,10 +295,15 @@ def __cropbeforerot3D(img_np, crop_size):
 	img_cropped = img_np[z:z + crop_z, y:y + crop_y, x:x + crop_x]
 	return img_cropped
 
-def __reorderColorChannel (img_np):
-	# re-order the order so that y, x, c -> c, y, x
-	img_np = np.swapaxes(img_np, 0, 2) #y, x, c -> c, x, y
-	img_np = np.swapaxes(img_np, 1, 2) #c, x, y -> c, y, x
+def __reorderColorChannel (img_np, is_2D = False):
+	if is_2D:
+		# re-order the order so that c, y, x -> c, x, y
+		img_np = np.swapaxes(img_np, 1, 2) # c, y, x -> c, x, y
+		
+	else: 
+		# re-order the order so that c, z, y, x -> c, x, y, z
+		img_np = np.swapaxes(img_np, 1, 3) # c, z, y, x -> c, x, y, z
+		img_np = np.swapaxes(img_np, 2, 3) # c, x, y, z -> c, x, z, y
 	return img_np
 
 def __centercrop(img_np, crop_portion):
@@ -305,11 +321,20 @@ def __centercrop(img_np, crop_portion):
 
 	return img_cropped
 
+	
 def __crop(img_np, pos, crop_size):
-	z, y, x = pos
-	crop_z, crop_y, crop_x = crop_size, crop_size, crop_size
-	img_cube = img_np[z:z + crop_z, y:y + crop_y, x:x + crop_x]
+	if len(img_np.shape) == 3:  # 3D data
+		z, y, x = pos
+		crop_z, crop_y, crop_x = crop_size, crop_size, crop_size
+		img_cube = img_np[z:z + crop_z, y:y + crop_y, x:x + crop_x]
+	elif len(img_np.shape) == 2:  # 2D data
+		y, x = pos
+		crop_y, crop_x = crop_size, crop_size
+		img_cube = img_np[y:y + crop_y, x:x + crop_x]
+	else:
+		raise ValueError("The image dimension is invalid.")
 	return img_cube
+
 
 def __flip(img_np, axis):
 	img_np_flipped = np.flip(img_np, axis)
