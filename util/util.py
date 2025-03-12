@@ -6,8 +6,7 @@ from PIL import Image
 import os
 import math
 import ntpath
-from tifffile import imsave
-
+from tifffile import imwrite
 
 def tensor2im(input_image, imtype=np.uint16):
     """"Converts a Tensor array into a numpy image array.
@@ -91,7 +90,7 @@ def save_images(visuals, save_dir, name = ""):
         file_name = '%s_%s.tif' % (img_name, label)
         save_path = os.path.join(label_image_dir, file_name)
         image_numpy = image_numpy.squeeze()
-        imsave(save_path, image_numpy)
+        imwrite(save_path, image_numpy)
 
 def save_image(image_numpy, image_path, aspect_ratio=1.0, save_all=False):
     """Save a numpy image to the disk

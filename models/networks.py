@@ -1128,7 +1128,7 @@ class UnetTwoOuts(nn.Module):
 class NLayerDiscriminator(nn.Module):
     """Defines a PatchGAN discriminator"""
 
-    def __init__(self, input_nc, ndf=64, n_layers=3, norm_layer=None, use_sigmoid = False, dimension =3):
+    def __init__(self, input_nc, ndf=64, n_layers=3, norm_layer=None, use_sigmoid = False, dimension =2):
         """Construct a PatchGAN discriminator
 
         Parameters:
@@ -1175,13 +1175,13 @@ class NLayerDiscriminator(nn.Module):
         sequence += [_conv(ndf * nf_mult, 1, kernel_size=kw, stride=1, padding=padw)]  # output 1 channel prediction map
 
         if use_sigmoid:
-            print ("Using sigmoid in the last layer of Discriminator. Note that LSGAN may work well with this loss.")
+            # For LSGAN, it may not be best to use sigmoid: https://github.com/junyanz/CycleGAN/issues/70
+            print ("Using sigmoid in the last layer of Discriminator. ")
             sequence += [nn.Sigmoid()]
         self.model = nn.Sequential(*sequence)
 
     def forward(self, input):
         """Standard forward."""
-        # is_cuda = next(self.model.parameters()).is_cuda
         return self.model(input)
 
 class NLayerDiscriminatorSN(nn.Module):

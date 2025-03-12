@@ -33,6 +33,7 @@ if __name__ == '__main__':
     epoch = 0
 
     while True: #FIXME: with our current dataset loader, it NEVER ends out of a loop, because of Pytorch's internal index counting
+    #TODO: the code never goes into the for loop. 
         for i, data in enumerate(dataset): 
             iter_start_time = time.time()  # timer for computation per iteration
             # if (total_iters-loaded_iter) % opt.print_freq == 0:
@@ -54,5 +55,4 @@ if __name__ == '__main__':
                 model.save_networks(save_suffix)
                 iter_data_time = time.time()
                 # model.update_learning_rate()  # update here at the end of every epoch
-                epoch += 1
-                print (f"End of Epoch #{epoch}")
+        epoch += 1

@@ -101,7 +101,6 @@ class SliceAndVolumeDataset(BaseDataset):
         # apply image transformation
         A = self.transform_A(self.A_img_vol)
         B = self.transform_B(B_img_slice)
-        A_slice = A[:,:,20,:,:]
 
         if self.validate:
             C = self.transform_A(self.C_img_np)

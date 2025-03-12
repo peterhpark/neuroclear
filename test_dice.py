@@ -16,7 +16,7 @@ import numpy as np
 # from skimage.metrics import mean_squared_error as get_mse
 
 from data.image_folder import make_dataset
-from tifffile import imsave
+from tifffile import imwrite
 
 if __name__ == '__main__':
     opt = TestOptions().parse()  # get test options
@@ -109,12 +109,12 @@ if __name__ == '__main__':
             output_xy_vol_path = web_dir + '/volumes/output_volume_xy-view_iter-' + str(opt.load_iter) + '.tif'
         else:
             output_xy_vol_path = web_dir + '/volumes/output_volume_xy-view_epoch-' + str(opt.epoch) + '.tif'
-        imsave(output_xy_vol_path, fake_volume)
+        imwrite(output_xy_vol_path, fake_volume)
         print ("Output volume is saved as a tiff file. ")
 
         if not opt.skip_real:
             input_xy_vol_path = web_dir + '/volumes/input_volume_xy-view.tif'
-            imsave(input_xy_vol_path, real_volume)
+            imwrite(input_xy_vol_path, real_volume)
             print("Input volume is saved as a tiff file. ")
 
     if opt.save_projections:
