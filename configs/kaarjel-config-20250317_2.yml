@@ -1,6 +1,6 @@
 device: 'cuda'
 
-name: 'kaarjel-1st-Surt'
+name: 'kaarjel-1st-Surt-randomized-projection-depth'
 log_dir: '/scratch/park/checkpoints/logs'
 checkpoints_dir: '/scratch/park/checkpoints/models/DeepClarity'
 verbose: True 
@@ -35,7 +35,7 @@ model_parameters:
       projection_sampling: 10 # how many times you sample within one sample volume for discriminator
       slice_sampling: 10 # how many times you sample within one sample volume for discriminator
       netG_B: unet_deconv # specify the geneorator for B->A path. 
-      randomize_projection_depth: False # if True, the projection depth is randomly selected from the range of [1, projection_depth] 
+      randomize_projection_depth: True # if True, the projection depth is randomly selected from the range of [1, projection_depth] 
       use_sigmoid_inG: False # use sigmoid activation for the last layer of the generator
       use_sigmoid_inD: False # use sigmoid activation for the last layer of the generator
 

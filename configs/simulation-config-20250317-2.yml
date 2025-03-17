@@ -1,17 +1,18 @@
 device: 'cuda'
 
-name: 'kaarjel-1st-Surt'
+name: 'haystack-surt-randomized-projection-depth'
 log_dir: '/scratch/park/checkpoints/logs'
 checkpoints_dir: '/scratch/park/checkpoints/models/DeepClarity'
 verbose: True 
 eval: False 
 
 data_parameters:
-  data_source: '/scratch/park/data/Kaarjel/1st_training/confocal'
-  data_target: '/scratch/park/data/Kaarjel/1st_training/STED'
+  data_source: '/scratch/park/data/simulation_data/haystack/6000-lines-blurred-by-gaublur-std-4/bornandwolf_noisy_25.89'
+  data_target: '/scratch/park/data/simulation_data/haystack/6000-lines-blurred-by-gaublur-std-4/blurred'
   dataset_mode: sliceandvolume # 
   direction: AtoB # direction of image translation: AtoB or BtoA
   serial_batches: False #if true, sample images in sequential order to make batches, otherwise sample them randomly
+
 
 model_parameters:
   model: surt # Source volume and Target volume 
@@ -35,7 +36,7 @@ model_parameters:
       projection_sampling: 10 # how many times you sample within one sample volume for discriminator
       slice_sampling: 10 # how many times you sample within one sample volume for discriminator
       netG_B: unet_deconv # specify the geneorator for B->A path. 
-      randomize_projection_depth: False # if True, the projection depth is randomly selected from the range of [1, projection_depth] 
+      randomize_projection_depth: True # if True, the projection depth is randomly selected from the range of [1, projection_depth] 
       use_sigmoid_inG: False # use sigmoid activation for the last layer of the generator
       use_sigmoid_inD: False # use sigmoid activation for the last layer of the generator
 

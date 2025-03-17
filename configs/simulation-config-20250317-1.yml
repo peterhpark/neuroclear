@@ -28,7 +28,7 @@ model_parameters:
   init_gain: 0.02 # scaling factor for normal, xavier and orthogonal.
   no_dropout: False # no dropout for the generator. For cycleGAN, no_dropout is a default option.
   model_specific:
-      projection_depth: 5
+      projection_depth: 10
       lambda_A: 10.0 # weight for cycle loss (A -> B -> A) and (B->A->B)
       lambda_radon: 1.0
       gan_mode: lsgan 
