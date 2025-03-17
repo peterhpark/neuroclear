@@ -7,6 +7,7 @@ import util.util as util
 from data.base_dataset import rotate_clean_3D_xy
 from data.base_dataset import rotate_clean_2D
 import random 
+import sys
 
 def numericalSort(value):
     numbers = re.compile(r'(\d+)')
@@ -35,15 +36,35 @@ class SliceAndVolumeDataset(BaseDataset):
             opt (Option class) -- stores all the experiment flags; needs to be a subclass of BaseOptions
         """
 
+        #FIXME for domain A, we only load one volume always. 
         BaseDataset.__init__(self, opt)
-        self.A_path = make_dataset(opt.data_source, 1)[0]  # loads only one 3D image.
-        self.A_img_vol_initial = io.imread(self.A_path)
-        self.A_img_shape = self.A_img_vol_initial.shape
+        self.A_paths = make_dataset(opt.data_source)  
         self.aug_rotate_freq = opt.aug_rotate_freq
+        self.A_size = len(self.A_paths)
 
+        if self.A_size <=10: # if the image files are less than 10 files we load all the images in memory.
+            self.A_imgs = [io.imread(A_path) for A_path in self.A_paths]
+            self.A_loaded_in_memory = True
+            total_size_A = sys.getsizeof(self.A_imgs ) + sum(sys.getsizeof(item) for item in self.A_imgs)
+            print(f"Total memory size loaded for source images : {total_size_A} bytes")
+        else:
+            self.A_loaded_in_memory = False
+
+            
         self.B_paths = make_dataset(opt.data_target)  # loads multiple 2D images
         self.B_size = len(self.B_paths)
         
+        if self.B_size <=10: # if the image files are less than 10 files we load all the images in memory.
+            self.B_imgs = [io.imread(B_path) for B_path in self.B_paths]
+            self.B_loaded_in_memory = True
+            total_size_B = sys.getsizeof(self.B_imgs) + sum(sys.getsizeof(item) for item in self.B_imgs)
+            print(f"Total memory size loaded for target images : {total_size_B} bytes")
+
+            total_size_B = sum(sys.getsizeof(item) for item in self.B_imgs)
+            print(f"Total memory size loaded for target images : {total_size_B} bytes")
+        else:
+            self.B_loaded_in_memory = False
+
         # Check if the first image in B_paths has 3 dimensions
         self.first_B_image_vol = io.imread(self.B_paths[0])
         self.B_is_3D = self.first_B_image_vol.ndim == 3
@@ -72,18 +93,21 @@ class SliceAndVolumeDataset(BaseDataset):
 
         We do 2D/3D rotation for data augmentation here. 
         '''
- 
+        A_path = self.A_paths[index % self.A_size]
+
+        if self.A_loaded_in_memory == False:
+            A_img_vol = io.imread(A_path)
+        else:
+            A_img_vol = self.A_imgs[index % self.A_size]
+
         angle_A = self.sample_angle()
-        self.A_img_vol = rotate_clean_3D_xy(self.A_img_vol_initial, angle_A) # 3D rotate at a random angle. 
+        A_img_vol = rotate_clean_3D_xy(A_img_vol, angle_A) # 3D rotate at a random angle. 
 
-        # Load the target image/images if not loaded in the init.
-        if len(self.B_paths) > 1: # multiple images in the target domain; either 2D or 3D. 
-            # Load the target image/images.
-            B_path = self.B_paths[index % self.B_size]  # make sure index is within the range
+        B_path = self.B_paths[index % self.B_size]  # make sure index is within the range
+        if self.B_loaded_in_memory == False:
             B_img = io.imread(B_path)
-
-        else: # single image in the target domain; one 3D image
-            B_img = self.first_B_image_vol # already loaded in the init.
+        else:
+            B_img = self.B_imgs[index % self.B_size]
 
         # If the image is 3D, we need to select a slice.
         if self.B_is_3D:
@@ -98,15 +122,16 @@ class SliceAndVolumeDataset(BaseDataset):
         B_img = rotate_clean_2D(B_img_slice, angle_B)
 
         # apply image transformation
-        A = self.transform_A(self.A_img_vol)
+        A = self.transform_A(A_img_vol)
+        slice_A = A[:,:,10,:,:]
         B = self.transform_B(B_img_slice)
 
         if self.validate:
             C = self.transform_A(self.C_img_np)
-            return {'src': A, 'src_paths': self.A_path, 'tgt': B, 'tgt_paths': B_path, 'gt': C, 'gt_paths': self.C_path}
+            return {'src': A, 'src_paths': A_path, 'tgt': B, 'tgt_paths': B_path, 'gt': C, 'gt_paths': self.C_path}
 
         else:
-            return {'src': A, 'src_paths': self.A_path, 'tgt': B, 'tgt_paths': B_path}
+            return {'src': A, 'src_paths': A_path, 'tgt': B, 'tgt_paths': B_path}
 
     @staticmethod
     def sample_angle():

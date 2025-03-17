@@ -65,8 +65,11 @@ class SurtModel(BaseModel):
         self.sample_proj = opt.projection_sampling # how many times do we project?
         self.sample_slice = opt.slice_sampling # how many times do we slice?
 
+        self.lambda_radon = opt.lambda_radon
         # specify the images you want to save/display. The training/test scripts will call <BaseModel.get_current_visuals>
         self.visual_names = ['real_tgt', 'real_src', 'fake', 'rec']
+        if self.lambda_radon > 0:
+            self.visual_names += ['real_src_lateral_radon', 'real_src_axial_radon', 'fake_lateral_radon', 'fake_axial_radon']
 
         # if self.validate:
         #     self.loss_names += ['valL1', 'valssim']
@@ -251,7 +254,6 @@ class SurtModel(BaseModel):
     def backward_G(self):
         """Calculate the loss for generators G_A and G_B"""
         lambda_A = self.opt.lambda_A
-        lambda_radon = self.opt.lambda_radon
 
         self.loss_G_A_lateral = self.criterionGAN(self.proj_f(self.fake, self.netD_A_lateral, self.lateral_axis),
                                                   True) * self.lambda_plane_target
@@ -273,15 +275,23 @@ class SurtModel(BaseModel):
 
         self.loss_G_B = self.loss_G_B_lateral + self.loss_G_B_axial * 0.5
 
-
         # Cycle Consistency Loss
         self.loss_cycle = self.criterionCycle(self.rec, self.real_src) * lambda_A 
         self.loss_cycle_B = self.criterionCycle(self.fake, self.fake_2) * lambda_A
 
-        # Radon Transform Loss
-        self.loss_radon = self.criterionRadon(self.sum_f(self.fake, self.lateral_axis), self.sum_f(self.real_src, self.lateral_axis)) * lambda_radon + \
-                                    self.criterionRadon(self.sum_f(self.fake, self.axial_1_axis), self.sum_f(self.real_src, self.axial_1_axis)) * lambda_radon + \
-                                    self.criterionRadon(self.sum_f(self.fake, self.axial_2_axis), self.sum_f(self.real_src, self.axial_2_axis)) * lambda_radon
+        if self.lambda_radon > 0:
+            # Radon Transform Loss
+            self.real_src_lateral_radon = self.sum_f(self.real_src, self.lateral_axis)
+            self.fake_lateral_radon = self.sum_f(self.fake, self.lateral_axis)
+            self.real_src_axial_radon = self.sum_f(self.real_src, self.axial_1_axis)
+            self.fake_axial_radon = self.sum_f(self.fake, self.axial_1_axis)
+
+            self.loss_radon = self.criterionRadon(self.fake_lateral_radon, self.real_src_lateral_radon) * self.lambda_radon + \
+                                        self.criterionRadon(self.fake_axial_radon, self.real_src_axial_radon) * self.lambda_radon + \
+                                        self.criterionRadon(self.sum_f(self.fake, self.axial_2_axis), self.sum_f(self.real_src, self.axial_2_axis)) * self.lambda_radon
+            
+        else:
+            self.loss_radon = 0 
         
         # if self.validate:
         #     # calculate validation losses
