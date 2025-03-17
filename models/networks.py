@@ -1004,6 +1004,32 @@ class DeepLinearGenerator(nn.Module):
         return output
 
 
+class DeepLinear2DGenerator(nn.Module):
+    def __init__(self, input_nc, output_nc):
+        super(DeepLinear2DGenerator, self).__init__()
+        narrowing_kernels = [7,5,3]
+        unit_kernels = [1,1]
+        # hidden layers have 64 channels.
+        self.first_layer = nn.Conv2d(in_channels=input_nc, out_channels=input_nc*64, kernel_size=narrowing_kernels[0], padding=3, bias=False)
+        feature_block = [] # Stacking intermediate layer
+        feature_block += [nn.Conv2d(in_channels=input_nc*64, out_channels=input_nc*64, kernel_size=narrowing_kernels[1], padding=2, bias=False)]
+        feature_block += [nn.Conv2d(in_channels=input_nc*64, out_channels=input_nc*64, kernel_size=narrowing_kernels[2], padding=1, bias=False)]
+
+        for layer in range(len(unit_kernels)):
+            feature_block += [nn.Conv3d(in_channels=input_nc*int(64*((1/2)**layer)), out_channels=input_nc*int(64*((1/2)**(layer+1))), kernel_size=unit_kernels[layer], padding=0, bias=False)]
+
+        self.feature_block = nn.Sequential(*feature_block)
+
+        # Final layer
+        # NOTE: different from KernelGAN, we do not apply downsampling here.
+        self.final_layer = nn.Conv3d(in_channels=input_nc*int(64*((1/2)**(layer+1))), out_channels=output_nc, kernel_size=unit_kernels[-1], padding=0, bias=False)
+
+    def forward(self, input):
+        downscaled = self.first_layer(input)
+        features = self.feature_block(downscaled)
+        output = self.final_layer(features)
+        return output
+    
 # Fixed linear Kernel
 class FixedLinearKernel(nn.Module):
     def __init__(self, psf, noise_setting):

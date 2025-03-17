@@ -245,10 +245,11 @@ def __randomcrop2D(img_np, crop_size: list):
 	assert (img_dim[0] - crop_y >= 0)
 	assert (img_dim[1] - crop_x >= 0)
 
-	y = np.random.randint(0, img_dim[0] - crop_y)
-	x = np.random.randint(0, img_dim[1] - crop_x)
+	y = np.random.randint(0, img_dim[0] - crop_y) if img_dim[0] > crop_y else 0
+	x = np.random.randint(0, img_dim[1] - crop_x) if img_dim[1] > crop_x else 0
 
-	img_cropped = img_np[y:y + crop_y, x:x + crop_x]
+	img_cropped = img_np[y:y + crop_y if img_dim[0] > crop_y else img_dim[0], 
+						 x:x + crop_x if img_dim[1] > crop_x else img_dim[1]]
 	return img_cropped
 
 def __randomcrop3D(img_np, crop_size: list):
@@ -257,12 +258,14 @@ def __randomcrop3D(img_np, crop_size: list):
 	assert (img_dim[0] - crop_z >= 0)
 	assert (img_dim[1] - crop_y >= 0)
 	assert (img_dim[2] - crop_x >= 0)
+	 
+	z = np.random.randint(0, img_dim[0] - crop_z) if img_dim[0] > crop_z else 0
+	y = np.random.randint(0, img_dim[1] - crop_y) if img_dim[1] > crop_y else 0
+	x = np.random.randint(0, img_dim[2] - crop_x) if img_dim[2] > crop_x else 0
 
-	z = np.random.randint(0, img_dim[0] - crop_z)
-	y = np.random.randint(0, img_dim[1] - crop_y)
-	x = np.random.randint(0, img_dim[2] - crop_x)
-
-	img_cropped = img_np[z:z + crop_z, y:y + crop_y, x:x + crop_x]
+	img_cropped = img_np[z:z + crop_z if img_dim[0] > crop_z else img_dim[0], 
+						 y:y + crop_y if img_dim[1] > crop_y else img_dim[1], 
+						 x:x + crop_x if img_dim[2] > crop_x else img_dim[2]]
 
 	return img_cropped
 

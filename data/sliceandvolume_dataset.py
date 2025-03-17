@@ -90,7 +90,6 @@ class SliceAndVolumeDataset(BaseDataset):
             slice_index = random.randint(0, B_img.shape[0] - 1)
             B_img_slice = B_img[slice_index, :, :]
             
-
         # If the image is 2D, we can use the image as is.
         else:
             B_img_slice = B_img
@@ -125,4 +124,4 @@ class SliceAndVolumeDataset(BaseDataset):
         """
 
         # each epoch is 100 images.
-        return int(100)
+        return int(5000)

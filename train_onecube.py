@@ -28,12 +28,10 @@ if __name__ == '__main__':
         loaded_iter = 0
 
     total_iters = total_iters + loaded_iter
-
     dataset_len = len(dataset)
     epoch = 0
 
-    while True: #FIXME: with our current dataset loader, it NEVER ends out of a loop, because of Pytorch's internal index counting
-    #TODO: the code never goes into the for loop. 
+    for epoch in range(opt.epoch_limit):
         for i, data in enumerate(dataset): 
             iter_start_time = time.time()  # timer for computation per iteration
             # if (total_iters-loaded_iter) % opt.print_freq == 0:
@@ -49,10 +47,12 @@ if __name__ == '__main__':
                 losses = model.get_current_losses()
                 visualizer.plot_current_losses(losses, total_iters)
 
-            if total_iters % dataset_len//2 == 0:   # cache our latest model every <save_latest_freq> iterations
+            if total_iters % opt.save_iter_freq == 0:   # cache our latest model every <save_latest_freq> iterations
             # if i % 3 == 0:   # cache our latest model every <save_latest_freq> iterations
                 save_suffix = 'iter_%d' % total_iters
                 model.save_networks(save_suffix)
                 iter_data_time = time.time()
                 # model.update_learning_rate()  # update here at the end of every epoch
+            
+        print ('exiting the epoch at iteration # ...' + str(i))
         epoch += 1

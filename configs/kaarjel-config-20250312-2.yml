@@ -1,6 +1,6 @@
 device: 'cuda'
 
-name: 'kaarjel-1st-anisotropy_UNET-UNET-5-lvl'
+name: 'kaarjel-1st-confocal-to-STED-Fulla'
 log_dir: '/scratch/park/checkpoints/logs'
 checkpoints_dir: '/scratch/park/checkpoints/models/DeepClarity'
 verbose: True 
@@ -12,7 +12,6 @@ data_parameters:
   dataset_mode: sliceandvolume # 
   direction: AtoB # direction of image translation: AtoB or BtoA
   serial_batches: False #if true, sample images in sequential order to make batches, otherwise sample them randomly
-
 
 model_parameters:
   model: fulla # Source volume and Target volume 
@@ -36,12 +35,12 @@ model_parameters:
       netG_B: unet_deconv # specify the geneorator for B->A path. 
       randomize_projection_depth: False # if True, the projection depth is randomly selected from the range of [1, projection_depth] 
       use_sigmoid_inG: False # use sigmoid activation for the last layer of the generator
-      use_sigmoid_inD: False # use sigmoid activation for the last layer of the generator
+      use_sigmoid_inD: False # use sigmoid activation for the last layer of the discriminator
 
 training_parameters:
   epoch_limit: 100000
   isTrain: True 
-  gpu_ids: [6] # gpu ids: e.g. 0  0,1,2, 0,2. use -1 for CPU
+  gpu_ids: [0] # gpu ids: e.g. 0  0,1,2, 0,2. use -1 for CPU
   batch_size: 1
   # epoch_length: 1000 # how many iterations per epoch
   data_augmentation: 
@@ -61,6 +60,6 @@ training_parameters:
 monitoring_parameters: 
     save_epoch_freq: 1
     save_iter_freq: 2500
-    display_freq: 5
+    display_freq: 1000
     visual_projection_depth: 20
     

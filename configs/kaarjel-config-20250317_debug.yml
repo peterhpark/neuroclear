@@ -15,7 +15,7 @@ data_parameters:
 
 
 model_parameters:
-  model: fulla # Source volume and Target volume 
+  model: surt # Source volume and Target volume 
   input_nc: 1 # number of input image channels: 3 for RGB and 1 for grayscale
   output_nc: 1 # number of output image channels: 3 for RGB and 1 for grayscale
   ngf: 64 # number of gen filters in the last conv layer 
@@ -29,10 +29,12 @@ model_parameters:
   no_dropout: False # no dropout for the generator. For cycleGAN, no_dropout is a default option.
   model_specific:
       projection_depth: 5
-      lambda_A: 10.0 # weight for cycle loss (A -> B -> A)
+      lambda_A: 10.0 # weight for cycle loss (A -> B -> A) and (B->A->B)
+      lambda_radon: 1.0
       gan_mode: lsgan 
       lambda_plane: [1, 1, 1] # weight ratio for matching (target vs. target) and (target vs. source) and (MIP target vs. MIP source).
-      projection_sampling: 5 # how many times you sample within one sample volume for discriminator
+      projection_sampling: 10 # how many times you sample within one sample volume for discriminator
+      slice_sampling: 10 # how many times you sample within one sample volume for discriminator
       netG_B: unet_deconv # specify the geneorator for B->A path. 
       randomize_projection_depth: False # if True, the projection depth is randomly selected from the range of [1, projection_depth] 
       use_sigmoid_inG: False # use sigmoid activation for the last layer of the generator
