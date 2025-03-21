@@ -1,7 +1,7 @@
 device: 'cuda'
 
-name: 'kaarjel-1st-Surt-randomized-projection-depth_exp_250317-171028'
-load_iter: 117500
+name: 'haystack-surt-no-radon-randomized-projection-depth_exp_250318-025745'
+load_iter: 37500
 phase: 'test'
 checkpoints_dir: '/scratch/park/checkpoints/models/DeepClarity'
 results_dir: '/scratch/park/results/DeepClarity'
@@ -15,14 +15,14 @@ inference_parameters:
   gpu_ids: [0] # gpu ids: e.g. 0  0,1,2, 0,2. use -1 for CPU
   preprocess: addColorChannel # preprocessing for input images: [randomcrop | randomrotate | randomflip | normalize | none]
   dicing_parameters:
-    border_cut: 20 
-    dice_size: 140
-    overlap: 15
+  patch_size: [48, 128, 128] # x, y, z
+  patch_overlap: 20
   data_type: 'uint16'
 
-
 data_parameters:
-  data_source: '/scratch/park/data/Koehler/Oane'
+  data_source: '/scratch/park/data/simulation_data/haystack/6000-lines-blurred-by-gaublur-std-4/bornandwolf_noisy_25.89'
+  data_reference: '/scratch/park/data/simulation_data/haystack/6000-lines-blurred-by-gaublur-std-4/GT'
+  data_target: '/scratch/park/data/simulation_data/haystack/6000-lines-blurred-by-gaublur-std-4/blurred'
   image_dimension: 3
   direction: AtoB # direction of image translation: AtoB or BtoA
   serial_batches: False #if true, sample images in sequential order to make batches, otherwise sample them randomly

@@ -43,9 +43,13 @@ class TestModel(BaseModel):
         self.netG = networks.define_G(opt.input_nc, opt.output_nc, opt.ngf, opt.netG,
                                       opt.norm, not opt.no_dropout, opt.init_type, opt.init_gain, self.gpu_ids, dimension = self.dimension)
 
+        # self.netD_A_lateral = networks.define_D(opt.output_nc, opt.ndf, opt.netD,
+        #                                         opt.n_layers_D, opt.norm, opt.init_type, opt.init_gain, False,
+        #                                         self.gpu_ids, dimension=2)
         # assigns the model to self.netG_[suffix] so that it can be loaded
         # please see <BaseModel.load_networks>
         setattr(self, 'netG' + opt.model_suffix, self.netG)  # store netG in self.
+        # setattr(self, 'netD_lateral', self.netD_A_lateral)  # store netG in self.
 
     def set_input(self, input):
         """Unpack input data from the dataloader and perform necessary pre-processing steps.

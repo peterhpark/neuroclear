@@ -390,7 +390,9 @@ class SurtModel(BaseModel):
             tensor: The normalized sum of the input tensor along the specified axis.
         """
         radon_integral = torch.sum(input, slice_axis + 2)
-        radon_integral = (radon_integral - radon_integral.min()) / (radon_integral.max() - radon_integral.min())
+        #TODO Maybe get rid of the normalization. Then we might see less patch-artifacts. 
+        if self.opt.normalize_radon:
+            radon_integral = (radon_integral - radon_integral.min()) / (radon_integral.max() - radon_integral.min())
         return radon_integral
 
 class Volume():
